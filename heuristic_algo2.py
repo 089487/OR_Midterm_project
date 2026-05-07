@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import heapq
 import random
 import time
 from dataclasses import dataclass
@@ -27,65 +26,6 @@ class PathPlan:
     order_ids: list[int]
     move_time: int
     weight: float
-
-
-@dataclass(frozen=True)
-class Label:
-    station: int
-    ready: int
-    move_time: int
-    weight: float
-    sales: int
-    route: tuple[int, ...]
-
-
-class ActiveOrders:
-    def __init__(self, orders: list[Order], n_levels: int):
-        self.order_by_id = {order.id: order for order in orders}
-        self.levels: dict[int, list[int]] = {level: [] for level in range(1, n_levels + 1)}
-        self.prev: dict[int, int] = {}
-        self.next: dict[int, int] = {}
-        self.head: dict[int, int] = {level: 0 for level in range(1, n_levels + 1)}
-        self.alive = {order.id for order in orders}
-
-        for level, group in self.levels.items():
-            ids = [
-                order.id
-                for order in sorted(
-                    (order for order in orders if order.level == level),
-                    key=lambda order: (order.pickup_minute, -order.revenue, order.id),
-                )
-            ]
-            self.levels[level] = ids
-            self.head[level] = ids[0] if ids else 0
-            for idx, order_id in enumerate(ids):
-                self.prev[order_id] = ids[idx - 1] if idx > 0 else 0
-                self.next[order_id] = ids[idx + 1] if idx + 1 < len(ids) else 0
-
-    def iter_levels(self, levels: Iterable[int]) -> list[Order]:
-        result: list[Order] = []
-        for level in levels:
-            current = self.head.get(level, 0)
-            while current:
-                result.append(self.order_by_id[current])
-                current = self.next.get(current, 0)
-        result.sort(key=lambda order: (order.pickup_minute, -order.revenue, order.id))
-        return result
-
-    def remove_many(self, order_ids: Iterable[int]) -> None:
-        for order_id in order_ids:
-            if order_id not in self.alive:
-                continue
-            order = self.order_by_id[order_id]
-            prev_id = self.prev.get(order_id, 0)
-            next_id = self.next.get(order_id, 0)
-            if prev_id:
-                self.next[prev_id] = next_id
-            else:
-                self.head[order.level] = next_id
-            if next_id:
-                self.prev[next_id] = prev_id
-            self.alive.remove(order_id)
 
 
 def heuristic_algorithm2(
@@ -119,7 +59,11 @@ def heuristic_algorithm2(
         except Exception:
             pass
 
+    parity_orders = [(0, 1), (1, 0)]
     rng = random.Random(seed)
+    shuffled = parity_orders[:]
+    rng.shuffle(shuffled)
+    parity_orders.extend(shuffled)
 
     lambdas = list(lambdas)
     if inst.n_orders > 1500:
@@ -131,71 +75,58 @@ def heuristic_algorithm2(
     for lam in lambdas:
         if stop or time.perf_counter() >= deadline:
             break
-        for car_order_mode in car_order_modes:
+        for parity_order in parity_orders:
             if stop or time.perf_counter() >= deadline:
                 break
-            active = ActiveOrders(inst.orders, inst.n_levels)
-            routes: dict[int, list[int]] = {car.id: [] for car in inst.cars}
-            used_budget = 0
-
-            for level in range(inst.n_levels, 0, -1):
+            for car_order_mode in car_order_modes:
                 if time.perf_counter() >= deadline:
                     stop = True
                     break
-                cars = [car for car in inst.cars if car.level == level]
-                if car_order_mode == "early":
-                    cars.sort(key=lambda car: car.id)
-                elif car_order_mode == "level_desc":
-                    cars.sort(key=lambda car: car.station)
-                else:
-                    rng.shuffle(cars)
+                available = {order.id for order in inst.orders}
+                routes: dict[int, list[int]] = {car.id: [] for car in inst.cars}
+                used_budget = 0
 
-                while cars:
+                for parity in parity_order:
                     if time.perf_counter() >= deadline:
                         stop = True
                         break
-                    remaining_budget = inst.moving_budget - used_budget
-                    if remaining_budget < 0:
-                        break
-                    best_car_idx = -1
-                    best_plan = None
-                    for idx, car in enumerate(cars):
-                        plan = _best_path_for_car(inst, car, active, lam, remaining_budget)
+                    cars = [car for car in inst.cars if car.level % 2 == parity]
+                    if car_order_mode == "early":
+                        cars.sort(key=lambda car: (car.level, car.id))
+                    elif car_order_mode == "level_desc":
+                        cars.sort(key=lambda car: (-car.level, car.id))
+                    else:
+                        rng.shuffle(cars)
+
+                    for car in cars:
+                        if time.perf_counter() >= deadline:
+                            stop = True
+                            break
+                        remaining_budget = inst.moving_budget - used_budget
+                        if remaining_budget < 0:
+                            break
+                        plan = _best_path_for_car(inst, car, available, lam, remaining_budget)
                         if plan is None or not plan.order_ids:
                             continue
-                        if best_plan is None or (plan.weight, len(plan.order_ids), -plan.move_time) > (
-                            best_plan.weight,
-                            len(best_plan.order_ids),
-                            -best_plan.move_time,
-                        ):
-                            best_plan = plan
-                            best_car_idx = idx
-                    if best_plan is None:
-                        break
-                    plan = best_plan
-                    cars.pop(best_car_idx)
-                    routes[plan.car_id] = plan.order_ids
-                    used_budget += plan.move_time
-                    active.remove_many(plan.order_ids)
+                        routes[car.id] = plan.order_ids
+                        used_budget += plan.move_time
+                        available.difference_update(plan.order_ids)
 
-            assignment, relocations = _routes_to_solution(inst, routes)
-            profit = _profit(inst, assignment)
-            moving = sum(row[5] for row in relocations)
-            if moving <= inst.moving_budget and profit > best_profit:
-                best_profit = profit
-                best_assignment = assignment
-                best_relocations = relocations
+                assignment, relocations = _routes_to_solution(inst, routes)
+                profit = _profit(inst, assignment)
+                moving = sum(row[5] for row in relocations)
+                if moving <= inst.moving_budget and profit > best_profit:
+                    best_profit = profit
+                    best_assignment = assignment
+                    best_relocations = relocations
 
     if best_assignment is None or best_relocations is None:
         return [0] * inst.n_orders, []
     return best_assignment, best_relocations
 
 
-def _best_path_for_car(inst, car, active: ActiveOrders, lam: float, remaining_budget: int) -> PathPlan | None:
-    levels = [car.level]
-    if car.level > 1:
-        levels.append(car.level - 1)
-    all_orders = active.iter_levels(levels)
+def _best_path_for_car(inst, car, available: set[int], lam: float, remaining_budget: int) -> PathPlan | None:
+    all_orders = [order for order in inst.orders if order.id in available and can_serve_level(car.level, order.level)]
     if not all_orders:
         return None
 
@@ -203,93 +134,56 @@ def _best_path_for_car(inst, car, active: ActiveOrders, lam: float, remaining_bu
     budget_scale = 1 + inst.moving_budget
     orders = _candidate_orders(all_orders, inst.n_orders)
     orders.sort(key=lambda order: (order.pickup_minute, -order.revenue, order.id))
+    n = len(orders)
+    dp = [-10**30] * n
+    move_sum = [0] * n
+    prev_idx = [-1] * n
 
-    val: dict[int, Label | None] = {station: None for station in range(1, inst.n_stations + 1)}
-    initial = Label(car.station, 0, 0, 0.0, 0, ())
-    val[car.station] = initial
-    pool: list[tuple[int, int, Label]] = []
-    push_seq = 1
-    accepted_labels: list[Label] = []
-    _push_relocation_events(inst, pool, initial, lam, budget_scale, remaining_budget, push_seq)
-    push_seq += inst.n_stations
+    max_prev_scan = 260 if inst.n_orders <= 1500 else 35
+    for j, order in enumerate(orders):
+        ok, move, _ = feasible_transition(inst, None, car.station, order)
+        if ok and move <= remaining_budget:
+            dp[j] = _arc_weight(order.revenue, move, total_revenue, budget_scale, lam)
+            move_sum[j] = move
 
-    for order in orders:
-        while pool and pool[0][0] <= order.pickup_minute - 30:
-            _, _, candidate = heapq.heappop(pool)
-            _release_candidate(val, candidate)
-        best_parent = None
-        best_key = None
-        label = val[order.pickup_station]
-        if label is not None:
-            value = label.weight + 3 * order.revenue / total_revenue
-            sales = label.sales + order.revenue
-            key = (value, sales, -label.move_time, -label.ready)
-            best_key = key
-            best_parent = (label, value, sales)
-        if best_parent is None:
-            continue
-        label, value, sales = best_parent
-        new_label = Label(
-            order.return_station,
-            order_ready_minute(order),
-            label.move_time,
-            value,
-            sales,
-            label.route + (order.id,),
-        )
-        accepted_labels.append(new_label)
-        _push_relocation_events(inst, pool, new_label, lam, budget_scale, remaining_budget, push_seq)
-        push_seq += 1
-        push_seq += inst.n_stations
+        scanned = 0
+        i = j - 1
+        while i >= 0 and scanned < max_prev_scan:
+            prev = orders[i]
+            if order.pickup_minute - prev.pickup_minute > 14 * 24 * 60 and inst.n_orders > 1500:
+                break
+            ok, move, _ = feasible_transition(inst, prev, prev.return_station, order)
+            total_move = move_sum[i] + move
+            if ok and dp[i] > 0 and total_move <= remaining_budget:
+                value = dp[i] + _arc_weight(order.revenue, move, total_revenue, budget_scale, lam)
+                if value > dp[j]:
+                    dp[j] = value
+                    move_sum[j] = total_move
+                    prev_idx[j] = i
+            scanned += 1
+            i -= 1
 
-    best_label = None
+    best_end = -1
     best_key = None
-    for label in accepted_labels:
-        key = (label.weight, label.sales, -label.move_time)
+    for idx, value in enumerate(dp):
+        if value <= 0 or move_sum[idx] > remaining_budget:
+            continue
+        sales = _path_sales(orders, prev_idx, idx)
+        key = (value, sales, -move_sum[idx])
         if best_key is None or key > best_key:
             best_key = key
-            best_label = label
+            best_end = idx
 
-    if best_label is None:
+    if best_end < 0:
         return None
-    return PathPlan(car.id, list(best_label.route), best_label.move_time, best_label.weight)
 
-
-def _push_relocation_events(
-    inst,
-    pool: list[tuple[int, int, Label]],
-    label: Label,
-    lam: float,
-    budget_scale: int,
-    remaining_budget: int,
-    seq_start: int,
-) -> None:
-    seq = seq_start
-    for station in range(1, inst.n_stations + 1):
-        move = inst.move_time[(label.station, station)]
-        total_move = label.move_time + move
-        if total_move > remaining_budget:
-            continue
-        relocated = Label(
-            station,
-            label.ready + move,
-            total_move,
-            label.weight - lam * move / budget_scale,
-            label.sales,
-            label.route,
-        )
-        heapq.heappush(pool, (relocated.ready, seq, relocated))
-        seq += 1
-
-
-def _release_candidate(available: dict[int, Label | None], candidate: Label) -> None:
-    current = available[candidate.station]
-    if current is None or (candidate.weight, candidate.sales, -candidate.move_time) > (
-        current.weight,
-        current.sales,
-        -current.move_time,
-    ):
-        available[candidate.station] = candidate
+    chosen: list[int] = []
+    cur = best_end
+    while cur >= 0:
+        chosen.append(orders[cur].id)
+        cur = prev_idx[cur]
+    chosen.reverse()
+    return PathPlan(car.id, chosen, move_sum[best_end], dp[best_end])
 
 
 def _arc_weight(revenue: int, move: int, total_revenue: int, budget_scale: int, lam: float) -> float:
@@ -353,7 +247,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("instance", nargs="?", default="data/instance05.txt")
     parser.add_argument("--seed", type=int, default=1142)
-    parser.add_argument("--lambdas", default="0", help="ignored; kept for compatibility")
+    parser.add_argument("--lambdas", default=",".join(map(str, LAMBDA_SET)))
     parser.add_argument("--max-seconds", type=float, default=165.0)
     parser.add_argument("--raw-test", action="store_true")
     args = parser.parse_args()
