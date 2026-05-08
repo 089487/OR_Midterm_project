@@ -287,3 +287,21 @@ Comparison with the fixed lambda grid:
 | `large_dense_01` | 4,875,695,800 | 4,875,626,200 | -69,600 |
 
 Takeaway: ternary search is promising for generated instances. It improves three generated smoke cases and essentially ties `large_dense_01`, but it costs about 40 lambda evaluations per instance. For the final solver, a hybrid strategy is attractive: keep a small fixed grid for public/small stability, then run ternary search around the best grid region when enough time remains.
+
+## Algo1 vs Algo2 Ternary Search
+
+We also compared Algo1 raw insertion against the best result from Algo2 ternary search. Full results are saved in `benchmark_results/algo1_vs_trisearch.md` and `benchmark_results/algo1_vs_trisearch.csv`.
+
+| Instance | Algo1 Profit | Trisearch Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 49,500 | +14,400 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 79,400 | +42,900 |
+| `instance05` | 106,800 | 102,300 | -4,500 |
+| `small_balanced_01` | 649,900 | 720,400 | +70,500 |
+| `low_level_heavy_01` | 2,639,700 | 2,636,400 | -3,300 |
+| `imbalanced_flow_01` | 22,192,000 | 21,398,500 | -793,500 |
+| `large_dense_01` | 4,946,628,700 | 4,875,626,200 | -71,002,500 |
+
+Takeaway: Algo2 ternary search is useful as an improvement attempt, especially on public02/public04 and `small_balanced_01`, but Algo1 remains the stronger baseline for dense generated instances and is much faster. The final wrapper should keep Algo1's solution and only overwrite it when Algo2 finds a higher-profit solution.
