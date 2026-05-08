@@ -249,3 +249,41 @@ Takeaways:
 - Generated smoke instances prefer stronger relocation penalty: `0.3`, `0.5`, or `0.75`.
 - Large dense quality recovers to the previous order-node DP range: best profit is 4.875B at lambda `0.3`.
 - The 30-minute cap is not binding on these tests. The largest per-lambda runtime was about 28.25 seconds on `large_dense_01`.
+
+## Algo2 Ternary Search
+
+The fixed lambda sweep suggested that the response curve is often close to unimodal on generated instances, so we added `algo2_trisearch.py`. It searches lambda in `[0, 1]` for 20 ternary-search iterations. Each iteration evaluates two lambda values with `heuristic_algorithm2(..., lambdas=[lambda], raw_test=True)`.
+
+Full iteration logs are saved in `benchmark_results/algo2_trisearch.md` and `benchmark_results/algo2_trisearch.csv`.
+
+Total benchmark wall time: 1,557.61 seconds.
+
+Best result by instance:
+
+| Instance | Best Lambda | Profit | Accepted | Moving | Runtime |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `instance01` | 0.33333333 | 27,900 | 5/5 | 180/180 | 0.16s |
+| `instance02` | 0.33333333 | 49,500 | 9/10 | 1410/1800 | 0.53s |
+| `instance03` | 0.33333333 | 50,000 | 9/10 | 0/0 | 0.05s |
+| `instance04` | 0.33333333 | 79,400 | 16/20 | 4680/5500 | 1.02s |
+| `instance05` | 0.44444444 | 102,300 | 7/10 | 1050/1200 | 0.40s |
+| `small_balanced_01` | 0.35390947 | 720,400 | 93/120 | 7980/8000 | 13.29s |
+| `low_level_heavy_01` | 0.42844079 | 2,636,400 | 284/300 | 24690/25000 | 107.11s |
+| `imbalanced_flow_01` | 0.63511660 | 21,398,500 | 702/800 | 79830/80000 | 481.45s |
+| `large_dense_01` | 0.29429796 | 4,875,626,200 | 7340/10000 | 999390/1000000 | 953.60s |
+
+Comparison with the fixed lambda grid:
+
+| Instance | Fixed Grid Best | Ternary Best | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 49,500 | 49,500 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 79,400 | 79,400 | 0 |
+| `instance05` | 102,300 | 102,300 | 0 |
+| `small_balanced_01` | 660,400 | 720,400 | +60,000 |
+| `low_level_heavy_01` | 2,613,600 | 2,636,400 | +22,800 |
+| `imbalanced_flow_01` | 21,095,800 | 21,398,500 | +302,700 |
+| `large_dense_01` | 4,875,695,800 | 4,875,626,200 | -69,600 |
+
+Takeaway: ternary search is promising for generated instances. It improves three generated smoke cases and essentially ties `large_dense_01`, but it costs about 40 lambda evaluations per instance. For the final solver, a hybrid strategy is attractive: keep a small fixed grid for public/small stability, then run ternary search around the best grid region when enough time remains.
