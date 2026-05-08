@@ -305,3 +305,33 @@ We also compared Algo1 raw insertion against the best result from Algo2 ternary 
 | `large_dense_01` | 4,946,628,700 | 4,875,626,200 | -71,002,500 |
 
 Takeaway: Algo2 ternary search is useful as an improvement attempt, especially on public02/public04 and `small_balanced_01`, but Algo1 remains the stronger baseline for dense generated instances and is much faster. The final wrapper should keep Algo1's solution and only overwrite it when Algo2 finds a higher-profit solution.
+
+## Algo3 Release-One-Car Local Search
+
+Algo3 starts from Algo1 raw. For each local-search iteration:
+
+1. Find the rejected-order level with the largest total rejected revenue.
+2. Pick the weakest compatible car route for that level.
+3. Release that car's orders.
+4. Rebuild only this one car using the top-10 station sweep DP from the level-batched experiment.
+5. Keep the replacement only if the full-solution profit improves.
+
+If rebuilding a level returns the same route or does not improve profit, Algo3 blocks that level for the rest of the current local-search pass. The DP uses the same lambda list as the fixed Algo2 sweep and scales the move penalty by the remaining usable moving budget after removing the selected car route. The current default is to keep iterating until no useful level remains or the 100-second cap is reached.
+
+Full results are saved in `benchmark_results/algo3_comparison.md` and `benchmark_results/algo3_comparison.csv`.
+
+Total benchmark wall time across public plus generated smoke cases: 16.58 seconds.
+
+| Instance | Algo1 Profit | Algo3 Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 45,200 | +8,700 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 664,300 | +14,400 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Takeaway: Algo3 is cheap and non-destructive in this benchmark. It improves two cases and keeps all other tested scores unchanged. The 100-second cap is not binding on the current benchmark; `large_dense_01` takes about 10.77 seconds with Algo3. The dense generated cases do not improve because Algo1 already accepts almost all orders, so there is little rejected revenue for the one-car repair step to exploit.
