@@ -216,3 +216,36 @@ Comparison against the current level-batched top-k station version:
 | `large_dense_01` | 4,858,208,200 | 1,231,934,200 | Previous |
 
 Conclusion: the level-batched virtual-source idea is elegant, and top-k station transfer is fast, but the current approximation loses too much quality on generated large instances. The previous order-node DP with `max_prev_scan` is still the better raw Algo2 candidate.
+
+## Order-Node DP Lambda Sweep
+
+After restoring the order-node DP version, we ran a fixed lambda sweep with a 30-minute cap per lambda:
+
+```text
+[0, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3, 0.5, 0.75, 1.0]
+```
+
+The benchmark was run with `raw_test=True`, so these numbers are pure Algo2 without the Algo1/IP wrapper. Full per-lambda results, including runtime for every lambda, are saved in `benchmark_results/lambda_benchmark.md` and `benchmark_results/lambda_benchmark.csv`.
+
+Total benchmark wall time: 463.71 seconds.
+
+Best result by instance:
+
+| Instance | Best Lambda | Profit | Accepted | Moving |
+| --- | ---: | ---: | ---: | ---: |
+| `instance01` | 0 | 27,900 | 5/5 | 180/180 |
+| `instance02` | 0 | 49,500 | 9/10 | 1410/1800 |
+| `instance03` | 0 | 50,000 | 9/10 | 0/0 |
+| `instance04` | 0.15 | 79,400 | 16/20 | 4680/5500 |
+| `instance05` | 0.3 | 102,300 | 7/10 | 1170/1200 |
+| `small_balanced_01` | 0.5 | 660,400 | 90/120 | 7590/8000 |
+| `low_level_heavy_01` | 0.5 | 2,613,600 | 278/300 | 24990/25000 |
+| `imbalanced_flow_01` | 0.75 | 21,095,800 | 679/800 | 71430/80000 |
+| `large_dense_01` | 0.3 | 4,875,695,800 | 7330/10000 | 999180/1000000 |
+
+Takeaways:
+
+- Public instances mostly prefer small lambda values, with the exception of instance04/05.
+- Generated smoke instances prefer stronger relocation penalty: `0.3`, `0.5`, or `0.75`.
+- Large dense quality recovers to the previous order-node DP range: best profit is 4.875B at lambda `0.3`.
+- The 30-minute cap is not binding on these tests. The largest per-lambda runtime was about 28.25 seconds on `large_dense_01`.
