@@ -182,3 +182,37 @@ Generated raw results:
 | `large_dense_01` | 1,032,364,300 | 6,681 | 173,640/1,000,000 |
 
 Level virtual sources improve the dense large raw result compared with the car-enumeration ratio test, but the result is still far below Algo1. The conclusion is unchanged: the batching idea is useful, but the ratio-only score is not a good final objective.
+
+## Previous Version Comparison
+
+After committing the current level-batched experiment, we exported the previous committed `heuristic_algo2.py` from `HEAD~1` and ran the same raw tests. That previous version is the order-node DP with `max_prev_scan`, normalized lambda weights, and greedy masking.
+
+Previous version public raw results:
+
+| Instance | Profit | Optimal | Gap | Accepted | Moving |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| instance01 | 27,900 | 27,900 | 0 | 5/5 | 180/180 |
+| instance02 | 49,500 | 49,500 | 0 | 9/10 | 1410/1800 |
+| instance03 | 50,000 | 50,000 | 0 | 9/10 | 0/0 |
+| instance04 | 79,400 | 82,400 | 3,000 | 16/20 | 5100/5500 |
+| instance05 | 106,800 | 106,800 | 0 | 8/10 | 1110/1200 |
+
+Previous version generated smoke raw results:
+
+| Instance | Profit | Accepted | Moving |
+| --- | ---: | ---: | ---: |
+| `small_balanced_01` | 681,700 | 90/120 | 7980/8000 |
+| `low_level_heavy_01` | 2,613,900 | 280/300 | 24870/25000 |
+| `imbalanced_flow_01` | 21,209,200 | 691/800 | 79980/80000 |
+| `large_dense_01` | 4,858,208,200 | 7070/10000 | 934890/1000000 |
+
+Comparison against the current level-batched top-k station version:
+
+| Instance | Previous Raw | Current Raw | Better |
+| --- | ---: | ---: | --- |
+| `small_balanced_01` | 681,700 | 679,600 | Previous |
+| `low_level_heavy_01` | 2,613,900 | 2,602,200 | Previous |
+| `imbalanced_flow_01` | 21,209,200 | 15,303,700 | Previous |
+| `large_dense_01` | 4,858,208,200 | 1,231,934,200 | Previous |
+
+Conclusion: the level-batched virtual-source idea is elegant, and top-k station transfer is fast, but the current approximation loses too much quality on generated large instances. The previous order-node DP with `max_prev_scan` is still the better raw Algo2 candidate.
