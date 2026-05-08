@@ -335,3 +335,220 @@ Total benchmark wall time across public plus generated smoke cases: 16.58 second
 | `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
 
 Takeaway: Algo3 is cheap and non-destructive in this benchmark. It improves two cases and keeps all other tested scores unchanged. The 100-second cap is not binding on the current benchmark; `large_dense_01` takes about 10.77 seconds with Algo3. The dense generated cases do not improve because Algo1 already accepts almost all orders, so there is little rejected revenue for the one-car repair step to exploit.
+
+### Random Softmax Trajectory Release
+
+We then replaced the blocked-level selection rule with random trajectory release. Each iteration samples one nonempty car route using a softmax-like probability where lower route value has higher probability:
+
+```text
+P(route r) proportional to exp(-(value(r) - min_value) / temperature_scale)
+```
+
+The selected route is released, the same one-car top-10 station DP rebuilds that car, and lower-profit full solutions are rolled back. Equal-profit moves are accepted so the search can move across plateaus.
+
+Configuration: `seed=1142`, `temperature=0.35`, `max_seconds=100`.
+
+Full results are saved in `benchmark_results/algo3_comparison.md` and `benchmark_results/algo3_comparison.csv`.
+
+Total benchmark wall time across public plus generated smoke cases: 415.35 seconds.
+
+| Instance | Algo1 Profit | Algo3 Random Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 57,500 | +21,000 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 674,200 | +24,300 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Compared with the blocked-level version, random softmax release improves `instance04` by another 12,300 and `small_balanced_01` by another 9,900, at the cost of substantially longer runtime.
+
+### Efficiency Softmax Trajectory Release
+
+We also changed the sampling value from raw route reward to route efficiency:
+
+```text
+value(route) = reward(route) / (1 + route_move_time)
+```
+
+The softmax remains inverse-value, so lower-efficiency routes are more likely to be released.
+
+Configuration: `seed=1142`, `temperature=0.35`, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 471.53 seconds.
+
+| Instance | Algo1 Profit | Algo3 Efficiency Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 66,200 | +29,700 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 672,100 | +22,200 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Compared with raw-reward softmax, efficiency softmax improves `instance04` by another 8,700 but loses 2,100 on `small_balanced_01` for this seed.
+
+### Inverse-Normalized Efficiency Release
+
+We also tested removing softmax and directly normalizing inverse efficiency weights:
+
+```text
+value(route) = reward(route) / (1 + route_move_time)
+weight(route) = 1 / (epsilon + value(route))
+P(route) = weight(route) / sum(weight)
+```
+
+Configuration: `seed=1142`, `temperature=0.35` as epsilon smoothing, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 487.95 seconds.
+
+| Instance | Algo1 Profit | Algo3 InvNorm Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 57,500 | +21,000 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 673,900 | +24,000 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Compared with efficiency softmax, inverse-normalized efficiency is worse on `instance04` but slightly better on `small_balanced_01`. It is less aggressive, so it explores weaker routes more evenly.
+
+### Batch Ratio Repair
+
+We then removed the lambda loop from the repair DP. Each iteration samples up to five trajectories using inverse softmax on:
+
+```text
+trajectory_value = reward / (1 + route_move_time)
+```
+
+The selected routes are released together. The selected cars are shuffled and filled back one by one. The single-car DP also uses:
+
+```text
+dp_value = sum(reward) / (1 + sum(move_time))
+```
+
+This removes the inner lambda sweep, so more random repair attempts fit inside the same time budget.
+
+Configuration: `seed=1142`, `temperature=0.35`, `batch_size=5`, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 419.39 seconds.
+
+| Instance | Algo1 Profit | Algo3 Batch Ratio Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 45,200 | +8,700 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 690,400 | +40,500 |
+| `low_level_heavy_01` | 2,639,700 | 2,646,000 | +6,300 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Takeaway: batch ratio repair is weaker on `instance04` than the lambda-DP random versions, but it gives the best Algo3 results so far on `small_balanced_01` and `low_level_heavy_01`.
+
+Current Algo3 code was reverted to this batch ratio repair version after testing the batch linear score below, because the ratio version is stronger on generated small cases.
+
+### Batch Linear Repair
+
+We replaced the ratio score with a fixed linear normalized score:
+
+```text
+score(i -> j) = R_j / sum_R - 0.5 * T_ij / B
+```
+
+The same score is used for the single-car DP transition. Existing trajectories are sampled with inverse softmax on:
+
+```text
+trajectory_score = sum(R) / sum_R - 0.5 * route_move_time / B
+```
+
+Configuration: `seed=1142`, `temperature=0.35`, `batch_size=5`, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 381.57 seconds.
+
+| Instance | Algo1 Profit | Algo3 Batch Linear Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 36,300 | +1,200 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 58,400 | +21,900 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 652,000 | +2,100 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Takeaway: the fixed `0.5` linear score is better than ratio repair on public04, but loses most of the generated-small gains from batch ratio repair. It seems to act more like a public-instance repair setting.
+
+### Level-First Route Repair
+
+We changed the route selection rule to first sample a level based on currently rejected reward:
+
+```text
+P(level l) = softmax(sum reward of rejected orders at level l)
+```
+
+After selecting a level, we sample one compatible car route based on:
+
+```text
+route_value = route_reward / (1 + route_move_time)
+```
+
+Then only that car is released and rebuilt with the same ratio DP.
+
+Configuration: `seed=1142`, `temperature=0.35`, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 148.13 seconds.
+
+| Instance | Algo1 Profit | Algo3 Level-First Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 36,500 | 0 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 649,900 | 0 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Takeaway: the level-first selection is fast, but using positive route-efficiency sampling after the level choice did not improve over Algo1. A better variant may keep the level-first choice but invert the car-route sampling so lower-efficiency compatible cars are released.
+
+### Level-First Inverse-Route Repair
+
+We kept the level-first choice by rejected reward, but inverted the car route sampling:
+
+```text
+P(level l) = softmax(sum reward of rejected orders at level l)
+P(car c | level l) = inverse-softmax(route_reward(c) / (1 + route_move_time(c)))
+```
+
+This means the selected level comes from unmet demand, while the released car is biased toward a lower-efficiency compatible route.
+
+Configuration: `seed=1142`, `temperature=0.35`, `max_seconds=100`.
+
+Total benchmark wall time across public plus generated smoke cases: 162.37 seconds.
+
+| Instance | Algo1 Profit | Algo3 Level-Inv Profit | Delta |
+| --- | ---: | ---: | ---: |
+| `instance01` | 27,900 | 27,900 | 0 |
+| `instance02` | 35,100 | 35,100 | 0 |
+| `instance03` | 50,000 | 50,000 | 0 |
+| `instance04` | 36,500 | 40,400 | +3,900 |
+| `instance05` | 106,800 | 106,800 | 0 |
+| `small_balanced_01` | 649,900 | 653,500 | +3,600 |
+| `low_level_heavy_01` | 2,639,700 | 2,639,700 | 0 |
+| `imbalanced_flow_01` | 22,192,000 | 22,192,000 | 0 |
+| `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
+
+Takeaway: inverse route-efficiency sampling is better than positive route-efficiency sampling, but it is still much weaker than the earlier batch trajectory repair. The level-first restriction appears to narrow the repair neighborhood too much.

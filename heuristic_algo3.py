@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import heapq
+import math
+import random
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -55,84 +57,86 @@ def heuristic_algorithm3(
     lambdas: Iterable[float] = LAMBDA_SET,
     iterations: int = 100000,
     max_seconds: float = 100.0,
+    seed: int = 1142,
+    temperature: float = 0.35,
+    batch_size: int = 5,
     raw_test: bool = False,
 ):
-    """Algo1 plus release-one-car local search.
+    """Algo1 plus release-multiple-cars local search.
 
-    Start from Algo1, then repeatedly pick the rejected-order level with the
-    largest total revenue. For that level, release the weakest compatible car
-    route and rebuild only that single car with a sweep DP using top-10 station
-    transfers.
+    Start from Algo1, then repeatedly sample low-efficiency trajectories,
+    release them, shuffle those cars, and rebuild them with a top-10 station
+    sweep DP. The DP score is route revenue divided by one plus route moving
+    time, so there is no inner lambda loop.
     """
     inst = parse_instance(instance_file)
     deadline = time.perf_counter() + max_seconds
-    lambdas = list(lambdas)
+    rng = random.Random(seed)
     assignment, _ = heuristic_algorithm(instance_file, raw_test=raw_test)
     ctx = _build_context(inst)
     routes = _assignment_to_routes(inst, assignment)
-    best_routes = {car_id: route[:] for car_id, route in routes.items()}
+    current_routes = {car_id: route[:] for car_id, route in routes.items()}
+    current_profit = _profit_from_routes(inst, current_routes)
+    best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
     best_profit = _profit_from_routes(inst, best_routes)
-    blocked_levels: set[int] = set()
 
     for _ in range(iterations):
         if time.perf_counter() >= deadline:
             break
-        target_level = _highest_rejected_level(inst, best_routes, blocked_levels)
-        if target_level is None:
+        car_ids = _sample_routes_by_softmax_efficiency(
+            inst,
+            ctx,
+            current_routes,
+            rng,
+            temperature,
+            batch_size,
+        )
+        if not car_ids:
             break
-        car_id = _weakest_car_for_level(inst, best_routes, target_level)
-        if car_id is None:
-            blocked_levels.add(target_level)
-            continue
-        old_route = best_routes[car_id][:]
-        if not old_route:
-            blocked_levels.add(target_level)
-            continue
-
-        base_routes = {cid: route[:] for cid, route in best_routes.items()}
-        released_orders = set(base_routes[car_id])
-        base_routes[car_id] = []
+        base_routes = {cid: route[:] for cid, route in current_routes.items()}
+        released_orders: set[int] = set()
+        for car_id in car_ids:
+            released_orders.update(base_routes[car_id])
+            base_routes[car_id] = []
         used_without_car = _moving_from_routes(inst, ctx, base_routes)
-        remaining_budget = inst.moving_budget - used_without_car
-        if remaining_budget < 0:
-            blocked_levels.add(target_level)
+        if used_without_car > inst.moving_budget:
             continue
 
         assigned_elsewhere = {
             order_id
             for cid, route in base_routes.items()
-            if cid != car_id
+            if cid not in car_ids
             for order_id in route
         }
         available = {order.id for order in inst.orders if order.id not in assigned_elsewhere}
         available.update(released_orders)
 
-        best_iteration_routes = None
-        best_iteration_profit = best_profit
-        car = ctx.car_by_id[car_id]
-        budget_scale = 1 + max(0, remaining_budget)
-        for lam in lambdas:
+        trial_routes = {cid: route[:] for cid, route in base_routes.items()}
+        rng.shuffle(car_ids)
+        used_budget = used_without_car
+        for car_id in car_ids:
             if time.perf_counter() >= deadline:
                 break
-            plan = _best_path_for_car_topk(inst, ctx, car, available, remaining_budget, budget_scale, lam)
-            trial_routes = {cid: route[:] for cid, route in base_routes.items()}
+            remaining_budget = inst.moving_budget - used_budget
+            if remaining_budget <= 0:
+                break
+            car = ctx.car_by_id[car_id]
+            plan = _best_path_for_car_topk(inst, ctx, car, available, remaining_budget)
             trial_routes[car_id] = [] if plan is None else plan.order_ids
-            if trial_routes[car_id] == old_route:
-                continue
-            moving = _moving_from_routes(inst, ctx, trial_routes)
-            if moving > inst.moving_budget:
-                continue
-            profit = _profit_from_routes(inst, trial_routes)
-            if profit > best_iteration_profit:
-                best_iteration_profit = profit
-                best_iteration_routes = trial_routes
+            used_budget += 0 if plan is None else plan.move_time
+            available.difference_update(trial_routes[car_id])
 
-        if best_iteration_routes is None:
-            blocked_levels.add(target_level)
+        moving = _moving_from_routes(inst, ctx, trial_routes)
+        if moving > inst.moving_budget:
             continue
-        best_routes = best_iteration_routes
-        best_profit = best_iteration_profit
-        blocked_levels.clear()
+        profit = _profit_from_routes(inst, trial_routes)
+        if profit < current_profit:
+            continue
+        current_routes = trial_routes
+        current_profit = profit
+        if current_profit > best_profit:
+            best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
+            best_profit = current_profit
 
     return _routes_to_solution(inst, ctx, best_routes)
 
@@ -170,30 +174,55 @@ def _assignment_to_routes(inst, assignment: list[int]) -> dict[int, list[int]]:
     return routes
 
 
-def _highest_rejected_level(inst, routes: dict[int, list[int]], blocked_levels: set[int]) -> int | None:
-    accepted = {order_id for route in routes.values() for order_id in route}
-    revenue_by_level: dict[int, int] = {}
-    for order in inst.orders:
-        if order.id not in accepted and order.level not in blocked_levels:
-            revenue_by_level[order.level] = revenue_by_level.get(order.level, 0) + order.revenue
-    if not revenue_by_level:
-        return None
-    return max(revenue_by_level, key=lambda level: (revenue_by_level[level], level))
-
-
-def _weakest_car_for_level(inst, routes: dict[int, list[int]], level: int) -> int | None:
+def _sample_routes_by_softmax_efficiency(
+    inst,
+    ctx: Algo3Context,
+    routes: dict[int, list[int]],
+    rng: random.Random,
+    temperature: float,
+    batch_size: int,
+) -> list[int]:
     order_by_id = {order.id: order for order in inst.orders}
-    candidates = []
-    for car in inst.cars:
-        if not can_serve_level(car.level, level):
+    candidates: list[tuple[int, float]] = []
+    for car_id, route in routes.items():
+        if not route:
             continue
-        route_sales = sum(order_by_id[order_id].revenue for order_id in routes[car.id])
-        route_len = len(routes[car.id])
-        exact_bonus = 0 if car.level == level else 1
-        candidates.append((route_sales, route_len, exact_bonus, car.id))
+        reward = sum(order_by_id[order_id].revenue for order_id in route)
+        move_time = _route_move_time(ctx, car_id, route)
+        candidates.append((car_id, reward / (1 + move_time)))
     if not candidates:
-        return None
-    return min(candidates)[-1]
+        return []
+    values = [value for _, value in candidates]
+    min_value = min(values)
+    avg_value = max(1e-9, sum(values) / len(values))
+    scale = max(1e-9, abs(avg_value) * max(temperature, 1e-6))
+    pool = [(car_id, math.exp(-(value - min_value) / scale)) for car_id, value in candidates]
+    chosen: list[int] = []
+    for _ in range(min(batch_size, len(pool))):
+        total = sum(weight for _, weight in pool)
+        if total <= 0:
+            break
+        pick = rng.random() * total
+        cumulative = 0.0
+        selected_idx = len(pool) - 1
+        for idx, (_, weight) in enumerate(pool):
+            cumulative += weight
+            if cumulative >= pick:
+                selected_idx = idx
+                break
+        car_id, _ = pool.pop(selected_idx)
+        chosen.append(car_id)
+    return chosen
+
+
+def _route_move_time(ctx: Algo3Context, car_id: int, route: list[int]) -> int:
+    station = ctx.car_by_id[car_id].station
+    total = 0
+    for order_id in route:
+        order = ctx.order_by_id[order_id]
+        total += ctx.move_matrix[station][order.pickup_station]
+        station = order.return_station
+    return total
 
 
 def _best_path_for_car_topk(
@@ -202,8 +231,6 @@ def _best_path_for_car_topk(
     car,
     available: set[int],
     remaining_budget: int,
-    budget_scale: int,
-    lam: float,
 ) -> Plan | None:
     orders = [
         order
@@ -214,7 +241,6 @@ def _best_path_for_car_topk(
     if not orders:
         return None
 
-    move_penalty = lam / max(1, budget_scale)
     initial = Candidate(car.station, 0, 0, 0.0, 0, ())
     val: list[Candidate | None] = [None] * (inst.n_stations + 1)
     release_heap: list[tuple[int, int, Candidate]] = [(0, 0, initial)]
@@ -243,7 +269,7 @@ def _best_path_for_car_topk(
             ):
                 continue
             sales = candidate.sales + order.revenue
-            weight = candidate.weight + ctx.revenue_weight[order.id] - move_penalty * move
+            weight = sales / (1 + total_move)
             key = (weight, sales, -total_move, -candidate.ready)
             if best_key is None or key > best_key:
                 best_key = key
@@ -326,6 +352,9 @@ def main() -> None:
     parser.add_argument("--iterations", type=int, default=100000)
     parser.add_argument("--lambdas", default=",".join(map(str, LAMBDA_SET)))
     parser.add_argument("--max-seconds", type=float, default=100.0)
+    parser.add_argument("--seed", type=int, default=1142)
+    parser.add_argument("--temperature", type=float, default=0.35)
+    parser.add_argument("--batch-size", type=int, default=5)
     parser.add_argument("--raw-test", action="store_true")
     args = parser.parse_args()
     lambdas = [float(x) for x in args.lambdas.split(",") if x.strip()]
@@ -335,6 +364,9 @@ def main() -> None:
         lambdas=lambdas,
         iterations=args.iterations,
         max_seconds=args.max_seconds,
+        seed=args.seed,
+        temperature=args.temperature,
+        batch_size=args.batch_size,
         raw_test=args.raw_test,
     )
     accepted = [order for order in inst.orders if assignment[order.id - 1]]
