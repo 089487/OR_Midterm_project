@@ -96,17 +96,20 @@ def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_li
             algo2 = by_method["algo2"]
             algo3 = by_method["algo3"]
             fp.write(
-                f"| `{instance}` | {_format_cell(algo1)} | {_format_cell(algo2)} | "
-                f"{_format_cell(algo3)} | {best['method']} |\n"
+                f"| `{instance}` | {_format_cell(algo1, best)} | {_format_cell(algo2, best)} | "
+                f"{_format_cell(algo3, best)} | {best['method']} |\n"
             )
 
     print(f"Wrote {csv_path}")
     print(f"Wrote {md_path}")
 
 
-def _format_cell(row: dict) -> str:
+def _format_cell(row: dict, best: dict) -> str:
+    profit = str(row["profit"])
+    if row["profit"] == best["profit"]:
+        profit = f"**{profit}**"
     return (
-        f"{row['profit']}<br>"
+        f"{profit}<br>"
         f"{row['accepted']}/{row['orders']} orders<br>"
         f"{row['moving']}/{row['budget']} move<br>"
         f"{row['seconds']:.2f}s"
