@@ -161,7 +161,7 @@ Takeaway: Algo1 is the strongest fast baseline. Algo2 is best on public instance
 Run:
 
 ```bash
-~/myenv/bin/python experiments/generate_testcases.py --per-scenario 5
+python experiments/generate_testcases.py --per-scenario 5
 ```
 
 Generated files are written to `experiments/generated_data/`.
