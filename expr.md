@@ -552,3 +552,23 @@ Total benchmark wall time across public plus generated smoke cases: 162.37 secon
 | `large_dense_01` | 4,946,628,700 | 4,946,628,700 | 0 |
 
 Takeaway: inverse route-efficiency sampling is better than positive route-efficiency sampling, but it is still much weaker than the earlier batch trajectory repair. The level-first restriction appears to narrow the repair neighborhood too much.
+
+## Final Algo1/Algo2/Algo3 Comparison
+
+After restoring Algo3 to the best batch-ratio repair variant, we reran Algo1, Algo2, and Algo3 on the public and generated smoke instances. Algo2 and Algo3 were each given a 140-second per-testcase time limit. Full results are saved in `benchmark_results/algo123_comparison.md` and `benchmark_results/algo123_comparison.csv`.
+
+Total benchmark wall time: 761.31 seconds.
+
+| Instance | Algo1 | Algo2 | Algo3 | Best |
+| --- | ---: | ---: | ---: | --- |
+| `instance01` | 27,900 | 27,900 | 27,900 | Algo1/2/3 |
+| `instance02` | 35,100 | 49,500 | 35,100 | Algo2 |
+| `instance03` | 50,000 | 50,000 | 50,000 | Algo1/2/3 |
+| `instance04` | 36,500 | 79,400 | 45,200 | Algo2 |
+| `instance05` | 106,800 | 106,800 | 106,800 | Algo1/2/3 |
+| `imbalanced_flow_01` | 22,192,000 | 21,209,200 | 22,192,000 | Algo1/3 |
+| `large_dense_01` | 4,946,628,700 | 4,858,208,200 | 4,946,628,700 | Algo1/3 |
+| `low_level_heavy_01` | 2,639,700 | 2,613,900 | 2,646,000 | Algo3 |
+| `small_balanced_01` | 649,900 | 681,700 | 690,400 | Algo3 |
+
+Takeaway: Algo1 remains the strongest fast baseline and already solves dense generated cases extremely well. Algo2 is best on public02/public04 because its order-node DP and lambda sweep can find higher-value route structure. Algo3 is the best local-improvement wrapper on generated small/low-level cases, where releasing several inefficient trajectories lets the ratio DP accept more orders without breaking the moving budget.
