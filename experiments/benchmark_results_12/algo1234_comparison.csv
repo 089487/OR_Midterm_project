@@ -1,69 +1,69 @@
 instance,method,profit,accepted,orders,sales,moving,budget,seconds
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance01.txt,algo1,27900,5,5,27900,180,180,0.008123917003103998
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance01.txt,algo2,27900,5,5,27900,180,180,0.02567112499673385
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance01.txt,algo3,27900,5,5,27900,180,180,3.9555035420053173
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance01.txt,algo4,27900,5,5,27900,180,180,0.0009730419988045469
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance02.txt,algo1,35100,8,10,46900,930,1800,0.0019204589989385568
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance02.txt,algo2,49500,9,10,51700,1410,1800,0.12805995899543632
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance02.txt,algo3,35100,8,10,46900,930,1800,8.171035583000048
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance02.txt,algo4,35100,8,10,46900,930,1800,1.5787658339977497
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance03.txt,algo1,50000,9,10,61600,0,0,0.001037166999594774
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance03.txt,algo2,50000,9,10,61600,0,0,0.011781957997300196
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance03.txt,algo3,50000,9,10,61600,0,0,1.4381498329967144
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance03.txt,algo4,50000,9,10,61600,0,0,2.101754167000763
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance04.txt,algo1,36500,14,20,111300,4110,5500,0.003183000000717584
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance04.txt,algo2,79400,16,20,125600,5100,5500,0.25016629099991405
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance04.txt,algo3,45200,15,20,114200,3810,5500,12.311393709002004
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance04.txt,algo4,66200,16,20,121200,5490,5500,139.95433416699962
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance05.txt,algo1,106800,8,10,117000,1140,1200,0.0013917500036768615
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance05.txt,algo2,106800,8,10,117000,1110,1200,0.09706154200102901
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance05.txt,algo3,106800,8,10,117000,1140,1200,8.076971124995907
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/data/instance05.txt,algo4,106800,8,10,117000,1140,1200,1.9972230830026092
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_01.txt,algo1,23729700,784,800,24009700,79950,80000,0.17653787500603357
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_01.txt,algo2,22965300,724,800,23754900,79980,80000,140.05939454199688
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_01.txt,algo3,23729700,784,800,24009700,79950,80000,103.65836845800368
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_01.txt,algo4,23751300,799,800,24016900,79890,80000,140.0807579159955
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_02.txt,algo1,21948800,800,800,21948800,71760,80000,0.27782445800403366
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_02.txt,algo2,21184700,711,800,21694100,72120,80000,140.04632445799507
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_02.txt,algo3,21948800,800,800,21948800,71760,80000,91.77117125000223
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_02.txt,algo4,21948800,800,800,21948800,71760,80000,0.32484133400430437
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_03.txt,algo1,21289400,637,800,22369200,79890,80000,0.14597533299820498
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_03.txt,algo2,20465300,641,800,22094500,73800,80000,140.04494537500432
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_03.txt,algo3,21465500,664,800,22427900,79860,80000,140.16777833400556
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/imbalanced_flow_03.txt,algo4,22281800,708,800,22700000,79980,80000,140.0560637919989
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_01.txt,algo1,4845310300,9999,10000,4845681500,992790,1000000,5.481112000001303
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_01.txt,algo2,3651407200,6869,10000,4447713800,999990,1000000,140.17437974999484
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_01.txt,algo3,4845310300,9999,10000,4845681500,992790,1000000,141.40193112500128
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_01.txt,algo4,4845310300,9999,10000,4845681500,992790,1000000,141.5653868330046
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_02.txt,algo1,4894638400,9999,10000,4894638600,999990,1000000,6.38903745800053
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_02.txt,algo2,4794449200,7010,10000,4861242200,941430,1000000,141.68289075000212
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_02.txt,algo3,4894638400,9999,10000,4894638600,999990,1000000,141.53351624999777
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_02.txt,algo4,4894638700,10000,10000,4894638700,999990,1000000,141.40590329100087
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_03.txt,algo1,4955124700,9832,10000,4955653500,999990,1000000,4.541647457997897
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_03.txt,algo2,4848996100,6948,10000,4920277300,973380,1000000,140.1554347919955
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_03.txt,algo3,4955124700,9832,10000,4955653500,999990,1000000,141.268610334002
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/large_dense_03.txt,algo4,4955396200,9926,10000,4955744000,999960,1000000,141.57697754100082
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_01.txt,algo1,2704000,288,300,2710600,24960,25000,0.05246804199850885
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_01.txt,algo2,2602300,268,300,2676700,20430,25000,30.546037915999477
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_01.txt,algo3,2704000,288,300,2710600,24960,25000,52.14864499999385
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_01.txt,algo4,2713900,300,300,2713900,24930,25000,139.99215099999856
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_02.txt,algo1,2111900,274,300,2170100,24630,25000,0.0426618750061607
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_02.txt,algo2,2111300,280,300,2169900,21360,25000,40.46445962500002
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_02.txt,algo3,2113400,274,300,2170600,24360,25000,77.53024924999772
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_02.txt,algo4,2199200,300,300,2199200,24870,25000,139.98462295799982
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_03.txt,algo1,2770900,285,300,2800900,24900,25000,0.048146374996576924
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_03.txt,algo2,2763100,282,300,2798300,24990,25000,30.21606495899323
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_03.txt,algo3,2770900,285,300,2800900,24900,25000,56.67953608300013
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/low_level_heavy_03.txt,algo4,2815900,300,300,2815900,24870,25000,139.98189825000009
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_01.txt,algo1,609200,93,120,849000,7980,8000,0.016274041998258326
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_01.txt,algo2,606800,89,120,848200,7500,8000,3.6695992500026478
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_01.txt,algo3,609200,93,120,849000,7980,8000,47.132102499999746
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_01.txt,algo4,694700,105,120,877500,7980,8000,139.96292620799795
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_02.txt,algo1,571000,83,120,905400,7800,8000,0.009615666000172496
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_02.txt,algo2,533800,86,120,893000,6390,8000,3.626822208003432
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_02.txt,algo3,571000,83,120,905400,7800,8000,50.553837917002966
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_02.txt,algo4,639700,92,120,928300,7980,8000,140.0011215419945
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_03.txt,algo1,549600,80,120,822800,7980,8000,0.021713249996537343
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_03.txt,algo2,577800,88,120,832200,7830,8000,4.989372249998269
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_03.txt,algo3,558900,81,120,825900,7830,8000,66.42140908400324
-/Users/yuhungcheng/Documents/Operation Research/Midterm_project/experiments/generated_data_12/small_balanced_03.txt,algo4,667800,91,120,862200,7920,8000,139.9749204999971
+./data/instance01.txt,algo1,27900,5,5,27900,180,180,0.008123917003103998
+./data/instance01.txt,algo2,27900,5,5,27900,180,180,0.02567112499673385
+./data/instance01.txt,algo3,27900,5,5,27900,180,180,3.9555035420053173
+./data/instance01.txt,algo4,27900,5,5,27900,180,180,0.0009730419988045469
+./data/instance02.txt,algo1,35100,8,10,46900,930,1800,0.0019204589989385568
+./data/instance02.txt,algo2,49500,9,10,51700,1410,1800,0.12805995899543632
+./data/instance02.txt,algo3,35100,8,10,46900,930,1800,8.171035583000048
+./data/instance02.txt,algo4,35100,8,10,46900,930,1800,1.5787658339977497
+./data/instance03.txt,algo1,50000,9,10,61600,0,0,0.001037166999594774
+./data/instance03.txt,algo2,50000,9,10,61600,0,0,0.011781957997300196
+./data/instance03.txt,algo3,50000,9,10,61600,0,0,1.4381498329967144
+./data/instance03.txt,algo4,50000,9,10,61600,0,0,2.101754167000763
+./data/instance04.txt,algo1,36500,14,20,111300,4110,5500,0.003183000000717584
+./data/instance04.txt,algo2,79400,16,20,125600,5100,5500,0.25016629099991405
+./data/instance04.txt,algo3,45200,15,20,114200,3810,5500,12.311393709002004
+./data/instance04.txt,algo4,66200,16,20,121200,5490,5500,139.95433416699962
+./data/instance05.txt,algo1,106800,8,10,117000,1140,1200,0.0013917500036768615
+./data/instance05.txt,algo2,106800,8,10,117000,1110,1200,0.09706154200102901
+./data/instance05.txt,algo3,106800,8,10,117000,1140,1200,8.076971124995907
+./data/instance05.txt,algo4,106800,8,10,117000,1140,1200,1.9972230830026092
+./experiments/generated_data_12/imbalanced_flow_01.txt,algo1,23729700,784,800,24009700,79950,80000,0.17653787500603357
+./experiments/generated_data_12/imbalanced_flow_01.txt,algo2,22965300,724,800,23754900,79980,80000,140.05939454199688
+./experiments/generated_data_12/imbalanced_flow_01.txt,algo3,23729700,784,800,24009700,79950,80000,103.65836845800368
+./experiments/generated_data_12/imbalanced_flow_01.txt,algo4,23751300,799,800,24016900,79890,80000,140.0807579159955
+./experiments/generated_data_12/imbalanced_flow_02.txt,algo1,21948800,800,800,21948800,71760,80000,0.27782445800403366
+./experiments/generated_data_12/imbalanced_flow_02.txt,algo2,21184700,711,800,21694100,72120,80000,140.04632445799507
+./experiments/generated_data_12/imbalanced_flow_02.txt,algo3,21948800,800,800,21948800,71760,80000,91.77117125000223
+./experiments/generated_data_12/imbalanced_flow_02.txt,algo4,21948800,800,800,21948800,71760,80000,0.32484133400430437
+./experiments/generated_data_12/imbalanced_flow_03.txt,algo1,21289400,637,800,22369200,79890,80000,0.14597533299820498
+./experiments/generated_data_12/imbalanced_flow_03.txt,algo2,20465300,641,800,22094500,73800,80000,140.04494537500432
+./experiments/generated_data_12/imbalanced_flow_03.txt,algo3,21465500,664,800,22427900,79860,80000,140.16777833400556
+./experiments/generated_data_12/imbalanced_flow_03.txt,algo4,22281800,708,800,22700000,79980,80000,140.0560637919989
+./experiments/generated_data_12/large_dense_01.txt,algo1,4845310300,9999,10000,4845681500,992790,1000000,5.481112000001303
+./experiments/generated_data_12/large_dense_01.txt,algo2,3651407200,6869,10000,4447713800,999990,1000000,140.17437974999484
+./experiments/generated_data_12/large_dense_01.txt,algo3,4845310300,9999,10000,4845681500,992790,1000000,141.40193112500128
+./experiments/generated_data_12/large_dense_01.txt,algo4,4845310300,9999,10000,4845681500,992790,1000000,141.5653868330046
+./experiments/generated_data_12/large_dense_02.txt,algo1,4894638400,9999,10000,4894638600,999990,1000000,6.38903745800053
+./experiments/generated_data_12/large_dense_02.txt,algo2,4794449200,7010,10000,4861242200,941430,1000000,141.68289075000212
+./experiments/generated_data_12/large_dense_02.txt,algo3,4894638400,9999,10000,4894638600,999990,1000000,141.53351624999777
+./experiments/generated_data_12/large_dense_02.txt,algo4,4894638700,10000,10000,4894638700,999990,1000000,141.40590329100087
+./experiments/generated_data_12/large_dense_03.txt,algo1,4955124700,9832,10000,4955653500,999990,1000000,4.541647457997897
+./experiments/generated_data_12/large_dense_03.txt,algo2,4848996100,6948,10000,4920277300,973380,1000000,140.1554347919955
+./experiments/generated_data_12/large_dense_03.txt,algo3,4955124700,9832,10000,4955653500,999990,1000000,141.268610334002
+./experiments/generated_data_12/large_dense_03.txt,algo4,4955396200,9926,10000,4955744000,999960,1000000,141.57697754100082
+./experiments/generated_data_12/low_level_heavy_01.txt,algo1,2704000,288,300,2710600,24960,25000,0.05246804199850885
+./experiments/generated_data_12/low_level_heavy_01.txt,algo2,2602300,268,300,2676700,20430,25000,30.546037915999477
+./experiments/generated_data_12/low_level_heavy_01.txt,algo3,2704000,288,300,2710600,24960,25000,52.14864499999385
+./experiments/generated_data_12/low_level_heavy_01.txt,algo4,2713900,300,300,2713900,24930,25000,139.99215099999856
+./experiments/generated_data_12/low_level_heavy_02.txt,algo1,2111900,274,300,2170100,24630,25000,0.0426618750061607
+./experiments/generated_data_12/low_level_heavy_02.txt,algo2,2111300,280,300,2169900,21360,25000,40.46445962500002
+./experiments/generated_data_12/low_level_heavy_02.txt,algo3,2113400,274,300,2170600,24360,25000,77.53024924999772
+./experiments/generated_data_12/low_level_heavy_02.txt,algo4,2199200,300,300,2199200,24870,25000,139.98462295799982
+./experiments/generated_data_12/low_level_heavy_03.txt,algo1,2770900,285,300,2800900,24900,25000,0.048146374996576924
+./experiments/generated_data_12/low_level_heavy_03.txt,algo2,2763100,282,300,2798300,24990,25000,30.21606495899323
+./experiments/generated_data_12/low_level_heavy_03.txt,algo3,2770900,285,300,2800900,24900,25000,56.67953608300013
+./experiments/generated_data_12/low_level_heavy_03.txt,algo4,2815900,300,300,2815900,24870,25000,139.98189825000009
+./experiments/generated_data_12/small_balanced_01.txt,algo1,609200,93,120,849000,7980,8000,0.016274041998258326
+./experiments/generated_data_12/small_balanced_01.txt,algo2,606800,89,120,848200,7500,8000,3.6695992500026478
+./experiments/generated_data_12/small_balanced_01.txt,algo3,609200,93,120,849000,7980,8000,47.132102499999746
+./experiments/generated_data_12/small_balanced_01.txt,algo4,694700,105,120,877500,7980,8000,139.96292620799795
+./experiments/generated_data_12/small_balanced_02.txt,algo1,571000,83,120,905400,7800,8000,0.009615666000172496
+./experiments/generated_data_12/small_balanced_02.txt,algo2,533800,86,120,893000,6390,8000,3.626822208003432
+./experiments/generated_data_12/small_balanced_02.txt,algo3,571000,83,120,905400,7800,8000,50.553837917002966
+./experiments/generated_data_12/small_balanced_02.txt,algo4,639700,92,120,928300,7980,8000,140.0011215419945
+./experiments/generated_data_12/small_balanced_03.txt,algo1,549600,80,120,822800,7980,8000,0.021713249996537343
+./experiments/generated_data_12/small_balanced_03.txt,algo2,577800,88,120,832200,7830,8000,4.989372249998269
+./experiments/generated_data_12/small_balanced_03.txt,algo3,558900,81,120,825900,7830,8000,66.42140908400324
+./experiments/generated_data_12/small_balanced_03.txt,algo4,667800,91,120,862200,7920,8000,139.9749204999971

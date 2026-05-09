@@ -23,6 +23,14 @@ def resolve_path(path: str | Path) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+def display_path(path: str | Path) -> str:
+    path = resolve_path(path)
+    try:
+        return "./" + path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def default_instances(generated_dir: str) -> list[Path]:
     public = [ROOT / f"data/instance{i:02d}.txt" for i in range(1, 6)]
     generated = sorted(resolve_path(generated_dir).glob("*.txt"))
@@ -50,7 +58,7 @@ def run_method(name: str, path: Path, func: Callable[[Path], tuple[list[int], li
     assignment, relocation = func(path)
     seconds = time.perf_counter() - start
     result = score(path, assignment, relocation)
-    return {"instance": str(path), "method": name, "seconds": seconds, **result}
+    return {"instance": display_path(path), "method": name, "seconds": seconds, **result}
 
 
 def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_limit: float) -> None:
