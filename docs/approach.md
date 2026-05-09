@@ -129,23 +129,54 @@ O(iterations * batch_size * K * top_k)
 
 with `batch_size = 5` and `top_k = 10`.
 
+## Algo4: Local IP Repair
+
+`heuristic_algo4.py` also starts from Algo1 and samples low-efficiency trajectories as repair targets.
+The difference from Algo3 is the repair subproblem:
+
+1. release a small batch of cars and their assigned orders;
+2. collect currently unassigned orders plus the released orders;
+3. keep a capped high-value candidate set;
+4. build a small arc-flow IP only for the released cars and candidate orders;
+5. accept the repaired solution only if total profit improves.
+
+The local IP uses the same `start_{c,k}`, `link_{c,i,j}`, and `y_k` variables as the full IP, but on a much smaller induced subproblem.
+To keep it usable under the time limit and the Gurobi size-limited license, Algo4:
+
+- returns immediately if Algo1 already accepts every order;
+- limits the candidate order set;
+- caps each local IP solve by the remaining wall-clock time;
+- retries with smaller candidate sets if the local model is too large;
+- optionally stops after a fixed number of non-improving repairs.
+
+Approximate repair complexity per local IP is:
+
+```text
+O(batch_size * Q^2)
+```
+
+where `Q` is the local candidate order cap.
+This is more expensive than Algo3's DP repair, but it can jointly reassign several cars and often improves small/medium generated cases.
+
 ## Benchmark Summary
 
-The final comparison used a 140-second per-testcase time limit for Algo2 and Algo3.
+The final comparison used a 140-second per-testcase time limit for Algo2, Algo3, and Algo4.
 
-| Instance | Algo1 | Algo2 | Algo3 | Best |
-| --- | ---: | ---: | ---: | --- |
-| instance01 | **27,900** | **27,900** | **27,900** | tie |
-| instance02 | 35,100 | **49,500** | 35,100 | Algo2 |
-| instance03 | **50,000** | **50,000** | **50,000** | tie |
-| instance04 | 36,500 | **79,400** | 45,200 | Algo2 |
-| instance05 | **106,800** | **106,800** | **106,800** | tie |
-| imbalanced_flow_01 | **22,192,000** | 21,209,200 | **22,192,000** | Algo1/Algo3 |
-| large_dense_01 | **4,946,628,700** | 4,858,208,200 | **4,946,628,700** | Algo1/Algo3 |
-| low_level_heavy_01 | 2,639,700 | 2,613,900 | **2,646,000** | Algo3 |
-| small_balanced_01 | 649,900 | 681,700 | **690,400** | Algo3 |
+| Instance | Algo1 | Algo2 | Algo3 | Algo4 | Best |
+| --- | ---: | ---: | ---: | ---: | --- |
+| instance01 | **27,900** | **27,900** | **27,900** | **27,900** | tie |
+| instance02 | 35,100 | **49,500** | 35,100 | 35,100 | Algo2 |
+| instance03 | **50,000** | **50,000** | **50,000** | **50,000** | tie |
+| instance04 | 36,500 | **79,400** | 45,200 | 66,200 | Algo2 |
+| instance05 | **106,800** | **106,800** | **106,800** | **106,800** | tie |
+| imbalanced_flow_01 | **22,192,000** | 21,209,200 | **22,192,000** | **22,192,000** | Algo1/Algo3/Algo4 |
+| large_dense_01 | **4,946,628,700** | 4,858,208,200 | **4,946,628,700** | **4,946,628,700** | Algo1/Algo3/Algo4 |
+| low_level_heavy_01 | 2,639,700 | 2,613,900 | 2,646,000 | **2,694,600** | Algo4 |
+| small_balanced_01 | 649,900 | 681,700 | 690,400 | **812,500** | Algo4 |
 
-Takeaway: Algo1 is the strongest fast baseline. Algo2 is best on public instances where route structure matters. Algo3 is a useful local-improvement wrapper for generated small and low-level-heavy cases.
+Takeaway: Algo1 remains the strongest fast baseline and is already optimal-looking on dense generated cases.
+Algo2 is best on public instances where route structure matters.
+Algo4 is the best local-improvement wrapper on the generated small and low-level-heavy cases because its local IP can jointly reroute several cars.
 
 ## Test Case Generation
 

@@ -1,6 +1,6 @@
 # OR Midterm Project
 
-This repository contains the IP solver, three heuristic solvers, public instances, generated test data, and benchmark scripts for the car relocation/order acceptance problem.
+This repository contains the IP solver, heuristic solvers, public instances, generated test data, and benchmark scripts for the car relocation/order acceptance problem.
 
 ## Environment
 
@@ -18,6 +18,7 @@ pip install -r requirements.txt
 | `algorithm_module.py` | Algo1 greedy insertion solver. |
 | `heuristic_algo2.py` | Algo2 order-node DP trajectory solver. |
 | `heuristic_algo3.py` | Algo3 Algo1 plus local repair solver. |
+| `heuristic_algo4.py` | Algo4 Algo1 plus local IP repair solver. |
 | `ip_solver.py` | Integer programming solver for public/small instances. |
 | `mtp_common.py` | Shared parser, data model, and utilities. |
 | `data/` | Public instances `instance01.txt` to `instance05.txt`. |
@@ -54,7 +55,7 @@ The generator includes these scenarios:
 
 ## Run Benchmarks
 
-Compare Algo1, Algo2, and Algo3 on the five public instances plus generated smoke data:
+Compare Algo1, Algo2, Algo3, and Algo4 on the five public instances plus generated smoke data:
 
 ```bash
 python experiments/benchmark_algorithms.py
@@ -66,6 +67,9 @@ Useful options:
 python experiments/benchmark_algorithms.py \
   --generated-dir experiments/generated_data_smoke \
   --time-limit 140 \
+  --algo4-candidate-order-limit 160 \
+  --algo4-per-ip-seconds 0.5 \
+  --algo4-max-no-improve 0 \
   --out-dir experiments/benchmark_results
 ```
 
@@ -80,8 +84,8 @@ Outputs:
 
 | File | Content |
 | --- | --- |
-| `experiments/benchmark_results/algo123_comparison.csv` | Raw comparison table. |
-| `experiments/benchmark_results/algo123_comparison.md` | Markdown summary table. |
+| `experiments/benchmark_results/algo1234_comparison.csv` | Raw comparison table. |
+| `experiments/benchmark_results/algo1234_comparison.md` | Markdown summary table. |
 
 ## Run IP vs Heuristic Smoke Benchmark
 
