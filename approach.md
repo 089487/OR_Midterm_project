@@ -1,97 +1,162 @@
 # Midterm Project Approach
 
+## Problem Scale
+
+The implementation is designed for the requested upper bounds:
+
+| Parameter | Upper bound |
+| --- | ---: |
+| Stations | 100 |
+| Cars | 1,000 |
+| Car levels | 10 |
+| Orders | 10,000 |
+| Planning horizon | 100 days |
+| Moving time budget | 1,000,000 minutes |
+
+All algorithms use the same feasibility rules: a car can serve an order at its own level or one level lower, it must arrive at the pick-up station 30 minutes before pick-up, and after returning from an order it needs 4 hours before it can serve the next order.
+
 ## IP Solver
 
-I model each car schedule as a path in a directed acyclic graph.
+`ip_solver.py` builds an arc-flow integer program over feasible car-order and order-order transitions.
 
-- A node is an order.
-- A source node is an initial car.
-- A car-to-order arc exists if the car level can serve the order and the car can be moved from its initial station to the pick-up station by 30 minutes before pick-up.
-- An order-to-order arc exists for a specific car if that car can serve both order levels, and the first order's return station can be cleaned and moved to the next pick-up station by 30 minutes before the next pick-up.
-- The moving time on each selected arc consumes the global budget `B`.
-
-Decision variables:
+Variables:
 
 - `y_k = 1` if order `k` is accepted.
 - `start_{c,k} = 1` if car `c` serves order `k` as its first order.
 - `link_{c,i,j} = 1` if car `c` serves order `j` immediately after order `i`.
 
-The business objective is
+The business objective is:
 
 ```text
-maximize sum accepted R_k - sum rejected 2R_k
+maximize accepted_revenue - 2 * rejected_revenue
 ```
 
-Equivalently, because `-2 * sum R_k` is constant, the selected orders are the same as when maximizing accepted sales revenue:
+Since total revenue is constant, this is equivalent to maximizing accepted revenue inside the IP. The solver reports both accepted revenue and the final profit with rejection compensation.
 
-```text
-maximize sum accepted R_k
-```
+Constraint families:
 
-The solver reports both accepted sales revenue and the profit value with rejection compensation. The constraints enforce one predecessor per accepted order, flow conservation for every car, at most one first order per car, and total relocation time no more than `B`.
+- each accepted order has exactly one predecessor;
+- each car starts at most one route;
+- per-car flow continuity is enforced at every order;
+- total relocation time is at most `B`.
 
-The implementation is in `ip_solver.py`. It uses Gurobi and writes business-readable optimal plans to `plans/`.
+The model is useful for the five public instances and small generated cases, but it is not intended for the maximum data range because the number of feasible order-order arc variables can grow very large.
 
-One edge case is handled explicitly: if an order is picked up exactly at the start of the horizon and a car is already ready at that station, the order can be served immediately, as stated in the problem.
+## Algo1: Greedy Insertion
 
-## Heuristic Algorithm
+`algorithm_module.py` is the primary fast baseline.
 
-The heuristic in `algorithm_module.py` is a hybrid method.
+For small cases (`orders <= 80` and `cars <= 120`) it first tries the IP solver with a short 20-second limit unless `raw_test=True`.
 
-For small instances (`K <= 80` and `C <= 120`), it calls the IP model with a short 20-second time limit. This gives optimal-quality answers for the five reference instances and for small benchmark cases.
+For large cases it uses greedy insertion:
 
-For larger instances, it uses a fast greedy insertion rule:
+1. Sort orders by descending revenue, then earlier pick-up time, then order ID.
+2. For each order, scan all compatible cars.
+3. For each car, insert the order into the route position determined by pick-up time.
+4. Check only the predecessor and successor around that insertion.
+5. Choose the feasible insertion with the smallest extra moving time.
+6. Break ties by smaller upgrade, smaller idle time, and smaller car ID.
 
-1. Sort orders by higher revenue, then earlier pick-up time, then order ID.
-2. For each order, scan all compatible cars, including one-level upgrades.
-3. For each car, insert the order into the only possible time-sorted position in that car's current route.
-4. Keep the insertion only if the previous order, the inserted order, and the next order remain feasible and the relocation budget is not exceeded.
-5. Choose the feasible insertion with the smallest additional relocation time.
-6. Break ties by preferring no upgrade, then smaller local idle time, then smaller car ID.
+This algorithm is conservative and very fast. It is especially strong on dense generated cases because it can accept many orders while preserving the moving budget.
 
-This rule is intentionally conservative. It protects high-revenue orders first, preserves relocation budget, avoids unnecessary upgrades, and keeps each car's schedule temporally tight.
-
-## Time Complexity
-
-Let:
-
-- `K` be the number of orders.
-- `C` be the number of cars.
-- `S` be the number of stations.
-
-For the large-instance branch, the heuristic sorts orders in `O(K log K)`. For each order it scans all cars. Each car route is maintained in pick-up-time order; finding the insertion point is logarithmic in that car's route length, and only the previous and next orders need feasibility checks. The total running time is:
+Complexity:
 
 ```text
 O(K log K + K C log K)
 ```
 
-The memory usage is:
+where `K` is the number of orders and `C` is the number of cars.
+
+## Algo2: Order-Node DP Trajectories
+
+`heuristic_algo2.py` repeatedly builds maximum-score trajectories for cars over currently unassigned orders.
+
+For each lambda value, car parity order, and car ordering mode, it:
+
+1. keeps a set of unassigned orders;
+2. processes cars in the selected order;
+3. solves a single-car order-node DP;
+4. assigns the selected trajectory to that car;
+5. removes those orders from later cars.
+
+The DP sorts candidate orders by pick-up time. For an order `j`, it scans a bounded number of previous order nodes and checks whether the car can move from the previous return station to `j` in time. The transition score is:
 
 ```text
-O(K + C + S^2)
+3 * R_j / sum_R - lambda * moving_time / (1 + B)
 ```
 
-For the requested upper range, `K <= 10,000`, `C <= 1,000`, and `S <= 100`, this means at most about ten million car-order checks, which is suitable for a three-minute grading limit in Python.
+For large cases, candidate orders are truncated by revenue and the predecessor scan is reduced to keep runtime controlled. Algo2 is slower than Algo1, but it is useful on public instances where a carefully chosen route structure beats simple greedy insertion.
+
+Approximate complexity per car:
+
+```text
+O(M * P)
+```
+
+where `M` is the number of candidate orders for that car and `P` is the predecessor scan cap (`260` on small/medium cases, `35` on large cases).
+
+## Algo3: Batch Ratio Repair
+
+`heuristic_algo3.py` starts from Algo1 and performs local repair.
+
+Each repair iteration:
+
+1. computes each current car trajectory's efficiency:
+
+```text
+route_reward / (1 + route_moving_time)
+```
+
+2. samples up to 5 low-efficiency trajectories using inverse softmax;
+3. releases all orders on those trajectories;
+4. shuffles the selected cars;
+5. rebuilds each selected car with a top-10 station DP;
+6. rolls back the whole repair if total profit becomes worse.
+
+The single-car repair DP uses:
+
+```text
+sum_reward / (1 + sum_moving_time)
+```
+
+This avoids a lambda loop and makes many random repair attempts possible within the time limit. Algo3 is most helpful when Algo1 leaves enough rejected orders for local route exchanges to matter.
+
+Approximate repair complexity:
+
+```text
+O(iterations * batch_size * K * top_k)
+```
+
+with `batch_size = 5` and `top_k = 10`.
+
+## Benchmark Summary
+
+The final comparison used a 140-second per-testcase time limit for Algo2 and Algo3.
+
+| Instance | Algo1 | Algo2 | Algo3 | Best |
+| --- | ---: | ---: | ---: | --- |
+| instance01 | **27,900** | **27,900** | **27,900** | tie |
+| instance02 | 35,100 | **49,500** | 35,100 | Algo2 |
+| instance03 | **50,000** | **50,000** | **50,000** | tie |
+| instance04 | 36,500 | **79,400** | 45,200 | Algo2 |
+| instance05 | **106,800** | **106,800** | **106,800** | tie |
+| imbalanced_flow_01 | **22,192,000** | 21,209,200 | **22,192,000** | Algo1/Algo3 |
+| large_dense_01 | **4,946,628,700** | 4,858,208,200 | **4,946,628,700** | Algo1/Algo3 |
+| low_level_heavy_01 | 2,639,700 | 2,613,900 | **2,646,000** | Algo3 |
+| small_balanced_01 | 649,900 | 681,700 | **690,400** | Algo3 |
+
+Takeaway: Algo1 is the strongest fast baseline. Algo2 is best on public instances where route structure matters. Algo3 is a useful local-improvement wrapper for generated small and low-level-heavy cases.
 
 ## Test Case Generation
 
-`generate_testcases.py` creates random instances in the same five-section TXT format as the reference data. It includes four scenarios:
+`generate_testcases.py` creates instances in the same five-section TXT format as the public data. It supports four scenarios:
 
 | Scenario | Purpose |
 | --- | --- |
-| `small_balanced` | Small benchmark cases where the IP solver can often still solve optimally. |
-| `low_level_heavy` | Many low-level requests, testing whether upgrades are used carefully. |
-| `imbalanced_flow` | Pick-ups concentrated in one station group and returns in another, stressing relocation. |
-| `large_dense` | Maximum-scale stress case matching the requested data range. |
-
-The generator respects the requested upper bounds:
-
-- stations up to 100
-- cars up to 1,000
-- car levels up to 10
-- orders up to 10,000
-- planning horizon up to 100 days
-- moving budget up to 1,000,000 minutes
+| `small_balanced` | Small balanced cases. |
+| `low_level_heavy` | Many low-level requests, testing upgrade use. |
+| `imbalanced_flow` | Pick-ups and returns concentrated in different station groups. |
+| `large_dense` | Maximum-scale stress case. |
 
 Run:
 
@@ -99,25 +164,4 @@ Run:
 ~/myenv/bin/python generate_testcases.py --per-scenario 5
 ```
 
-This writes generated instances to `generated_data/`.
-
-## Alternative Heuristic: Algo2
-
-`heuristic_algo2.py` implements a second heuristic based on repeated maximum-weight car routes.
-
-For a fixed lambda, each car solves a station-sweep routing subproblem over currently unassigned compatible orders. The normalized arc reward of appending order `j` after the previous state is:
-
-```text
-3R_j / sum_i R_i - lambda * relocation_time / (1 + B)
-```
-
-Candidate labels are released by a sweep line: after a car accepts an order, the resulting label is pushed into a pool keyed by `return time + 1 hour delay + 3 hours cleaning`, and only becomes available for later transitions after that ready time. Each station keeps the best currently available label. After one car chooses a route, all orders on that route are removed from the active linked lists and cannot be used by later cars.
-
-To reflect the one-level upgrade rule, cars are processed by level from high to low:
-
-- a level-l car only scans active orders of requested levels l and l-1
-- among cars of the same level, the car with the best route DP value is selected next
-
-For large instances, it automatically switches to a lighter mode by using fewer car-order modes and a smaller candidate pool per car. This keeps the idea usable without turning the route subproblem into a full-scale IP.
-
-The implementation also has a wall-clock guard. By default it stops after about 165 seconds and returns the best complete plan found so far, leaving a buffer under the three-minute grading limit.
+Generated files are written to `generated_data/`.
