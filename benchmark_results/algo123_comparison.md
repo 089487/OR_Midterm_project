@@ -12,46 +12,14 @@ Total benchmark wall time: `761.31s`.
 
 ## Results
 
-| Instance | Method | Profit | Accepted | Moving | Seconds |
-| --- | --- | ---: | ---: | ---: | ---: |
-| `data/instance01.txt` | algo1 | 27900 | 5/5 | 180/180 | 0.01 |
-| `data/instance01.txt` | algo2 | 27900 | 5/5 | 180/180 | 0.03 |
-| `data/instance01.txt` | algo3 | 27900 | 5/5 | 180/180 | 3.70 |
-| `data/instance02.txt` | algo1 | 35100 | 8/10 | 930/1800 | 0.00 |
-| `data/instance02.txt` | algo2 | 49500 | 9/10 | 1410/1800 | 0.13 |
-| `data/instance02.txt` | algo3 | 35100 | 8/10 | 930/1800 | 8.30 |
-| `data/instance03.txt` | algo1 | 50000 | 9/10 | 0/0 | 0.00 |
-| `data/instance03.txt` | algo2 | 50000 | 9/10 | 0/0 | 0.01 |
-| `data/instance03.txt` | algo3 | 50000 | 9/10 | 0/0 | 1.54 |
-| `data/instance04.txt` | algo1 | 36500 | 14/20 | 4110/5500 | 0.00 |
-| `data/instance04.txt` | algo2 | 79400 | 16/20 | 5100/5500 | 0.24 |
-| `data/instance04.txt` | algo3 | 45200 | 15/20 | 3810/5500 | 12.48 |
-| `data/instance05.txt` | algo1 | 106800 | 8/10 | 1140/1200 | 0.00 |
-| `data/instance05.txt` | algo2 | 106800 | 8/10 | 1110/1200 | 0.09 |
-| `data/instance05.txt` | algo3 | 106800 | 8/10 | 1140/1200 | 7.86 |
-| `generated_data_smoke/imbalanced_flow_01.txt` | algo1 | 22192000 | 799/800 | 75060/80000 | 0.16 |
-| `generated_data_smoke/imbalanced_flow_01.txt` | algo2 | 21209200 | 691/800 | 79980/80000 | 140.06 |
-| `generated_data_smoke/imbalanced_flow_01.txt` | algo3 | 22192000 | 799/800 | 75060/80000 | 93.62 |
-| `generated_data_smoke/large_dense_01.txt` | algo1 | 4946628700 | 10000/10000 | 931080/1000000 | 4.66 |
-| `generated_data_smoke/large_dense_01.txt` | algo2 | 4858208200 | 7070/10000 | 934890/1000000 | 140.15 |
-| `generated_data_smoke/large_dense_01.txt` | algo3 | 4946628700 | 10000/10000 | 931080/1000000 | 141.42 |
-| `generated_data_smoke/low_level_heavy_01.txt` | algo1 | 2639700 | 281/300 | 24990/25000 | 0.04 |
-| `generated_data_smoke/low_level_heavy_01.txt` | algo2 | 2613900 | 280/300 | 24870/25000 | 46.39 |
-| `generated_data_smoke/low_level_heavy_01.txt` | algo3 | 2646000 | 283/300 | 24930/25000 | 73.50 |
-| `generated_data_smoke/small_balanced_01.txt` | algo1 | 649900 | 88/120 | 7830/8000 | 0.01 |
-| `generated_data_smoke/small_balanced_01.txt` | algo2 | 681700 | 90/120 | 7980/8000 | 3.60 |
-| `generated_data_smoke/small_balanced_01.txt` | algo3 | 690400 | 95/120 | 7680/8000 | 82.78 |
-
-## Best By Instance
-
-| Instance | Best Method | Profit | Accepted | Moving | Seconds |
-| --- | --- | ---: | ---: | ---: | ---: |
-| `data/instance01.txt` | algo1 | 27900 | 5/5 | 180/180 | 0.01 |
-| `data/instance02.txt` | algo2 | 49500 | 9/10 | 1410/1800 | 0.13 |
-| `data/instance03.txt` | algo1 | 50000 | 9/10 | 0/0 | 0.00 |
-| `data/instance04.txt` | algo2 | 79400 | 16/20 | 5100/5500 | 0.24 |
-| `data/instance05.txt` | algo1 | 106800 | 8/10 | 1140/1200 | 0.00 |
-| `generated_data_smoke/imbalanced_flow_01.txt` | algo1 | 22192000 | 799/800 | 75060/80000 | 0.16 |
-| `generated_data_smoke/large_dense_01.txt` | algo1 | 4946628700 | 10000/10000 | 931080/1000000 | 4.66 |
-| `generated_data_smoke/low_level_heavy_01.txt` | algo3 | 2646000 | 283/300 | 24930/25000 | 73.50 |
-| `generated_data_smoke/small_balanced_01.txt` | algo3 | 690400 | 95/120 | 7680/8000 | 82.78 |
+| Instance | Algo1 | Algo2 | Algo3 | Best |
+| --- | ---: | ---: | ---: | --- |
+| `data/instance01.txt` | 27900<br>5/5 orders<br>180/180 move<br>0.01s | 27900<br>5/5 orders<br>180/180 move<br>0.03s | 27900<br>5/5 orders<br>180/180 move<br>3.70s | algo1 |
+| `data/instance02.txt` | 35100<br>8/10 orders<br>930/1800 move<br>0.00s | 49500<br>9/10 orders<br>1410/1800 move<br>0.13s | 35100<br>8/10 orders<br>930/1800 move<br>8.30s | algo2 |
+| `data/instance03.txt` | 50000<br>9/10 orders<br>0/0 move<br>0.00s | 50000<br>9/10 orders<br>0/0 move<br>0.01s | 50000<br>9/10 orders<br>0/0 move<br>1.54s | algo1 |
+| `data/instance04.txt` | 36500<br>14/20 orders<br>4110/5500 move<br>0.00s | 79400<br>16/20 orders<br>5100/5500 move<br>0.24s | 45200<br>15/20 orders<br>3810/5500 move<br>12.48s | algo2 |
+| `data/instance05.txt` | 106800<br>8/10 orders<br>1140/1200 move<br>0.00s | 106800<br>8/10 orders<br>1110/1200 move<br>0.09s | 106800<br>8/10 orders<br>1140/1200 move<br>7.86s | algo1 |
+| `generated_data_smoke/imbalanced_flow_01.txt` | 22192000<br>799/800 orders<br>75060/80000 move<br>0.16s | 21209200<br>691/800 orders<br>79980/80000 move<br>140.06s | 22192000<br>799/800 orders<br>75060/80000 move<br>93.62s | algo1 |
+| `generated_data_smoke/large_dense_01.txt` | 4946628700<br>10000/10000 orders<br>931080/1000000 move<br>4.66s | 4858208200<br>7070/10000 orders<br>934890/1000000 move<br>140.15s | 4946628700<br>10000/10000 orders<br>931080/1000000 move<br>141.42s | algo1 |
+| `generated_data_smoke/low_level_heavy_01.txt` | 2639700<br>281/300 orders<br>24990/25000 move<br>0.04s | 2613900<br>280/300 orders<br>24870/25000 move<br>46.39s | 2646000<br>283/300 orders<br>24930/25000 move<br>73.50s | algo3 |
+| `generated_data_smoke/small_balanced_01.txt` | 649900<br>88/120 orders<br>7830/8000 move<br>0.01s | 681700<br>90/120 orders<br>7980/8000 move<br>3.60s | 690400<br>95/120 orders<br>7680/8000 move<br>82.78s | algo3 |

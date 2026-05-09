@@ -87,28 +87,30 @@ def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_li
             "`sumR / (1 + sum_move)`; worse full solutions are rolled back.\n\n"
         )
         fp.write("## Results\n\n")
-        fp.write("| Instance | Method | Profit | Accepted | Moving | Seconds |\n")
-        fp.write("| --- | --- | ---: | ---: | ---: | ---: |\n")
-        for row in rows:
-            fp.write(
-                f"| `{row['instance']}` | {row['method']} | {row['profit']} | "
-                f"{row['accepted']}/{row['orders']} | {row['moving']}/{row['budget']} | "
-                f"{row['seconds']:.2f} |\n"
-            )
-
-        fp.write("\n## Best By Instance\n\n")
-        fp.write("| Instance | Best Method | Profit | Accepted | Moving | Seconds |\n")
-        fp.write("| --- | --- | ---: | ---: | ---: | ---: |\n")
+        fp.write("| Instance | Algo1 | Algo2 | Algo3 | Best |\n")
+        fp.write("| --- | ---: | ---: | ---: | --- |\n")
         for instance, instance_rows in by_instance.items():
             best = max(instance_rows, key=lambda row: (row["profit"], -row["seconds"]))
+            by_method = {row["method"]: row for row in instance_rows}
+            algo1 = by_method["algo1"]
+            algo2 = by_method["algo2"]
+            algo3 = by_method["algo3"]
             fp.write(
-                f"| `{instance}` | {best['method']} | {best['profit']} | "
-                f"{best['accepted']}/{best['orders']} | {best['moving']}/{best['budget']} | "
-                f"{best['seconds']:.2f} |\n"
+                f"| `{instance}` | {_format_cell(algo1)} | {_format_cell(algo2)} | "
+                f"{_format_cell(algo3)} | {best['method']} |\n"
             )
 
     print(f"Wrote {csv_path}")
     print(f"Wrote {md_path}")
+
+
+def _format_cell(row: dict) -> str:
+    return (
+        f"{row['profit']}<br>"
+        f"{row['accepted']}/{row['orders']} orders<br>"
+        f"{row['moving']}/{row['budget']} move<br>"
+        f"{row['seconds']:.2f}s"
+    )
 
 
 def main() -> None:
