@@ -149,7 +149,7 @@ Takeaway: Algo1 is the strongest fast baseline. Algo2 is best on public instance
 
 ## Test Case Generation
 
-`generate_testcases.py` creates instances in the same five-section TXT format as the public data. It supports four scenarios:
+`experiments/generate_testcases.py` creates instances in the same five-section TXT format as the public data. It supports four scenarios:
 
 | Scenario | Purpose |
 | --- | --- |
@@ -161,7 +161,7 @@ Takeaway: Algo1 is the strongest fast baseline. Algo2 is best on public instance
 Run:
 
 ```bash
-~/myenv/bin/python generate_testcases.py --per-scenario 5
+~/myenv/bin/python experiments/generate_testcases.py --per-scenario 5
 ```
 
-Generated files are written to `generated_data/`.
+Generated files are written to `experiments/generated_data/`.

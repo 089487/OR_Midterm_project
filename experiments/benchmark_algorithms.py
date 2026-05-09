@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import sys
 import time
 from pathlib import Path
 from typing import Callable
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from algorithm_module import heuristic_algorithm
 from heuristic_algo2 import heuristic_algorithm2
@@ -12,9 +17,14 @@ from heuristic_algo3 import heuristic_algorithm3
 from mtp_common import parse_instance
 
 
+def resolve_path(path: str | Path) -> Path:
+    path = Path(path)
+    return path if path.is_absolute() else ROOT / path
+
+
 def default_instances(generated_dir: str) -> list[Path]:
-    public = [Path(f"data/instance{i:02d}.txt") for i in range(1, 6)]
-    generated = sorted(Path(generated_dir).glob("*.txt"))
+    public = [ROOT / f"data/instance{i:02d}.txt" for i in range(1, 6)]
+    generated = sorted(resolve_path(generated_dir).glob("*.txt"))
     return public + generated
 
 
@@ -43,7 +53,7 @@ def run_method(name: str, path: Path, func: Callable[[Path], tuple[list[int], li
 
 
 def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_limit: float) -> None:
-    out_dir.mkdir(exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     csv_path = out_dir / "algo123_comparison.csv"
     md_path = out_dir / "algo123_comparison.md"
 
@@ -119,13 +129,13 @@ def _format_cell(row: dict, best: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("instances", nargs="*")
-    parser.add_argument("--generated-dir", default="generated_data_smoke")
+    parser.add_argument("--generated-dir", default="experiments/generated_data_smoke")
     parser.add_argument("--time-limit", type=float, default=140.0)
     parser.add_argument("--seed", type=int, default=1142)
-    parser.add_argument("--out-dir", default="benchmark_results")
+    parser.add_argument("--out-dir", default="experiments/benchmark_results")
     args = parser.parse_args()
 
-    instances = [Path(path) for path in args.instances] if args.instances else default_instances(args.generated_dir)
+    instances = [resolve_path(path) for path in args.instances] if args.instances else default_instances(args.generated_dir)
     methods: list[tuple[str, Callable[[Path], tuple[list[int], list[list]]]]] = [
         ("algo1", lambda path: heuristic_algorithm(path, raw_test=True)),
         (
@@ -164,7 +174,7 @@ def main() -> None:
             )
 
     total_seconds = time.perf_counter() - total_start
-    write_outputs(rows, Path(args.out_dir), total_seconds, args.time_limit)
+    write_outputs(rows, resolve_path(args.out_dir), total_seconds, args.time_limit)
     print(f"Total benchmark wall time: {total_seconds:.2f}s")
 
 

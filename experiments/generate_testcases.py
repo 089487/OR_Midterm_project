@@ -5,6 +5,13 @@ import random
 from datetime import datetime, timedelta
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def resolve_path(path: str | Path) -> Path:
+    path = Path(path)
+    return path if path.is_absolute() else ROOT / path
+
 
 def weighted_choice(items: list[int], weights: list[float]) -> int:
     return random.choices(items, weights=weights, k=1)[0]
@@ -106,13 +113,13 @@ SCENARIOS = {
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--out-dir", default="generated_data")
+    parser.add_argument("--out-dir", default="experiments/generated_data")
     parser.add_argument("--per-scenario", type=int, default=3)
     parser.add_argument("--seed", type=int, default=1142)
     args = parser.parse_args()
     random.seed(args.seed)
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(exist_ok=True)
+    out_dir = resolve_path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
     for scenario, params in SCENARIOS.items():
         for rep in range(1, args.per_scenario + 1):
             path = out_dir / f"{scenario}_{rep:02d}.txt"
@@ -122,4 +129,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

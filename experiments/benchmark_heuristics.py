@@ -1,13 +1,23 @@
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from algorithm_module import heuristic_algorithm
 from heuristic_algo2 import heuristic_algorithm2
 from ip_solver import solve_instance
 from mtp_common import parse_instance
+
+
+def resolve_path(path: str | Path) -> Path:
+    path = Path(path)
+    return path if path.is_absolute() else ROOT / path
 
 
 def score(path: str | Path, assignment: list[int], relocation: list[list]) -> dict:
@@ -61,13 +71,13 @@ def print_result(instance: str, result: dict, best_profit: int | None = None) ->
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--generated-dir", default="generated_data_smoke")
+    parser.add_argument("--generated-dir", default="experiments/generated_data_smoke")
     parser.add_argument("--ip-time-limit", type=int, default=30)
     parser.add_argument("--algo2-seconds", type=float, default=30)
     args = parser.parse_args()
 
-    public = [Path(f"data/instance{i:02d}.txt") for i in range(1, 6)]
-    generated = sorted(Path(args.generated_dir).glob("*.txt"))
+    public = [ROOT / f"data/instance{i:02d}.txt" for i in range(1, 6)]
+    generated = sorted(resolve_path(args.generated_dir).glob("*.txt"))
 
     print("Public instances", flush=True)
     for path in public:
