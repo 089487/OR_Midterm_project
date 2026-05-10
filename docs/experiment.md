@@ -1,4 +1,4 @@
-This Markdown document is designed for your **Problem 4: Numerical Experiments** section. It incorporates the large-scale configuration ($n_C = 1,000$), the random long-term horizon ($n_D$ up to 100 days), and the normalized budget logic ($B \propto n_D$).
+This Markdown document is designed for **Problem 4: Numerical Experiments** section. It incorporates the large-scale configuration ($n_C = 1,000$), the random long-term horizon ($n_D$ up to 100 days), and the normalized budget logic ($B \propto n_D$).
 
 ---
 
