@@ -129,7 +129,7 @@ CONFIGS = {
 
 if __name__ == "__main__":
     engine = IEDOProjectGenerator()
-    root = "experiments"
+    root = "exp_instances"
     if os.path.exists(root): shutil.rmtree(root)
     os.makedirs(root)
 
