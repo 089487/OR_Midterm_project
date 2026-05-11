@@ -1,4 +1,8 @@
-from MTP_lib import *
+try:
+    from MTP_lib import *
+except ModuleNotFoundError:
+    from datetime import datetime, timedelta
+    import time as t
 
 # ============================================================
 # Demand-aware Look-ahead Relocation Heuristic
