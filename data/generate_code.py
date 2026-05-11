@@ -59,25 +59,33 @@ class IEDOProjectGenerator:
         elif b_mode == "300": B = 300 * nD
         else: B = 1000000 # "1M"
         
-        n_K = int(self.n_C * config['ratio'])
+        # 3. Randomize n_C to uniform distribution 20-70
+        n_C = random.randint(20, 70)
+        n_K = int(n_C * config['ratio'])
 
         lines = [
             f"n_S,n_C,n_L,n_K,n_D,B",
-            f"{self.n_S},{self.n_C},{self.n_L},{n_K},{nD},{B}",
+            f"{self.n_S},{n_C},{self.n_L},{n_K},{nD},{B}",
             "==========",
             "Car ID,Level,Initial station"
         ]
         
         # Part 2: Cars (固定停在奇數站以配合 odd_even)
         odd_stations = [s for s in range(1, self.n_S+1) if s % 2 != 0]
-        for i in range(1, self.n_C + 1):
+        for i in range(1, n_C + 1):
             lvl = self._get_level(config['level_mode'], is_car=True)
             lines.append(f"{i},{lvl},{random.choice(odd_stations)}")
         lines.append("==========")
         
-        # Part 3: Rates
+        # Part 3: Rates (randomized but increasing)
         lines.append("Car level,Hour rate")
-        lines += [f"{i},{200+i*100}" for i in range(1, 11)]
+        rates = []
+        current_rate = random.randint(150, 250)
+        for i in range(1, 11):
+            increment = random.randint(50, 150)
+            current_rate += increment
+            rates.append(current_rate)
+        lines += [f"{i},{rates[i-1]}" for i in range(1, 11)]
         lines.append("==========")
         
         # Part 4: Orders

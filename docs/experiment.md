@@ -8,15 +8,16 @@ To rigorously evaluate the performance of our heuristic algorithm for the IEDO c
 
 ## 1. Experimental Setup and Normalization
 
-To ensure statistical significance, we generated **30 random instances for each scenario** (totaling 420 test cases).
-*   **Fleet Size ($n_C$):** Fixed at 100 cars to maintain a consistent resource base.
-*   **Stations ($n_S$):** Fixed at 30 stations.
-*   **Planning Horizon ($n_D$):** Randomly sampled from $[7, 100]$ days for each instance to test the algorithm across various operational scales.
-*   **Budget Scaling ($B$):** We utilize "Parameter Scaling" to ensure that the relocation pressure remains consistent regardless of the horizon length:
-    *   **Tight Budget:** $B = 30 \times n_D$ (approx. 30 mins of staff time per day).
-    *   **Moderate Budget:** $B = 300 \times n_D$ (approx. 5 hours of staff time per day).
-    *   **Baseline/Infinite:** $B = 1,000,000$.
+To evaluate the robustness of our heuristic algorithm under diverse business conditions, we generated **420 random instances** with high variability in fleet and pricing structures:
 
+*   **Fleet Size ($n_C$):** $n_C \sim U(20, 70)$.
+*   **Service Tiers ($n_L$):** The number of car levels is randomized between 2 and 10 per instance.
+*   **Dynamic Pricing:** Hourly rates are generated using a cumulative random process to ensure $Rate_{l+1} > Rate_l$, reflecting realistic premium pricing for higher-tier vehicles.
+*   **System Load ($n_K$):** $n_K = \text{ratio} \times n_C$.
+*   **Budget Scaling ($B$):**
+    *   **Tight Budget:** $B = 30 \times n_D$.
+    *   **Moderate Budget:** $B = 300 \times n_D$.
+    
 ## 2. Experimental Factors
 
 | Group | Factor | Description |
@@ -63,3 +64,4 @@ By comparing the results across these 14 scenarios, our report will provide insi
 
 ### Pro-Tip for your Report:
 When you present the results of **S06 (Odd/Even)** vs. **S12 (Zero Budget)**, you will likely see a massive gap. This is the strongest evidence that your relocation logic is working. Use a **Box Plot** or **Histogram** to show the profit distribution for these specific scenarios to prove the robustness of your heuristic.
+
