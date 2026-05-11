@@ -14,12 +14,21 @@ if str(ROOT) not in sys.path:
 from algorithm_module import heuristic_algorithm
 from heuristic_algo2 import heuristic_algorithm2
 from heuristic_algo3 import heuristic_algorithm3
+from heuristic_algo4 import heuristic_algorithm4
 from mtp_common import parse_instance
 
 
 def resolve_path(path: str | Path) -> Path:
     path = Path(path)
     return path if path.is_absolute() else ROOT / path
+
+
+def display_path(path: str | Path) -> str:
+    path = resolve_path(path)
+    try:
+        return "./" + path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def default_instances(generated_dir: str) -> list[Path]:
@@ -49,13 +58,13 @@ def run_method(name: str, path: Path, func: Callable[[Path], tuple[list[int], li
     assignment, relocation = func(path)
     seconds = time.perf_counter() - start
     result = score(path, assignment, relocation)
-    return {"instance": str(path), "method": name, "seconds": seconds, **result}
+    return {"instance": display_path(path), "method": name, "seconds": seconds, **result}
 
 
 def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_limit: float) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = out_dir / "algo123_comparison.csv"
-    md_path = out_dir / "algo123_comparison.md"
+    csv_path = out_dir / "algo1234_comparison.csv"
+    md_path = out_dir / "algo1234_comparison.md"
 
     fieldnames = [
         "instance",
@@ -78,7 +87,7 @@ def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_li
         by_instance.setdefault(row["instance"], []).append(row)
 
     with md_path.open("w", encoding="utf-8") as fp:
-        fp.write("# Algo1 / Algo2 / Algo3 Comparison\n\n")
+        fp.write("# Algo1 / Algo2 / Algo3 / Algo4 Comparison\n\n")
         fp.write(f"Per-testcase time limit for timed heuristics: `{time_limit:.0f}s`.\n\n")
         fp.write(f"Total benchmark wall time: `{total_seconds:.2f}s`.\n\n")
         fp.write("## Algorithm Summary\n\n")
@@ -96,18 +105,23 @@ def write_outputs(rows: list[dict], out_dir: Path, total_seconds: float, time_li
             "releases them, shuffles those cars, and rebuilds them with a top-10 station DP scored by "
             "`sumR / (1 + sum_move)`; worse full solutions are rolled back.\n\n"
         )
+        fp.write(
+            "- **Algo4**: Algo1 plus local IP repair. It samples low-efficiency trajectories, releases those cars, "
+            "then solves a capped small arc-flow IP over the released cars and candidate unassigned orders.\n\n"
+        )
         fp.write("## Results\n\n")
-        fp.write("| Instance | Algo1 | Algo2 | Algo3 | Best |\n")
-        fp.write("| --- | ---: | ---: | ---: | --- |\n")
+        fp.write("| Instance | Algo1 | Algo2 | Algo3 | Algo4 | Best |\n")
+        fp.write("| --- | ---: | ---: | ---: | ---: | --- |\n")
         for instance, instance_rows in by_instance.items():
             best = max(instance_rows, key=lambda row: (row["profit"], -row["seconds"]))
             by_method = {row["method"]: row for row in instance_rows}
             algo1 = by_method["algo1"]
             algo2 = by_method["algo2"]
             algo3 = by_method["algo3"]
+            algo4 = by_method["algo4"]
             fp.write(
                 f"| `{instance}` | {_format_cell(algo1, best)} | {_format_cell(algo2, best)} | "
-                f"{_format_cell(algo3, best)} | {best['method']} |\n"
+                f"{_format_cell(algo3, best)} | {_format_cell(algo4, best)} | {best['method']} |\n"
             )
 
     print(f"Wrote {csv_path}")
@@ -133,6 +147,14 @@ def main() -> None:
     parser.add_argument("--time-limit", type=float, default=140.0)
     parser.add_argument("--seed", type=int, default=1142)
     parser.add_argument("--out-dir", default="experiments/benchmark_results")
+    parser.add_argument("--algo4-candidate-order-limit", type=int, default=160)
+    parser.add_argument("--algo4-per-ip-seconds", type=float, default=0.5)
+    parser.add_argument(
+        "--algo4-max-no-improve",
+        type=int,
+        default=0,
+        help="stop Algo4 after this many non-improving repairs; 0 disables this guard",
+    )
     args = parser.parse_args()
 
     instances = [resolve_path(path) for path in args.instances] if args.instances else default_instances(args.generated_dir)
@@ -154,6 +176,18 @@ def main() -> None:
                 raw_test=True,
                 seed=args.seed,
                 max_seconds=args.time_limit,
+            ),
+        ),
+        (
+            "algo4",
+            lambda path: heuristic_algorithm4(
+                path,
+                raw_test=True,
+                seed=args.seed,
+                max_seconds=args.time_limit,
+                candidate_order_limit=args.algo4_candidate_order_limit,
+                per_ip_seconds=args.algo4_per_ip_seconds,
+                max_no_improve=args.algo4_max_no_improve,
             ),
         ),
     ]
