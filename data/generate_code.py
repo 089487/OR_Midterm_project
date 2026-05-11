@@ -4,7 +4,7 @@ import shutil
 from datetime import datetime, timedelta
 
 class IEDOProjectGenerator:
-    def __init__(self, n_S=100, n_C=1000):
+    def __init__(self, n_S=100, n_C=100):
         self.n_S = n_S
         self.n_C = n_C
         self.n_L = 10
@@ -100,31 +100,29 @@ class IEDOProjectGenerator:
     
 # --- 定義配置矩陣 ---
 CONFIGS = {
-    "S01": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "1M"},
-    "S02": {"ratio": 10.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "1M"},
-    "S03": {"ratio": 0.3, "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "1M"},
-    "S04": {"ratio": 3.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "1M"},
-    "S05": {"ratio": 1.0,  "level_mode": "8:2_skew", "station_mode": "random",   "time_mode": "random",  "budget_mode": "1M"},
-    "S06": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "odd_even", "time_mode": "random",  "budget_mode": "1M"},
-    "S07": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "odd_even", "time_mode": "random",  "budget_mode": "300"},
-    "S08": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "hub_1G",   "time_mode": "random",  "budget_mode": "300"},
-    "S09": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "hub_2G",   "time_mode": "random",  "budget_mode": "300"},
-    "S10": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "hub_3G",   "time_mode": "random",  "budget_mode": "1M"},
-    "S11": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "hub_3G",   "time_mode": "random",  "budget_mode": "300"},
-    "S12": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "weekend", "budget_mode": "1M"},
-    "S13": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "peak_1",  "budget_mode": "1M"},
-    "S14": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "peak_3",  "budget_mode": "1M"},
-    "S15": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "0"},
-    "S16": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "30"},
-    "S17": {"ratio": 1.0,  "level_mode": "random",   "station_mode": "random",   "time_mode": "random",  "budget_mode": "300"},
-    "S18": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "odd_even", "time_mode": "weekend", "budget_mode": "300"},
-    "S19": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "odd_even", "time_mode": "weekend", "budget_mode": "30"},
-    "S20": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "odd_even", "time_mode": "weekend", "budget_mode": "1M"},
-    "S21": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "hub_3G",   "time_mode": "weekend", "budget_mode": "30"},
-    "S22": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "hub_3G",   "time_mode": "weekend", "budget_mode": "300"},
-    "S23": {"ratio": 3.0,  "level_mode": "8:2_skew", "station_mode": "hub_3G",   "time_mode": "weekend", "budget_mode": "1M"},
-    "S24": {"ratio": 10.0, "level_mode": "8:2_skew", "station_mode": "odd_even", "time_mode": "weekend", "budget_mode": "30"},
-    "S25": {"ratio": 10.0, "level_mode": "8:2_skew", "station_mode": "hub_3G",   "time_mode": "weekend", "budget_mode": "30"},
+    # Base & 負荷測試 (Supply-Demand Ratio Tests)
+    "S1":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 基準情境
+    "S2":  {"ratio": 0.1,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (極低)
+    "S3":  {"ratio": 0.333, "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (低)
+    "S4":  {"ratio": 3.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (高)
+    
+    # 等級分布測試
+    "S5":  {"ratio": 1.0,   "level_mode": "8:2_skew", "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 等級失配 (8:2)
+    
+    # 空間分布測試
+    "S6":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "odd_even",  "time_mode": "random",   "budget_mode": "300"},   # 空間失配 (硬性)
+    "S7":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "hub_1G",    "time_mode": "random",   "budget_mode": "300"},   # 樞紐黑洞 (1組)
+    "S8":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "hub_2G",    "time_mode": "random",   "budget_mode": "300"},   # 樞紐黑洞 (2組)
+    
+    # 時間分布測試
+    "S9":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "weekend",  "budget_mode": "1M"},    # 週期效應 (週末)
+    "S10": {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "peak_1",   "budget_mode": "1M"},    # 爆發尖峰 (1峰)
+    "S11": {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "peak_3",   "budget_mode": "1M"},    # 爆發尖峰 (3峰)
+    
+    # 財務預算測試
+    "S12": {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "0"},     # 預算限制 (零)
+    "S13": {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "30"},    # 預算限制 (緊)
+    "S14": {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "300"},   # 預算限制 (中)
 }
 
 if __name__ == "__main__":
@@ -137,7 +135,7 @@ if __name__ == "__main__":
         folder = os.path.join(root, sid)
         os.makedirs(folder)
         print(f"Generating Scenario {sid}...")
-        for i in range(1, 6):
+        for i in range(1, 31):
             with open(os.path.join(folder, f"{sid}_inst_{i:02d}.txt"), "w") as f:
                 f.write(engine.create_instance(cfg))
     print("Success: instances generated.")
