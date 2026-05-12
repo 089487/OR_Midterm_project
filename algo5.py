@@ -777,7 +777,7 @@ def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
     return best_assignment, best_relocation, best_value
 
 
-def heuristic_algorithm(file_path):
+def heuristic_algorithm(file_path, raw_test: bool = False):
     '''
     Return:
         assignment: list of length n_K. assignment[i-1] = car ID or -1.
@@ -841,7 +841,7 @@ def heuristic_algorithm(file_path):
 
     # For small public-like instances, use a bounded exact DFS to improve the plan.
     # For large hidden instances, this is skipped automatically.
-    if nK <= 22 and nC <= 12 and t.time() + 2.0 < deadline:
+    if not raw_test and (nK <= 22 and nC <= 12 and t.time() + 2.0 < deadline):
         exact_budget = min(18.0, max(1.0, deadline - t.time() - 1.0))
         best_assignment, best_relocation, best_value = _small_exact_plan(
             nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,

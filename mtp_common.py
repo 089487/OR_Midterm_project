@@ -72,7 +72,7 @@ def parse_instance(path: str | Path) -> Instance:
     rates = {int(row[0]): int(row[1]) for row in sections[2][1:]}
 
     first_pickup = min(datetime.strptime(row[4], TIME_FMT) for row in sections[3][1:])
-    start = datetime(first_pickup.year, first_pickup.month, first_pickup.day)
+    start = datetime(first_pickup.year, 1, 1)
     orders: list[Order] = []
     for row in sections[3][1:]:
         pickup = datetime.strptime(row[4], TIME_FMT)
