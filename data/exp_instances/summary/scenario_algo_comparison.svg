@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="100%" height="100%" fill="#ffffff" />
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:22px;font-weight:700}.label{font-size:12px}.axis{stroke:#374151;stroke-width:1}.grid{stroke:#e5e7eb;stroke-width:1}.legend{font-size:13px}</style>
+<text x="70" y="32" class="title">Average Optimal Gap by Scenario</text>
+<line x1="70" y1="320.00" x2="1165" y2="320.00" class="axis" />
+<line x1="70" y1="70" x2="70" y2="320" class="axis" />
+<text x="70" y="395" class="title">Head-to-Head Profit Wins</text>
+<line x1="70" y1="690.00" x2="1165" y2="690.00" class="axis" />
+<line x1="70" y1="440" x2="70" y2="690" class="axis" />
+<rect x="975" y="18" width="14" height="14" fill="#2563eb" /><text x="995" y="30" class="legend">algo1</text>
+<rect x="1055" y="18" width="14" height="14" fill="#dc2626" /><text x="1075" y="30" class="legend">algo5</text>
+<rect x="85.21" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="111.11" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="109.11" y="340" text-anchor="middle" class="label">S1</text>
+<rect x="85.21" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="111.11" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="109.11" y="710" text-anchor="middle" class="label">S1</text>
+<rect x="163.42" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="189.32" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="187.32" y="340" text-anchor="middle" class="label">S2</text>
+<rect x="163.42" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="189.32" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="187.32" y="710" text-anchor="middle" class="label">S2</text>
+<rect x="241.64" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="267.54" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="265.54" y="340" text-anchor="middle" class="label">S3</text>
+<rect x="241.64" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="267.54" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="265.54" y="710" text-anchor="middle" class="label">S3</text>
+<rect x="319.85" y="319.48" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="345.75" y="319.78" width="21.90" height="1.00" fill="#dc2626" />
+<text x="343.75" y="340" text-anchor="middle" class="label">S4</text>
+<rect x="319.85" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="345.75" y="665.00" width="21.90" height="25.00" fill="#dc2626" />
+<text x="343.75" y="710" text-anchor="middle" class="label">S4</text>
+<rect x="398.06" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="423.96" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="421.96" y="340" text-anchor="middle" class="label">S5</text>
+<rect x="398.06" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="423.96" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="421.96" y="710" text-anchor="middle" class="label">S5</text>
+<rect x="476.28" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="502.18" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="500.18" y="340" text-anchor="middle" class="label">S6</text>
+<rect x="476.28" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="502.18" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="500.18" y="710" text-anchor="middle" class="label">S6</text>
+<rect x="554.49" y="319.58" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="580.39" y="318.85" width="21.90" height="1.15" fill="#dc2626" />
+<text x="578.39" y="340" text-anchor="middle" class="label">S7</text>
+<rect x="554.49" y="656.67" width="21.90" height="33.33" fill="#2563eb" />
+<rect x="580.39" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="578.39" y="710" text-anchor="middle" class="label">S7</text>
+<rect x="632.71" y="317.94" width="21.90" height="2.06" fill="#2563eb" />
+<rect x="658.61" y="315.39" width="21.90" height="4.61" fill="#dc2626" />
+<text x="656.61" y="340" text-anchor="middle" class="label">S8</text>
+<rect x="632.71" y="623.33" width="21.90" height="66.67" fill="#2563eb" />
+<rect x="658.61" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="656.61" y="710" text-anchor="middle" class="label">S8</text>
+<rect x="710.92" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="736.82" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="734.82" y="340" text-anchor="middle" class="label">S9</text>
+<rect x="710.92" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="736.82" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="734.82" y="710" text-anchor="middle" class="label">S9</text>
+<rect x="789.14" y="317.22" width="21.90" height="2.78" fill="#2563eb" />
+<rect x="815.04" y="318.25" width="21.90" height="1.75" fill="#dc2626" />
+<text x="813.04" y="340" text-anchor="middle" class="label">S10</text>
+<rect x="789.14" y="631.67" width="21.90" height="58.33" fill="#2563eb" />
+<rect x="815.04" y="548.33" width="21.90" height="141.67" fill="#dc2626" />
+<text x="813.04" y="710" text-anchor="middle" class="label">S10</text>
+<rect x="867.35" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="893.25" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="891.25" y="340" text-anchor="middle" class="label">S11</text>
+<rect x="867.35" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
+<rect x="893.25" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
+<text x="891.25" y="710" text-anchor="middle" class="label">S11</text>
+<rect x="945.56" y="318.95" width="21.90" height="1.05" fill="#2563eb" />
+<rect x="971.46" y="319.57" width="21.90" height="1.00" fill="#dc2626" />
+<text x="969.46" y="340" text-anchor="middle" class="label">S12</text>
+<rect x="945.56" y="673.33" width="21.90" height="16.67" fill="#2563eb" />
+<rect x="971.46" y="615.00" width="21.90" height="75.00" fill="#dc2626" />
+<text x="969.46" y="710" text-anchor="middle" class="label">S12</text>
+<rect x="1023.78" y="266.45" width="21.90" height="53.55" fill="#2563eb" />
+<rect x="1049.68" y="70.00" width="21.90" height="250.00" fill="#dc2626" />
+<text x="1047.68" y="340" text-anchor="middle" class="label">S13</text>
+<rect x="1023.78" y="456.67" width="21.90" height="233.33" fill="#2563eb" />
+<rect x="1049.68" y="681.67" width="21.90" height="8.33" fill="#dc2626" />
+<text x="1047.68" y="710" text-anchor="middle" class="label">S13</text>
+<rect x="1101.99" y="310.94" width="21.90" height="9.06" fill="#2563eb" />
+<rect x="1127.89" y="310.06" width="21.90" height="9.94" fill="#dc2626" />
+<text x="1125.89" y="340" text-anchor="middle" class="label">S14</text>
+<rect x="1101.99" y="631.67" width="21.90" height="58.33" fill="#2563eb" />
+<rect x="1127.89" y="681.67" width="21.90" height="8.33" fill="#dc2626" />
+<text x="1125.89" y="710" text-anchor="middle" class="label">S14</text>
+<text x="12" y="84" class="label">max 374.1%</text>
+<text x="12" y="320" class="label">min 0.0%</text>
+<text x="12" y="454" class="label">30 wins</text>
+<text x="35" y="690" class="label">0</text>
+</svg>
