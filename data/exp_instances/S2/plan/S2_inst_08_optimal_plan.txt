@@ -1,0 +1,43 @@
+Accepted sales revenue: 106480
+Profit with rejection compensation: 106480
+Accepted orders: 10 / 10
+Moving time used: 900 / 1000000
+
+Assignments
+Order ID,Car ID,Requested level,Car level,Upgrade,Pickup station,Return station,Pickup time,Return time,Revenue
+1,9,7,7,no,50,10,2023/02/22 00:30,2023/02/22 11:30,10560
+2,7,8,9,yes,45,53,2023/01/23 14:30,2023/01/24 16:30,28392
+3,7,8,9,yes,66,17,2023/02/21 00:30,2023/02/21 08:30,8736
+4,19,3,4,yes,89,98,2023/02/04 19:30,2023/02/05 07:30,6660
+5,95,2,3,yes,45,87,2023/02/07 05:30,2023/02/08 09:30,11872
+6,2,1,2,yes,14,71,2023/01/29 12:00,2023/01/30 07:00,5890
+7,3,2,2,no,97,33,2023/02/14 16:00,2023/02/15 15:00,9752
+8,75,1,1,no,94,40,2023/01/11 19:30,2023/01/13 10:30,12090
+9,95,2,3,yes,60,31,2023/02/04 18:00,2023/02/05 06:00,5088
+10,11,1,1,no,42,5,2023/02/07 04:30,2023/02/08 04:30,7440
+
+Rejected orders
+Order ID,Revenue lost,Compensation
+
+Relocations
+Car ID,From,To,Depart,Arrive,Moving minutes,Reason
+2,83,14,2023/01/11 00:00,2023/01/11 01:30,90,before order 6
+3,39,97,2023/01/11 00:00,2023/01/11 01:30,90,before order 7
+7,57,45,2023/01/11 00:00,2023/01/11 01:30,90,before order 2
+7,53,66,2023/01/24 20:30,2023/01/24 22:00,90,before order 3
+9,63,50,2023/01/11 00:00,2023/01/11 01:30,90,before order 1
+11,59,42,2023/01/11 00:00,2023/01/11 01:30,90,before order 10
+19,25,89,2023/01/11 00:00,2023/01/11 01:30,90,before order 4
+75,75,94,2023/01/11 00:00,2023/01/11 01:30,90,before order 8
+95,21,60,2023/01/11 00:00,2023/01/11 01:30,90,before order 9
+95,31,45,2023/02/05 10:00,2023/02/05 11:30,90,before order 5
+
+Routes
+Car 2: order 6
+Car 3: order 7
+Car 7: order 2 -> order 3
+Car 9: order 1
+Car 11: order 10
+Car 19: order 4
+Car 75: order 8
+Car 95: order 9 -> order 5
