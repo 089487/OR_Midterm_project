@@ -43,9 +43,10 @@ def _scenario_sort_key(path: Path) -> tuple[int, str]:
     return 9999, name
 
 
-def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
+def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path]:
     scenario_rows: list[dict[str, object]] = []
     comparison_rows: list[dict[str, object]] = []
+    optimal_gap_rows: list[dict[str, object]] = []
 
     for scenario_dir in sorted((p for p in root.iterdir() if p.is_dir()), key=_scenario_sort_key):
         bench_path = scenario_dir / "benchmark_results.csv"
@@ -135,9 +136,16 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
             row[f"{algo}_wins"] = stats["wins"]
 
         scenario_rows.append(row)
+        optimal_gap_rows.append(
+            {
+                "scenario": scenario_dir.name,
+                **{algo: round(_mean(algo_stats[algo]["gap_pct"]), 8) for algo in ALGORITHMS},
+            }
+        )
 
     summary_path = out_dir / "scenario_summary.csv"
     detail_path = out_dir / "instance_gap_detail.csv"
+    optimal_gap_path = out_dir / "optimal_gap_table.csv"
     chart_path = out_dir / "scenario_algo_comparison.svg"
 
     summary_fields = ["scenario", "instances", "ip_avg_profit", "ip_avg_execution_time"]
@@ -167,8 +175,9 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
     ]
     _write_csv(summary_path, scenario_rows, summary_fields)
     _write_csv(detail_path, comparison_rows, detail_fields)
+    _write_csv(optimal_gap_path, optimal_gap_rows, ["scenario", *ALGORITHMS])
     _plot_summary(scenario_rows, chart_path)
-    return summary_path, detail_path, chart_path
+    return summary_path, detail_path, optimal_gap_path, chart_path
 
 
 def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
@@ -256,10 +265,8 @@ def main() -> None:
     parser.add_argument("--out-dir", default="data/exp_instances/summary")
     args = parser.parse_args()
 
-    summary_path, detail_path, chart_path = summarize(Path(args.root), Path(args.out_dir))
-    print(f"wrote {summary_path}")
-    print(f"wrote {detail_path}")
-    print(f"wrote {chart_path}")
+    for path in summarize(Path(args.root), Path(args.out_dir)):
+        print(f"wrote {path}")
 
 
 if __name__ == "__main__":
