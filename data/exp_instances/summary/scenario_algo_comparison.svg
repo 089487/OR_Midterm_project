@@ -1,98 +1,185 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="820" viewBox="0 0 1500 820">
 <rect width="100%" height="100%" fill="#ffffff" />
 <style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:22px;font-weight:700}.label{font-size:12px}.axis{stroke:#374151;stroke-width:1}.grid{stroke:#e5e7eb;stroke-width:1}.legend{font-size:13px}</style>
 <text x="70" y="32" class="title">Average Optimal Gap by Scenario</text>
-<line x1="70" y1="320.00" x2="1165" y2="320.00" class="axis" />
+<line x1="70" y1="320.00" x2="1465" y2="320.00" class="axis" />
 <line x1="70" y1="70" x2="70" y2="320" class="axis" />
 <text x="70" y="395" class="title">Head-to-Head Profit Wins</text>
-<line x1="70" y1="690.00" x2="1165" y2="690.00" class="axis" />
+<line x1="70" y1="690.00" x2="1465" y2="690.00" class="axis" />
 <line x1="70" y1="440" x2="70" y2="690" class="axis" />
-<rect x="975" y="18" width="14" height="14" fill="#2563eb" /><text x="995" y="30" class="legend">algo1</text>
-<rect x="1055" y="18" width="14" height="14" fill="#dc2626" /><text x="1075" y="30" class="legend">algo5</text>
-<rect x="85.21" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="111.11" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="109.11" y="340" text-anchor="middle" class="label">S1</text>
-<rect x="85.21" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="111.11" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="109.11" y="710" text-anchor="middle" class="label">S1</text>
-<rect x="163.42" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="189.32" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="187.32" y="340" text-anchor="middle" class="label">S2</text>
-<rect x="163.42" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="189.32" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="187.32" y="710" text-anchor="middle" class="label">S2</text>
-<rect x="241.64" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="267.54" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="265.54" y="340" text-anchor="middle" class="label">S3</text>
-<rect x="241.64" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="267.54" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="265.54" y="710" text-anchor="middle" class="label">S3</text>
-<rect x="319.85" y="319.48" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="345.75" y="319.78" width="21.90" height="1.00" fill="#dc2626" />
-<text x="343.75" y="340" text-anchor="middle" class="label">S4</text>
-<rect x="319.85" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="345.75" y="665.00" width="21.90" height="25.00" fill="#dc2626" />
-<text x="343.75" y="710" text-anchor="middle" class="label">S4</text>
-<rect x="398.06" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="423.96" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="421.96" y="340" text-anchor="middle" class="label">S5</text>
-<rect x="398.06" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="423.96" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="421.96" y="710" text-anchor="middle" class="label">S5</text>
-<rect x="476.28" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="502.18" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="500.18" y="340" text-anchor="middle" class="label">S6</text>
-<rect x="476.28" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="502.18" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="500.18" y="710" text-anchor="middle" class="label">S6</text>
-<rect x="554.49" y="319.58" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="580.39" y="318.85" width="21.90" height="1.15" fill="#dc2626" />
-<text x="578.39" y="340" text-anchor="middle" class="label">S7</text>
-<rect x="554.49" y="656.67" width="21.90" height="33.33" fill="#2563eb" />
-<rect x="580.39" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="578.39" y="710" text-anchor="middle" class="label">S7</text>
-<rect x="632.71" y="317.94" width="21.90" height="2.06" fill="#2563eb" />
-<rect x="658.61" y="315.39" width="21.90" height="4.61" fill="#dc2626" />
-<text x="656.61" y="340" text-anchor="middle" class="label">S8</text>
-<rect x="632.71" y="623.33" width="21.90" height="66.67" fill="#2563eb" />
-<rect x="658.61" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="656.61" y="710" text-anchor="middle" class="label">S8</text>
-<rect x="710.92" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="736.82" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="734.82" y="340" text-anchor="middle" class="label">S9</text>
-<rect x="710.92" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="736.82" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="734.82" y="710" text-anchor="middle" class="label">S9</text>
-<rect x="789.14" y="317.22" width="21.90" height="2.78" fill="#2563eb" />
-<rect x="815.04" y="318.25" width="21.90" height="1.75" fill="#dc2626" />
-<text x="813.04" y="340" text-anchor="middle" class="label">S10</text>
-<rect x="789.14" y="631.67" width="21.90" height="58.33" fill="#2563eb" />
-<rect x="815.04" y="548.33" width="21.90" height="141.67" fill="#dc2626" />
-<text x="813.04" y="710" text-anchor="middle" class="label">S10</text>
-<rect x="867.35" y="320.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="893.25" y="320.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="891.25" y="340" text-anchor="middle" class="label">S11</text>
-<rect x="867.35" y="690.00" width="21.90" height="1.00" fill="#2563eb" />
-<rect x="893.25" y="690.00" width="21.90" height="1.00" fill="#dc2626" />
-<text x="891.25" y="710" text-anchor="middle" class="label">S11</text>
-<rect x="945.56" y="318.95" width="21.90" height="1.05" fill="#2563eb" />
-<rect x="971.46" y="319.57" width="21.90" height="1.00" fill="#dc2626" />
-<text x="969.46" y="340" text-anchor="middle" class="label">S12</text>
-<rect x="945.56" y="673.33" width="21.90" height="16.67" fill="#2563eb" />
-<rect x="971.46" y="615.00" width="21.90" height="75.00" fill="#dc2626" />
-<text x="969.46" y="710" text-anchor="middle" class="label">S12</text>
-<rect x="1023.78" y="266.45" width="21.90" height="53.55" fill="#2563eb" />
-<rect x="1049.68" y="70.00" width="21.90" height="250.00" fill="#dc2626" />
-<text x="1047.68" y="340" text-anchor="middle" class="label">S13</text>
-<rect x="1023.78" y="456.67" width="21.90" height="233.33" fill="#2563eb" />
-<rect x="1049.68" y="681.67" width="21.90" height="8.33" fill="#dc2626" />
-<text x="1047.68" y="710" text-anchor="middle" class="label">S13</text>
-<rect x="1101.99" y="310.94" width="21.90" height="9.06" fill="#2563eb" />
-<rect x="1127.89" y="310.06" width="21.90" height="9.94" fill="#dc2626" />
-<text x="1125.89" y="340" text-anchor="middle" class="label">S14</text>
-<rect x="1101.99" y="631.67" width="21.90" height="58.33" fill="#2563eb" />
-<rect x="1127.89" y="681.67" width="21.90" height="8.33" fill="#dc2626" />
-<text x="1125.89" y="710" text-anchor="middle" class="label">S14</text>
+<rect x="1070" y="18" width="14" height="14" fill="#2563eb" /><text x="1090" y="30" class="legend">algo1</text>
+<rect x="1148" y="18" width="14" height="14" fill="#16a34a" /><text x="1168" y="30" class="legend">algo2</text>
+<rect x="1226" y="18" width="14" height="14" fill="#f59e0b" /><text x="1246" y="30" class="legend">algo3</text>
+<rect x="1304" y="18" width="14" height="14" fill="#7c3aed" /><text x="1324" y="30" class="legend">algo4</text>
+<rect x="1382" y="18" width="14" height="14" fill="#dc2626" /><text x="1402" y="30" class="legend">algo5</text>
+<rect x="83.44" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="83.44" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="98.39" y="320.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="98.39" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="113.34" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="113.34" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="128.30" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="128.30" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="143.25" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="143.25" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="119.82" y="340" text-anchor="middle" class="label">S1</text>
+<text x="119.82" y="710" text-anchor="middle" class="label">S1</text>
+<rect x="183.08" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="183.08" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="198.03" y="320.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="198.03" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="212.99" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="212.99" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="227.94" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="227.94" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="242.89" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="242.89" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="219.46" y="340" text-anchor="middle" class="label">S2</text>
+<text x="219.46" y="710" text-anchor="middle" class="label">S2</text>
+<rect x="282.72" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="282.72" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="297.68" y="320.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="297.68" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="312.63" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="312.63" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="327.58" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="327.58" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="342.54" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="342.54" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="319.11" y="340" text-anchor="middle" class="label">S3</text>
+<text x="319.11" y="710" text-anchor="middle" class="label">S3</text>
+<rect x="382.37" y="319.48" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="382.37" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="397.32" y="319.68" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="397.32" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="412.27" y="319.48" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="412.27" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="427.23" y="319.94" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="427.23" y="665.00" width="12.95" height="25.00" fill="#7c3aed" />
+<rect x="442.18" y="319.78" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="442.18" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="418.75" y="340" text-anchor="middle" class="label">S4</text>
+<text x="418.75" y="710" text-anchor="middle" class="label">S4</text>
+<rect x="482.01" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="482.01" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="496.96" y="320.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="496.96" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="511.92" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="511.92" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="526.87" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="526.87" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="541.82" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="541.82" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="518.39" y="340" text-anchor="middle" class="label">S5</text>
+<text x="518.39" y="710" text-anchor="middle" class="label">S5</text>
+<rect x="581.65" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="581.65" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="596.61" y="317.08" width="12.95" height="2.92" fill="#16a34a" />
+<rect x="596.61" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="611.56" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="611.56" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="626.51" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="626.51" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="641.47" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="641.47" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="618.04" y="340" text-anchor="middle" class="label">S6</text>
+<text x="618.04" y="710" text-anchor="middle" class="label">S6</text>
+<rect x="681.29" y="319.58" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="681.29" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="696.25" y="318.35" width="12.95" height="1.65" fill="#16a34a" />
+<rect x="696.25" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="711.20" y="319.58" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="711.20" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="726.16" y="319.97" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="726.16" y="656.67" width="12.95" height="33.33" fill="#7c3aed" />
+<rect x="741.11" y="318.85" width="12.95" height="1.15" fill="#dc2626" />
+<rect x="741.11" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="717.68" y="340" text-anchor="middle" class="label">S7</text>
+<text x="717.68" y="710" text-anchor="middle" class="label">S7</text>
+<rect x="780.94" y="317.94" width="12.95" height="2.06" fill="#2563eb" />
+<rect x="780.94" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="795.89" y="315.14" width="12.95" height="4.86" fill="#16a34a" />
+<rect x="795.89" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="810.84" y="317.94" width="12.95" height="2.06" fill="#f59e0b" />
+<rect x="810.84" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="825.80" y="319.69" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="825.80" y="640.00" width="12.95" height="50.00" fill="#7c3aed" />
+<rect x="840.75" y="315.39" width="12.95" height="4.61" fill="#dc2626" />
+<rect x="840.75" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="817.32" y="340" text-anchor="middle" class="label">S8</text>
+<text x="817.32" y="710" text-anchor="middle" class="label">S8</text>
+<rect x="880.58" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="880.58" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="895.53" y="320.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="895.53" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="910.49" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="910.49" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="925.44" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="925.44" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="940.39" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="940.39" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="916.96" y="340" text-anchor="middle" class="label">S9</text>
+<text x="916.96" y="710" text-anchor="middle" class="label">S9</text>
+<rect x="980.22" y="317.22" width="12.95" height="2.78" fill="#2563eb" />
+<rect x="980.22" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="995.18" y="315.19" width="12.95" height="4.81" fill="#16a34a" />
+<rect x="995.18" y="673.33" width="12.95" height="16.67" fill="#16a34a" />
+<rect x="1010.13" y="317.22" width="12.95" height="2.78" fill="#f59e0b" />
+<rect x="1010.13" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1025.08" y="318.66" width="12.95" height="1.34" fill="#7c3aed" />
+<rect x="1025.08" y="548.33" width="12.95" height="141.67" fill="#7c3aed" />
+<rect x="1040.04" y="318.25" width="12.95" height="1.75" fill="#dc2626" />
+<rect x="1040.04" y="640.00" width="12.95" height="50.00" fill="#dc2626" />
+<text x="1016.61" y="340" text-anchor="middle" class="label">S10</text>
+<text x="1016.61" y="710" text-anchor="middle" class="label">S10</text>
+<rect x="1079.87" y="320.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="1079.87" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="1094.82" y="319.96" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="1094.82" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="1109.77" y="320.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1109.77" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1124.73" y="320.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="1124.73" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="1139.68" y="320.00" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="1139.68" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="1116.25" y="340" text-anchor="middle" class="label">S11</text>
+<text x="1116.25" y="710" text-anchor="middle" class="label">S11</text>
+<rect x="1179.51" y="318.95" width="12.95" height="1.05" fill="#2563eb" />
+<rect x="1179.51" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="1194.46" y="319.94" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="1194.46" y="648.33" width="12.95" height="41.67" fill="#16a34a" />
+<rect x="1209.42" y="318.95" width="12.95" height="1.05" fill="#f59e0b" />
+<rect x="1209.42" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1224.37" y="319.73" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="1224.37" y="690.00" width="12.95" height="1.00" fill="#7c3aed" />
+<rect x="1239.32" y="319.57" width="12.95" height="1.00" fill="#dc2626" />
+<rect x="1239.32" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="1215.89" y="340" text-anchor="middle" class="label">S12</text>
+<text x="1215.89" y="710" text-anchor="middle" class="label">S12</text>
+<rect x="1279.15" y="266.45" width="12.95" height="53.55" fill="#2563eb" />
+<rect x="1279.15" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="1294.11" y="192.92" width="12.95" height="127.08" fill="#16a34a" />
+<rect x="1294.11" y="681.67" width="12.95" height="8.33" fill="#16a34a" />
+<rect x="1309.06" y="266.73" width="12.95" height="53.27" fill="#f59e0b" />
+<rect x="1309.06" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1324.01" y="312.79" width="12.95" height="7.21" fill="#7c3aed" />
+<rect x="1324.01" y="465.00" width="12.95" height="225.00" fill="#7c3aed" />
+<rect x="1338.97" y="70.00" width="12.95" height="250.00" fill="#dc2626" />
+<rect x="1338.97" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="1315.54" y="340" text-anchor="middle" class="label">S13</text>
+<text x="1315.54" y="710" text-anchor="middle" class="label">S13</text>
+<rect x="1378.79" y="310.94" width="12.95" height="9.06" fill="#2563eb" />
+<rect x="1378.79" y="690.00" width="12.95" height="1.00" fill="#2563eb" />
+<rect x="1393.75" y="307.52" width="12.95" height="12.48" fill="#16a34a" />
+<rect x="1393.75" y="690.00" width="12.95" height="1.00" fill="#16a34a" />
+<rect x="1408.70" y="310.94" width="12.95" height="9.06" fill="#f59e0b" />
+<rect x="1408.70" y="690.00" width="12.95" height="1.00" fill="#f59e0b" />
+<rect x="1423.66" y="317.87" width="12.95" height="2.13" fill="#7c3aed" />
+<rect x="1423.66" y="648.33" width="12.95" height="41.67" fill="#7c3aed" />
+<rect x="1438.61" y="310.06" width="12.95" height="9.94" fill="#dc2626" />
+<rect x="1438.61" y="690.00" width="12.95" height="1.00" fill="#dc2626" />
+<text x="1415.18" y="340" text-anchor="middle" class="label">S14</text>
+<text x="1415.18" y="710" text-anchor="middle" class="label">S14</text>
 <text x="12" y="84" class="label">max 374.1%</text>
 <text x="12" y="320" class="label">min 0.0%</text>
 <text x="12" y="454" class="label">30 wins</text>

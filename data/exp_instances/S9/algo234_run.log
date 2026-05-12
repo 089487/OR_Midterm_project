@@ -1,0 +1,184 @@
+START 2026-05-12 22:29:30 jobs=90 max_seconds=10.0
+[1/90] running S9_inst_01.txt algo2
+START 2026-05-12 22:30:14 jobs=90 max_seconds=10.0
+[1/90] running S9_inst_01.txt algo2
+[1/90] ok S9_inst_01.txt algo2 seconds=0.460583 profit=2084037 moving_time=9000
+[2/90] running S9_inst_01.txt algo3
+[2/90] ok S9_inst_01.txt algo3 seconds=10.022485 profit=2084037 moving_time=7650
+[3/90] running S9_inst_01.txt algo4
+[3/90] ok S9_inst_01.txt algo4 seconds=0.037772 profit=2084037 moving_time=7650
+[4/90] running S9_inst_02.txt algo2
+[4/90] ok S9_inst_02.txt algo2 seconds=0.582466 profit=1685863 moving_time=8910
+[5/90] running S9_inst_02.txt algo3
+[5/90] ok S9_inst_02.txt algo3 seconds=10.020888 profit=1685863 moving_time=7470
+[6/90] running S9_inst_02.txt algo4
+[6/90] ok S9_inst_02.txt algo4 seconds=0.035000 profit=1685863 moving_time=7470
+[7/90] running S9_inst_03.txt algo2
+[7/90] ok S9_inst_03.txt algo2 seconds=0.592595 profit=2117582 moving_time=9000
+[8/90] running S9_inst_03.txt algo3
+[8/90] ok S9_inst_03.txt algo3 seconds=10.014978 profit=2117582 moving_time=7200
+[9/90] running S9_inst_03.txt algo4
+[9/90] ok S9_inst_03.txt algo4 seconds=0.047810 profit=2117582 moving_time=7200
+[10/90] running S9_inst_04.txt algo2
+[10/90] ok S9_inst_04.txt algo2 seconds=0.551189 profit=1629840 moving_time=8910
+[11/90] running S9_inst_04.txt algo3
+[11/90] ok S9_inst_04.txt algo3 seconds=10.035505 profit=1629840 moving_time=7560
+[12/90] running S9_inst_04.txt algo4
+[12/90] ok S9_inst_04.txt algo4 seconds=0.050573 profit=1629840 moving_time=7560
+[13/90] running S9_inst_05.txt algo2
+[13/90] ok S9_inst_05.txt algo2 seconds=0.531564 profit=1673386 moving_time=8910
+[14/90] running S9_inst_05.txt algo3
+[14/90] ok S9_inst_05.txt algo3 seconds=10.017146 profit=1673386 moving_time=7200
+[15/90] running S9_inst_05.txt algo4
+[15/90] ok S9_inst_05.txt algo4 seconds=0.043776 profit=1673386 moving_time=7200
+[16/90] running S9_inst_06.txt algo2
+[16/90] ok S9_inst_06.txt algo2 seconds=0.546054 profit=1944451 moving_time=8910
+[17/90] running S9_inst_06.txt algo3
+[17/90] ok S9_inst_06.txt algo3 seconds=10.015213 profit=1944451 moving_time=7740
+[18/90] running S9_inst_06.txt algo4
+[18/90] ok S9_inst_06.txt algo4 seconds=0.052002 profit=1944451 moving_time=7740
+[19/90] running S9_inst_07.txt algo2
+[19/90] ok S9_inst_07.txt algo2 seconds=0.529284 profit=1784800 moving_time=9000
+[20/90] running S9_inst_07.txt algo3
+[20/90] ok S9_inst_07.txt algo3 seconds=10.028074 profit=1784800 moving_time=7740
+[21/90] running S9_inst_07.txt algo4
+[21/90] ok S9_inst_07.txt algo4 seconds=0.040909 profit=1784800 moving_time=7740
+[22/90] running S9_inst_08.txt algo2
+[22/90] ok S9_inst_08.txt algo2 seconds=0.506927 profit=1622319 moving_time=8910
+[23/90] running S9_inst_08.txt algo3
+[23/90] ok S9_inst_08.txt algo3 seconds=10.015489 profit=1622319 moving_time=7740
+[24/90] running S9_inst_08.txt algo4
+[24/90] ok S9_inst_08.txt algo4 seconds=0.036967 profit=1622319 moving_time=7740
+[25/90] running S9_inst_09.txt algo2
+[25/90] ok S9_inst_09.txt algo2 seconds=0.509304 profit=2184128 moving_time=9000
+[26/90] running S9_inst_09.txt algo3
+[26/90] ok S9_inst_09.txt algo3 seconds=10.017343 profit=2184128 moving_time=7020
+[27/90] running S9_inst_09.txt algo4
+[27/90] ok S9_inst_09.txt algo4 seconds=0.041698 profit=2184128 moving_time=7020
+[28/90] running S9_inst_10.txt algo2
+[28/90] ok S9_inst_10.txt algo2 seconds=0.612967 profit=2067997 moving_time=8820
+[29/90] running S9_inst_10.txt algo3
+[29/90] ok S9_inst_10.txt algo3 seconds=10.012931 profit=2067997 moving_time=7380
+[30/90] running S9_inst_10.txt algo4
+[30/90] ok S9_inst_10.txt algo4 seconds=0.043474 profit=2067997 moving_time=7380
+[31/90] running S9_inst_11.txt algo2
+[31/90] ok S9_inst_11.txt algo2 seconds=0.483048 profit=1995581 moving_time=9000
+[32/90] running S9_inst_11.txt algo3
+[32/90] ok S9_inst_11.txt algo3 seconds=10.014850 profit=1995581 moving_time=7650
+[33/90] running S9_inst_11.txt algo4
+[33/90] ok S9_inst_11.txt algo4 seconds=0.060701 profit=1995581 moving_time=7650
+[34/90] running S9_inst_12.txt algo2
+[34/90] ok S9_inst_12.txt algo2 seconds=0.644548 profit=1742858 moving_time=9000
+[35/90] running S9_inst_12.txt algo3
+[35/90] ok S9_inst_12.txt algo3 seconds=10.027524 profit=1742858 moving_time=7200
+[36/90] running S9_inst_12.txt algo4
+[36/90] ok S9_inst_12.txt algo4 seconds=0.047481 profit=1742858 moving_time=7200
+[37/90] running S9_inst_13.txt algo2
+[37/90] ok S9_inst_13.txt algo2 seconds=0.521628 profit=2188851 moving_time=8820
+[38/90] running S9_inst_13.txt algo3
+[38/90] ok S9_inst_13.txt algo3 seconds=10.018224 profit=2188851 moving_time=6390
+[39/90] running S9_inst_13.txt algo4
+[39/90] ok S9_inst_13.txt algo4 seconds=0.040774 profit=2188851 moving_time=6390
+[40/90] running S9_inst_14.txt algo2
+[40/90] ok S9_inst_14.txt algo2 seconds=0.581597 profit=1948392 moving_time=9000
+[41/90] running S9_inst_14.txt algo3
+[41/90] ok S9_inst_14.txt algo3 seconds=10.017776 profit=1948392 moving_time=7560
+[42/90] running S9_inst_14.txt algo4
+[42/90] ok S9_inst_14.txt algo4 seconds=0.036743 profit=1948392 moving_time=7560
+[43/90] running S9_inst_15.txt algo2
+[43/90] ok S9_inst_15.txt algo2 seconds=0.545307 profit=2141283 moving_time=8640
+[44/90] running S9_inst_15.txt algo3
+[44/90] ok S9_inst_15.txt algo3 seconds=10.014991 profit=2141283 moving_time=7290
+[45/90] running S9_inst_15.txt algo4
+[45/90] ok S9_inst_15.txt algo4 seconds=0.040748 profit=2141283 moving_time=7290
+[46/90] running S9_inst_16.txt algo2
+[46/90] ok S9_inst_16.txt algo2 seconds=0.456221 profit=2026436 moving_time=8730
+[47/90] running S9_inst_16.txt algo3
+[47/90] ok S9_inst_16.txt algo3 seconds=10.015258 profit=2026436 moving_time=7470
+[48/90] running S9_inst_16.txt algo4
+[48/90] ok S9_inst_16.txt algo4 seconds=0.043739 profit=2026436 moving_time=7470
+[49/90] running S9_inst_17.txt algo2
+[49/90] ok S9_inst_17.txt algo2 seconds=0.541230 profit=1991738 moving_time=8910
+[50/90] running S9_inst_17.txt algo3
+[50/90] ok S9_inst_17.txt algo3 seconds=10.017550 profit=1991738 moving_time=7560
+[51/90] running S9_inst_17.txt algo4
+[51/90] ok S9_inst_17.txt algo4 seconds=0.036205 profit=1991738 moving_time=7560
+[52/90] running S9_inst_18.txt algo2
+[52/90] ok S9_inst_18.txt algo2 seconds=0.537339 profit=1934166 moving_time=8820
+[53/90] running S9_inst_18.txt algo3
+[53/90] ok S9_inst_18.txt algo3 seconds=10.015392 profit=1934166 moving_time=7470
+[54/90] running S9_inst_18.txt algo4
+[54/90] ok S9_inst_18.txt algo4 seconds=0.049025 profit=1934166 moving_time=7470
+[55/90] running S9_inst_19.txt algo2
+[55/90] ok S9_inst_19.txt algo2 seconds=0.589579 profit=1705523 moving_time=9000
+[56/90] running S9_inst_19.txt algo3
+[56/90] ok S9_inst_19.txt algo3 seconds=10.015199 profit=1705523 moving_time=7200
+[57/90] running S9_inst_19.txt algo4
+[57/90] ok S9_inst_19.txt algo4 seconds=0.047311 profit=1705523 moving_time=7200
+[58/90] running S9_inst_20.txt algo2
+[58/90] ok S9_inst_20.txt algo2 seconds=0.516478 profit=1893330 moving_time=9000
+[59/90] running S9_inst_20.txt algo3
+[59/90] ok S9_inst_20.txt algo3 seconds=10.026642 profit=1893330 moving_time=7200
+[60/90] running S9_inst_20.txt algo4
+[60/90] ok S9_inst_20.txt algo4 seconds=0.037523 profit=1893330 moving_time=7200
+[61/90] running S9_inst_21.txt algo2
+[61/90] ok S9_inst_21.txt algo2 seconds=0.546768 profit=1822571 moving_time=9000
+[62/90] running S9_inst_21.txt algo3
+[62/90] ok S9_inst_21.txt algo3 seconds=10.015076 profit=1822571 moving_time=7290
+[63/90] running S9_inst_21.txt algo4
+[63/90] ok S9_inst_21.txt algo4 seconds=0.038669 profit=1822571 moving_time=7290
+[64/90] running S9_inst_22.txt algo2
+[64/90] ok S9_inst_22.txt algo2 seconds=0.444943 profit=2144649 moving_time=8730
+[65/90] running S9_inst_22.txt algo3
+[65/90] ok S9_inst_22.txt algo3 seconds=10.014744 profit=2144649 moving_time=7110
+[66/90] running S9_inst_22.txt algo4
+[66/90] ok S9_inst_22.txt algo4 seconds=0.041143 profit=2144649 moving_time=7110
+[67/90] running S9_inst_23.txt algo2
+[67/90] ok S9_inst_23.txt algo2 seconds=0.569007 profit=2318451 moving_time=8550
+[68/90] running S9_inst_23.txt algo3
+[68/90] ok S9_inst_23.txt algo3 seconds=10.031713 profit=2318451 moving_time=6660
+[69/90] running S9_inst_23.txt algo4
+[69/90] ok S9_inst_23.txt algo4 seconds=9.965021 profit=2318451 moving_time=6660
+[70/90] running S9_inst_24.txt algo2
+[70/90] ok S9_inst_24.txt algo2 seconds=0.609673 profit=1714319 moving_time=8910
+[71/90] running S9_inst_24.txt algo3
+[71/90] ok S9_inst_24.txt algo3 seconds=10.014904 profit=1714319 moving_time=7560
+[72/90] running S9_inst_24.txt algo4
+[72/90] ok S9_inst_24.txt algo4 seconds=0.036901 profit=1714319 moving_time=7560
+[73/90] running S9_inst_25.txt algo2
+[73/90] ok S9_inst_25.txt algo2 seconds=0.565488 profit=1701011 moving_time=9000
+[74/90] running S9_inst_25.txt algo3
+[74/90] ok S9_inst_25.txt algo3 seconds=10.015225 profit=1701011 moving_time=7380
+[75/90] running S9_inst_25.txt algo4
+[75/90] ok S9_inst_25.txt algo4 seconds=0.048876 profit=1701011 moving_time=7380
+[76/90] running S9_inst_26.txt algo2
+[76/90] ok S9_inst_26.txt algo2 seconds=0.594512 profit=1786515 moving_time=8730
+[77/90] running S9_inst_26.txt algo3
+[77/90] ok S9_inst_26.txt algo3 seconds=10.029021 profit=1786515 moving_time=7470
+[78/90] running S9_inst_26.txt algo4
+[78/90] ok S9_inst_26.txt algo4 seconds=0.038521 profit=1786515 moving_time=7470
+[79/90] running S9_inst_27.txt algo2
+[79/90] ok S9_inst_27.txt algo2 seconds=0.434391 profit=1731331 moving_time=9000
+[80/90] running S9_inst_27.txt algo3
+[80/90] ok S9_inst_27.txt algo3 seconds=10.016528 profit=1731331 moving_time=7740
+[81/90] running S9_inst_27.txt algo4
+[81/90] ok S9_inst_27.txt algo4 seconds=0.050355 profit=1731331 moving_time=7740
+[82/90] running S9_inst_28.txt algo2
+[82/90] ok S9_inst_28.txt algo2 seconds=0.798138 profit=1637015 moving_time=8910
+[83/90] running S9_inst_28.txt algo3
+[83/90] ok S9_inst_28.txt algo3 seconds=10.015144 profit=1637015 moving_time=7200
+[84/90] running S9_inst_28.txt algo4
+[84/90] ok S9_inst_28.txt algo4 seconds=0.056361 profit=1637015 moving_time=7200
+[85/90] running S9_inst_29.txt algo2
+[85/90] ok S9_inst_29.txt algo2 seconds=0.601008 profit=1747982 moving_time=9000
+[86/90] running S9_inst_29.txt algo3
+[86/90] ok S9_inst_29.txt algo3 seconds=10.024549 profit=1747982 moving_time=7200
+[87/90] running S9_inst_29.txt algo4
+[87/90] ok S9_inst_29.txt algo4 seconds=0.040272 profit=1747982 moving_time=7200
+[88/90] running S9_inst_30.txt algo2
+[88/90] ok S9_inst_30.txt algo2 seconds=0.704008 profit=1528657 moving_time=8640
+[89/90] running S9_inst_30.txt algo3
+[89/90] ok S9_inst_30.txt algo3 seconds=10.015797 profit=1528657 moving_time=7560
+[90/90] running S9_inst_30.txt algo4
+[90/90] ok S9_inst_30.txt algo4 seconds=9.965320 profit=1528657 moving_time=7560
+DONE 2026-05-12 22:35:59
