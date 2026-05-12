@@ -5,7 +5,14 @@ import csv
 from pathlib import Path
 
 
-ALGORITHMS = ("algo1", "algo5")
+ALGORITHMS = ("algo1", "algo2", "algo3", "algo4", "algo5")
+COLORS = {
+    "algo1": "#2563eb",
+    "algo2": "#16a34a",
+    "algo3": "#f59e0b",
+    "algo4": "#7c3aed",
+    "algo5": "#dc2626",
+}
 
 
 def _read_rows(path: Path) -> list[dict[str, str]]:
@@ -59,15 +66,12 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
                 "profit": [],
                 "moving_time": [],
                 "execution_time": [],
-                "wins_vs_other": 0,
-                "ties_vs_other": 0,
+                "wins": 0,
             }
             for algo in ALGORITHMS
         }
         ip_profit_values: list[float] = []
         ip_time_values: list[float] = []
-        algo1_wins = 0
-        algo5_wins = 0
         ties = 0
         completed_instances = 0
 
@@ -81,10 +85,10 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
             ip_time_values.append(ip_time)
 
             profits = {algo: _to_float(algos[algo]["profit"]) for algo in ALGORITHMS}
-            if profits["algo1"] > profits["algo5"]:
-                algo1_wins += 1
-            elif profits["algo5"] > profits["algo1"]:
-                algo5_wins += 1
+            best_profit = max(profits.values())
+            winners = [algo for algo, value in profits.items() if value == best_profit]
+            if len(winners) == 1:
+                algo_stats[winners[0]]["wins"] += 1
             else:
                 ties += 1
 
@@ -118,8 +122,6 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
             "instances": completed_instances,
             "ip_avg_profit": round(_mean(ip_profit_values), 6),
             "ip_avg_execution_time": round(_mean(ip_time_values), 6),
-            "algo1_wins": algo1_wins,
-            "algo5_wins": algo5_wins,
             "ties": ties,
         }
 
@@ -130,6 +132,7 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
             row[f"{algo}_avg_optimal_gap_pct"] = round(100.0 * _mean(stats["gap_pct"]), 6)
             row[f"{algo}_avg_moving_time"] = round(_mean(stats["moving_time"]), 6)
             row[f"{algo}_avg_execution_time"] = round(_mean(stats["execution_time"]), 6)
+            row[f"{algo}_wins"] = stats["wins"]
 
         scenario_rows.append(row)
 
@@ -137,25 +140,19 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
     detail_path = out_dir / "instance_gap_detail.csv"
     chart_path = out_dir / "scenario_algo_comparison.svg"
 
-    summary_fields = [
-        "scenario",
-        "instances",
-        "ip_avg_profit",
-        "ip_avg_execution_time",
-        "algo1_avg_profit",
-        "algo1_avg_profit_gap",
-        "algo1_avg_optimal_gap_pct",
-        "algo1_avg_moving_time",
-        "algo1_avg_execution_time",
-        "algo5_avg_profit",
-        "algo5_avg_profit_gap",
-        "algo5_avg_optimal_gap_pct",
-        "algo5_avg_moving_time",
-        "algo5_avg_execution_time",
-        "algo1_wins",
-        "algo5_wins",
-        "ties",
-    ]
+    summary_fields = ["scenario", "instances", "ip_avg_profit", "ip_avg_execution_time"]
+    for algo in ALGORITHMS:
+        summary_fields.extend(
+            [
+                f"{algo}_avg_profit",
+                f"{algo}_avg_profit_gap",
+                f"{algo}_avg_optimal_gap_pct",
+                f"{algo}_avg_moving_time",
+                f"{algo}_avg_execution_time",
+                f"{algo}_wins",
+            ]
+        )
+    summary_fields.append("ties")
     detail_fields = [
         "scenario",
         "instance",
@@ -176,20 +173,15 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path]:
 
 def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
     scenarios = [str(row["scenario"]) for row in rows]
-    gap1 = [float(row["algo1_avg_optimal_gap_pct"]) for row in rows]
-    gap5 = [float(row["algo5_avg_optimal_gap_pct"]) for row in rows]
-    wins1 = [int(row["algo1_wins"]) for row in rows]
-    wins5 = [int(row["algo5_wins"]) for row in rows]
-
-    width = 1200
-    height = 760
+    width = 1500
+    height = 820
     margin_left = 70
     margin_right = 35
     top_gap = 70
     chart_h = 250
     chart_gap = 120
     bar_group_w = (width - margin_left - margin_right) / max(1, len(scenarios))
-    bar_w = min(26, bar_group_w * 0.28)
+    bar_w = min(14, bar_group_w * 0.13)
 
     def esc(text: object) -> str:
         return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -208,8 +200,8 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
         rect_h = max(1.0, abs(zero - y))
         return f'<rect x="{x:.2f}" y="{rect_y:.2f}" width="{bar_w:.2f}" height="{rect_h:.2f}" fill="{color}" />'
 
-    gap_values = gap1 + gap5
-    win_values = wins1 + wins5 + [30]
+    gap_values = [float(row[f"{algo}_avg_optimal_gap_pct"]) for row in rows for algo in ALGORITHMS]
+    win_values = [int(row[f"{algo}_wins"]) for row in rows for algo in ALGORITHMS] + [30]
     gap_zero = y_scale(0, gap_values, top_gap, chart_h)
     win_zero = y_scale(0, win_values, top_gap + chart_h + chart_gap, chart_h)
 
@@ -223,18 +215,28 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
         f'<text x="{margin_left}" y="{top_gap + chart_h + chart_gap - 45}" class="title">Head-to-Head Profit Wins</text>',
         f'<line x1="{margin_left}" y1="{win_zero:.2f}" x2="{width - margin_right}" y2="{win_zero:.2f}" class="axis" />',
         f'<line x1="{margin_left}" y1="{top_gap + chart_h + chart_gap}" x2="{margin_left}" y2="{top_gap + 2 * chart_h + chart_gap}" class="axis" />',
-        f'<rect x="{width - 225}" y="18" width="14" height="14" fill="#2563eb" /><text x="{width - 205}" y="30" class="legend">algo1</text>',
-        f'<rect x="{width - 145}" y="18" width="14" height="14" fill="#dc2626" /><text x="{width - 125}" y="30" class="legend">algo5</text>',
     ]
+    legend_x = width - 430
+    for idx, algo in enumerate(ALGORITHMS):
+        x = legend_x + idx * 78
+        lines.append(
+            f'<rect x="{x}" y="18" width="14" height="14" fill="{COLORS[algo]}" />'
+            f'<text x="{x + 20}" y="30" class="legend">{algo}</text>'
+        )
 
     scenarios = [str(row["scenario"]) for row in rows]
     for idx, scenario in enumerate(scenarios):
         center = margin_left + bar_group_w * idx + bar_group_w / 2
-        lines.append(bar(gap1[idx], gap_values, center - bar_w - 2, top_gap, chart_h, "#2563eb"))
-        lines.append(bar(gap5[idx], gap_values, center + 2, top_gap, chart_h, "#dc2626"))
+        first_x = center - (len(ALGORITHMS) * bar_w + (len(ALGORITHMS) - 1) * 2) / 2
+        for algo_idx, algo in enumerate(ALGORITHMS):
+            x = first_x + algo_idx * (bar_w + 2)
+            lines.append(
+                bar(float(rows[idx][f"{algo}_avg_optimal_gap_pct"]), gap_values, x, top_gap, chart_h, COLORS[algo])
+            )
+            lines.append(
+                bar(int(rows[idx][f"{algo}_wins"]), win_values, x, top_gap + chart_h + chart_gap, chart_h, COLORS[algo])
+            )
         lines.append(f'<text x="{center:.2f}" y="{top_gap + chart_h + 20}" text-anchor="middle" class="label">{esc(scenario)}</text>')
-        lines.append(bar(wins1[idx], win_values, center - bar_w - 2, top_gap + chart_h + chart_gap, chart_h, "#2563eb"))
-        lines.append(bar(wins5[idx], win_values, center + 2, top_gap + chart_h + chart_gap, chart_h, "#dc2626"))
         lines.append(f'<text x="{center:.2f}" y="{top_gap + 2 * chart_h + chart_gap + 20}" text-anchor="middle" class="label">{esc(scenario)}</text>')
 
     gap_hi = max(gap_values) if gap_values else 0.0
