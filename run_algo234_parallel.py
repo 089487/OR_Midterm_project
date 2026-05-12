@@ -146,7 +146,7 @@ def run_scenario(args: tuple[str, list[str], float, bool]) -> str:
     log_path = scenario_dir / "algo234_run.log"
     jobs = [(p, a) for p in sorted(scenario_dir.glob("*.txt")) for a in algo_names]
     with log_path.open("a", encoding="utf-8") as log:
-        log.write(f"START {time.strftime("%Y-%m-%d %H:%M:%S")} jobs={len(jobs)} max_seconds={max_seconds}\n")
+        log.write(f"START {time.strftime('%Y-%m-%d %H:%M:%S')} jobs={len(jobs)} max_seconds={max_seconds}\n")
         log.flush()
         for idx, (instance_path, algo_name) in enumerate(jobs, start=1):
             if not force and (instance_path.name, algo_name) in existing:
@@ -161,11 +161,14 @@ def run_scenario(args: tuple[str, list[str], float, bool]) -> str:
             log.flush()
             row = run_one(instance_path, algo_name, max_seconds)
             upsert(csv_path, row)
-            msg = f"[{idx}/{len(jobs)}] {row["status"]} {instance_path.name} {algo_name} seconds={row["execution_time"]} profit={row["profit"]} moving_time={row["moving_time"]}"
+            msg = (
+                f"[{idx}/{len(jobs)}] {row['status']} {instance_path.name} {algo_name} "
+                f"seconds={row['execution_time']} profit={row['profit']} moving_time={row['moving_time']}"
+            )
             print(f"{scenario_dir.name} {msg}", flush=True)
             log.write(msg + "\n")
             log.flush()
-        log.write(f"DONE {time.strftime("%Y-%m-%d %H:%M:%S")}\n")
+        log.write(f"DONE {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
     return scenario_dir.name
 
 
@@ -180,7 +183,11 @@ def main() -> None:
     algo_names = args.algorithm or ["algo2", "algo3", "algo4"]
     scenario_dirs = sorted([p for p in Path(args.root).iterdir() if p.is_dir() and p.name.startswith("S")], key=scenario_sort_key)
     tasks = [(str(p), algo_names, args.max_seconds, args.force) for p in scenario_dirs]
-    print(f"parallel scenario jobs={len(tasks)} workers={args.jobs} algorithms={",".join(algo_names)} max_seconds={args.max_seconds}", flush=True)
+    print(
+        f"parallel scenario jobs={len(tasks)} workers={args.jobs} "
+        f"algorithms={','.join(algo_names)} max_seconds={args.max_seconds}",
+        flush=True,
+    )
     with mp.Pool(processes=min(args.jobs, len(tasks))) as pool:
         for name in pool.imap_unordered(run_scenario, tasks):
             print(f"scenario done: {name}", flush=True)
