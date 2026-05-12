@@ -10,7 +10,7 @@ To rigorously evaluate the performance of our heuristic algorithm for the IEDO c
 
 To evaluate the robustness of our heuristic algorithm under diverse business conditions, we generated **420 random instances** with high variability in fleet and pricing structures:
 
-*   **Fleet Size ($n_C$):** $n_C \sim U(20, 70)$.
+*   **Fleet Size ($n_C$):** $n_C = \begin{cases}100 & \text{if ratio} < 3 \\ 80 & \text{otherwise}\end{cases}$.
 *   **Service Tiers ($n_L$):** The number of car levels is randomized between 2 and 10 per instance.
 *   **Dynamic Pricing:** Hourly rates are generated using a cumulative random process to ensure $Rate_{l+1} > Rate_l$, reflecting realistic premium pricing for higher-tier vehicles.
 *   **System Load ($n_K$):** $n_K = \text{ratio} \times n_C$.

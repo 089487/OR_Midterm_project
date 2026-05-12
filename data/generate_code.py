@@ -59,8 +59,9 @@ class IEDOProjectGenerator:
         elif b_mode == "300": B = 300 * nD
         else: B = 1000000 # "1M"
         
-        # 3. Randomize n_C to uniform distribution 20-70
-        n_C = random.randint(20, 70)
+        # 3. S4 ratio=3 => N_C =80 else N_C=100, N_K = N_C * ratio
+        if config['ratio']==3 : n_C = 80
+        else: n_C = 100 
         n_K = int(n_C * config['ratio'])
 
         lines = [
