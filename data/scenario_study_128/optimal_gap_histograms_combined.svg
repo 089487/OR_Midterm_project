@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="716" viewBox="0 0 1560 716">
+<rect width="100%" height="100%" fill="#ffffff" />
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:24px;font-weight:700}.subtitle{font-size:16px;font-weight:700}.label{font-size:11px}.axis{stroke:#374151;stroke-width:1}</style>
+<text x="32" y="34" class="title">Optimal Gap Histograms by Scenario</text>
+<rect x="1200" y="20" width="14" height="14" fill="#64748b" /><text x="1220" y="32" class="label">algo_naive</text>
+<rect x="1365" y="20" width="14" height="14" fill="#0891b2" /><text x="1385" y="32" class="label">algo_union</text>
+<text x="56" y="81" class="subtitle">S6</text>
+<text x="56" y="101" class="label">algo_naive: mean 59.88%, std 222.65%</text>
+<text x="266" y="101" class="label">algo_union: mean 0.00%, std 0.00%</text>
+<line x1="56" y1="316" x2="484" y2="316" class="axis" />
+<line x1="56" y1="118" x2="56" y2="316" class="axis" />
+<rect x="59.21" y="145.84" width="7.49" height="170.16" fill="#64748b" />
+<rect x="66.70" y="118.00" width="7.49" height="198.00" fill="#0891b2" />
+<rect x="80.61" y="303.62" width="7.49" height="12.38" fill="#64748b" />
+<rect x="88.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="102.01" y="308.27" width="7.49" height="7.73" fill="#64748b" />
+<rect x="109.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="123.41" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="130.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="144.81" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="152.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="166.21" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="173.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="187.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="195.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="209.01" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="216.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="230.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="237.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="251.81" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="259.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="273.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="280.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="294.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="302.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="316.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="323.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="337.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="344.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="358.81" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="366.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="380.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="387.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="401.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="409.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="423.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="430.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="444.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="451.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="465.81" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="473.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<text x="56.00" y="334" text-anchor="middle" class="label">0.0%</text>
+<text x="270.00" y="334" text-anchor="middle" class="label">1096.8%</text>
+<text x="484.00" y="334" text-anchor="middle" class="label">2193.6%</text>
+<text x="14" y="128" class="label">max 128</text>
+<text x="576" y="81" class="subtitle">S8</text>
+<text x="576" y="101" class="label">algo_naive: mean 97.53%, std 550.77%</text>
+<text x="786" y="101" class="label">algo_union: mean 0.68%, std 5.36%</text>
+<line x1="576" y1="316" x2="1004" y2="316" class="axis" />
+<line x1="576" y1="118" x2="576" y2="316" class="axis" />
+<rect x="579.21" y="125.73" width="7.49" height="190.27" fill="#64748b" />
+<rect x="586.70" y="118.00" width="7.49" height="198.00" fill="#0891b2" />
+<rect x="600.61" y="311.36" width="7.49" height="4.64" fill="#64748b" />
+<rect x="608.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="622.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="629.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="643.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="650.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="664.81" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="672.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="686.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="693.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="707.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="715.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="729.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="736.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="750.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="757.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="771.81" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="779.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="793.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="800.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="814.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="822.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="836.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="843.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="857.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="864.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="878.81" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="886.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="900.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="907.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="921.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="929.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="943.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="950.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="964.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="971.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="985.81" y="314.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="993.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<text x="576.00" y="334" text-anchor="middle" class="label">0.0%</text>
+<text x="790.00" y="334" text-anchor="middle" class="label">2503.7%</text>
+<text x="1004.00" y="334" text-anchor="middle" class="label">5007.5%</text>
+<text x="534" y="128" class="label">max 128</text>
+<text x="1096" y="81" class="subtitle">S10</text>
+<text x="1096" y="101" class="label">algo_naive: mean 27.60%, std 12.85%</text>
+<text x="1306" y="101" class="label">algo_union: mean 2.16%, std 2.01%</text>
+<line x1="1096" y1="316" x2="1524" y2="316" class="axis" />
+<line x1="1096" y1="118" x2="1096" y2="316" class="axis" />
+<rect x="1099.21" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="1106.70" y="118.00" width="7.49" height="198.00" fill="#0891b2" />
+<rect x="1120.61" y="312.19" width="7.49" height="3.81" fill="#64748b" />
+<rect x="1128.10" y="272.21" width="7.49" height="43.79" fill="#0891b2" />
+<rect x="1142.01" y="302.67" width="7.49" height="13.33" fill="#64748b" />
+<rect x="1149.50" y="314.10" width="7.49" height="1.90" fill="#0891b2" />
+<rect x="1163.41" y="291.25" width="7.49" height="24.75" fill="#64748b" />
+<rect x="1170.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1184.81" y="281.73" width="7.49" height="34.27" fill="#64748b" />
+<rect x="1192.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1206.21" y="285.54" width="7.49" height="30.46" fill="#64748b" />
+<rect x="1213.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1227.61" y="289.35" width="7.49" height="26.65" fill="#64748b" />
+<rect x="1235.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1249.01" y="289.35" width="7.49" height="26.65" fill="#64748b" />
+<rect x="1256.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1270.41" y="287.44" width="7.49" height="28.56" fill="#64748b" />
+<rect x="1277.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1291.81" y="300.77" width="7.49" height="15.23" fill="#64748b" />
+<rect x="1299.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1313.21" y="306.48" width="7.49" height="9.52" fill="#64748b" />
+<rect x="1320.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1334.61" y="304.58" width="7.49" height="11.42" fill="#64748b" />
+<rect x="1342.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1356.01" y="310.29" width="7.49" height="5.71" fill="#64748b" />
+<rect x="1363.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1377.41" y="310.29" width="7.49" height="5.71" fill="#64748b" />
+<rect x="1384.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1398.81" y="314.10" width="7.49" height="1.90" fill="#64748b" />
+<rect x="1406.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1420.21" y="312.19" width="7.49" height="3.81" fill="#64748b" />
+<rect x="1427.70" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1441.61" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="1449.10" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1463.01" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="1470.50" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1484.41" y="316.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="1491.90" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="1505.81" y="314.10" width="7.49" height="1.90" fill="#64748b" />
+<rect x="1513.30" y="316.00" width="7.49" height="1.00" fill="#0891b2" />
+<text x="1096.00" y="334" text-anchor="middle" class="label">0.0%</text>
+<text x="1310.00" y="334" text-anchor="middle" class="label">39.3%</text>
+<text x="1524.00" y="334" text-anchor="middle" class="label">78.7%</text>
+<text x="1054" y="128" class="label">max 104</text>
+<text x="56" y="411" class="subtitle">S13</text>
+<text x="56" y="431" class="label">algo_naive: mean 1063.61%, std 3967.26%</text>
+<text x="266" y="431" class="label">algo_union: mean 29.07%, std 140.57%</text>
+<line x1="56" y1="646" x2="484" y2="646" class="axis" />
+<line x1="56" y1="448" x2="56" y2="646" class="axis" />
+<rect x="59.21" y="463.47" width="7.49" height="182.53" fill="#64748b" />
+<rect x="66.70" y="448.00" width="7.49" height="198.00" fill="#0891b2" />
+<rect x="80.61" y="641.36" width="7.49" height="4.64" fill="#64748b" />
+<rect x="88.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="102.01" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="109.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="123.41" y="641.36" width="7.49" height="4.64" fill="#64748b" />
+<rect x="130.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="144.81" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="152.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="166.21" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="173.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="187.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="195.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="209.01" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="216.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="230.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="237.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="251.81" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="259.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="273.21" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="280.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="294.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="302.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="316.01" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="323.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="337.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="344.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="358.81" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="366.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="380.21" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="387.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="401.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="409.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="423.01" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="430.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="444.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="451.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="465.81" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="473.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<text x="56.00" y="664" text-anchor="middle" class="label">0.0%</text>
+<text x="270.00" y="664" text-anchor="middle" class="label">18275.6%</text>
+<text x="484.00" y="664" text-anchor="middle" class="label">36551.1%</text>
+<text x="14" y="458" class="label">max 128</text>
+<text x="576" y="411" class="subtitle">S14</text>
+<text x="576" y="431" class="label">algo_naive: mean 60.83%, std 233.16%</text>
+<text x="786" y="431" class="label">algo_union: mean 1.10%, std 4.66%</text>
+<line x1="576" y1="646" x2="1004" y2="646" class="axis" />
+<line x1="576" y1="448" x2="576" y2="646" class="axis" />
+<rect x="579.21" y="474.30" width="7.49" height="171.70" fill="#64748b" />
+<rect x="586.70" y="448.00" width="7.49" height="198.00" fill="#0891b2" />
+<rect x="600.61" y="632.08" width="7.49" height="13.92" fill="#64748b" />
+<rect x="608.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="622.01" y="641.36" width="7.49" height="4.64" fill="#64748b" />
+<rect x="629.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="643.41" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="650.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="664.81" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="672.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="686.21" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="693.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="707.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="715.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="729.01" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="736.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="750.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="757.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="771.81" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="779.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="793.21" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="800.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="814.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="822.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="836.01" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="843.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="857.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="864.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="878.81" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="886.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="900.21" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="907.70" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="921.61" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="929.10" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="943.01" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="950.50" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="964.41" y="646.00" width="7.49" height="1.00" fill="#64748b" />
+<rect x="971.90" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<rect x="985.81" y="644.45" width="7.49" height="1.55" fill="#64748b" />
+<rect x="993.30" y="646.00" width="7.49" height="1.00" fill="#0891b2" />
+<text x="576.00" y="664" text-anchor="middle" class="label">0.0%</text>
+<text x="790.00" y="664" text-anchor="middle" class="label">1069.6%</text>
+<text x="1004.00" y="664" text-anchor="middle" class="label">2139.2%</text>
+<text x="534" y="458" class="label">max 128</text>
+</svg>

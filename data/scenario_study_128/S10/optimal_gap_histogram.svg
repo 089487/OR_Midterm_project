@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520">
+<rect width="100%" height="100%" fill="#ffffff" />
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:22px;font-weight:700}.label{font-size:12px}.axis{stroke:#374151;stroke-width:1}</style>
+<text x="70" y="34" class="title">S10 Optimal Gap Histogram</text>
+<line x1="70" y1="405" x2="1070" y2="405" class="axis" />
+<line x1="70" y1="65" x2="70" y2="405" class="axis" />
+<rect x="650" y="18" width="14" height="14" fill="#64748b" /><text x="670" y="30" class="label">algo_naive</text><text x="650" y="49" class="label">mean 27.60%, std 12.85%</text>
+<rect x="870" y="18" width="14" height="14" fill="#0891b2" /><text x="890" y="30" class="label">algo_union</text><text x="870" y="49" class="label">mean 2.16%, std 2.01%</text>
+<rect x="77.50" y="405.00" width="17.50" height="1.00" fill="#64748b" />
+<rect x="95.00" y="65.00" width="17.50" height="340.00" fill="#0891b2" />
+<rect x="127.50" y="398.46" width="17.50" height="6.54" fill="#64748b" />
+<rect x="145.00" y="329.81" width="17.50" height="75.19" fill="#0891b2" />
+<rect x="177.50" y="382.12" width="17.50" height="22.88" fill="#64748b" />
+<rect x="195.00" y="401.73" width="17.50" height="3.27" fill="#0891b2" />
+<rect x="227.50" y="362.50" width="17.50" height="42.50" fill="#64748b" />
+<rect x="245.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="277.50" y="346.15" width="17.50" height="58.85" fill="#64748b" />
+<rect x="295.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="327.50" y="352.69" width="17.50" height="52.31" fill="#64748b" />
+<rect x="345.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="377.50" y="359.23" width="17.50" height="45.77" fill="#64748b" />
+<rect x="395.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="427.50" y="359.23" width="17.50" height="45.77" fill="#64748b" />
+<rect x="445.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="477.50" y="355.96" width="17.50" height="49.04" fill="#64748b" />
+<rect x="495.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="527.50" y="378.85" width="17.50" height="26.15" fill="#64748b" />
+<rect x="545.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="577.50" y="388.65" width="17.50" height="16.35" fill="#64748b" />
+<rect x="595.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="627.50" y="385.38" width="17.50" height="19.62" fill="#64748b" />
+<rect x="645.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="677.50" y="395.19" width="17.50" height="9.81" fill="#64748b" />
+<rect x="695.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="727.50" y="395.19" width="17.50" height="9.81" fill="#64748b" />
+<rect x="745.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="777.50" y="401.73" width="17.50" height="3.27" fill="#64748b" />
+<rect x="795.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="827.50" y="398.46" width="17.50" height="6.54" fill="#64748b" />
+<rect x="845.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="877.50" y="405.00" width="17.50" height="1.00" fill="#64748b" />
+<rect x="895.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="927.50" y="405.00" width="17.50" height="1.00" fill="#64748b" />
+<rect x="945.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="977.50" y="405.00" width="17.50" height="1.00" fill="#64748b" />
+<rect x="995.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<rect x="1027.50" y="401.73" width="17.50" height="3.27" fill="#64748b" />
+<rect x="1045.00" y="405.00" width="17.50" height="1.00" fill="#0891b2" />
+<text x="70.00" y="427" text-anchor="middle" class="label">0.0%</text>
+<text x="270.00" y="427" text-anchor="middle" class="label">15.7%</text>
+<text x="470.00" y="427" text-anchor="middle" class="label">31.5%</text>
+<text x="670.00" y="427" text-anchor="middle" class="label">47.2%</text>
+<text x="870.00" y="427" text-anchor="middle" class="label">63.0%</text>
+<text x="1070.00" y="427" text-anchor="middle" class="label">78.7%</text>
+<text x="14" y="77" class="label">max 104</text>
+</svg>

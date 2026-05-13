@@ -442,6 +442,7 @@ def add_ip_rows(root: Path, scenarios: Iterable[str]) -> None:
 
 def summarize_results(root: Path, scenarios: Iterable[str], bins: int) -> None:
     summary_rows: list[dict[str, object]] = []
+    combined_gaps: dict[str, dict[str, list[float]]] = {}
     for scenario in sorted(scenarios, key=_scenario_sort_key):
         rows = _read_rows(root / scenario / "benchmark_results.csv")
         by_instance: dict[str, dict[str, dict[str, str]]] = {}
@@ -466,6 +467,7 @@ def summarize_results(root: Path, scenarios: Iterable[str], bins: int) -> None:
                 profit_by_algorithm[algorithm].append(profit)
                 time_by_algorithm[algorithm].append(float(algos[algorithm]["execution_time"]))
 
+        combined_gaps[scenario] = gap_by_algorithm
         for algorithm in ALGORITHMS:
             gaps = gap_by_algorithm[algorithm]
             if not gaps:
@@ -504,6 +506,7 @@ def summarize_results(root: Path, scenarios: Iterable[str], bins: int) -> None:
             "execution_time_mean",
         ],
     )
+    _write_combined_histogram(root / "optimal_gap_histograms_combined.svg", combined_gaps, bins)
 
 
 def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list[float]], bins: int) -> None:
@@ -547,12 +550,16 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
         f'<line x1="{left}" y1="{top + chart_h}" x2="{width - right}" y2="{top + chart_h}" class="axis" />',
         f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_h}" class="axis" />',
     ]
-    legend_x = width - 330
+    legend_x = width - 450
     for idx, algorithm in enumerate(ALGORITHMS):
-        x = legend_x + idx * 120
+        algo_values = [100 * gap for gap in gap_by_algorithm[algorithm]]
+        mean = statistics.mean(algo_values) if algo_values else 0.0
+        std = statistics.stdev(algo_values) if len(algo_values) > 1 else 0.0
+        x = legend_x + idx * 220
         lines.append(
             f'<rect x="{x}" y="18" width="14" height="14" fill="{_hist_color(algorithm)}" />'
             f'<text x="{x + 20}" y="30" class="label">{algorithm}</text>'
+            f'<text x="{x}" y="49" class="label">mean {mean:.2f}%, std {std:.2f}%</text>'
         )
 
     for bin_idx in range(bins):
@@ -570,6 +577,98 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
         x = left + chart_w * tick / 5
         lines.append(f'<text x="{x:.2f}" y="{top + chart_h + 22}" text-anchor="middle" class="label">{value:.1f}%</text>')
     lines.append(f'<text x="14" y="{top + 12}" class="label">max {max_count}</text>')
+    lines.append("</svg>")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_combined_histogram(path: Path, scenario_gaps: dict[str, dict[str, list[float]]], bins: int) -> None:
+    scenarios = sorted(scenario_gaps, key=_scenario_sort_key)
+    if not any(gaps for by_algo in scenario_gaps.values() for gaps in by_algo.values()):
+        return
+
+    cell_w = 520
+    cell_h = 330
+    cols = 3
+    rows = math.ceil(len(scenarios) / cols)
+    width = cols * cell_w
+    height = rows * cell_h + 56
+    margin_x = 56
+    margin_top = 62
+    chart_w = cell_w - 92
+    chart_h = cell_h - 132
+
+    def esc(text: object) -> str:
+        return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    lines = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="#ffffff" />',
+        '<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:24px;font-weight:700}.subtitle{font-size:16px;font-weight:700}.label{font-size:11px}.axis{stroke:#374151;stroke-width:1}</style>',
+        '<text x="32" y="34" class="title">Optimal Gap Histograms by Scenario</text>',
+    ]
+    legend_x = width - 360
+    for idx, algorithm in enumerate(ALGORITHMS):
+        x = legend_x + idx * 165
+        lines.append(
+            f'<rect x="{x}" y="20" width="14" height="14" fill="{_hist_color(algorithm)}" />'
+            f'<text x="{x + 20}" y="32" class="label">{algorithm}</text>'
+        )
+
+    for scenario_idx, scenario in enumerate(scenarios):
+        col = scenario_idx % cols
+        row = scenario_idx // cols
+        cell_x = col * cell_w
+        cell_y = 56 + row * cell_h
+        left = cell_x + margin_x
+        top = cell_y + margin_top
+        gap_by_algorithm = scenario_gaps[scenario]
+        values = [100 * gap for gaps in gap_by_algorithm.values() for gap in gaps]
+        if not values:
+            continue
+        lo = min(values)
+        hi = max(values)
+        if math.isclose(lo, hi):
+            lo -= 0.5
+            hi += 0.5
+        step = (hi - lo) / bins
+        counts: dict[str, list[int]] = {}
+        for algorithm, gaps in gap_by_algorithm.items():
+            bucket = [0] * bins
+            for gap in gaps:
+                value = 100 * gap
+                bucket[min(bins - 1, max(0, int((value - lo) / step)))] += 1
+            counts[algorithm] = bucket
+        max_count = max(max(bucket) for bucket in counts.values()) or 1
+        group_w = chart_w / bins
+        bar_w = max(1.0, group_w * 0.7 / len(ALGORITHMS))
+
+        lines.append(f'<text x="{left}" y="{cell_y + 25}" class="subtitle">{esc(scenario)}</text>')
+        for idx, algorithm in enumerate(ALGORITHMS):
+            algo_values = [100 * gap for gap in gap_by_algorithm[algorithm]]
+            mean = statistics.mean(algo_values) if algo_values else 0.0
+            std = statistics.stdev(algo_values) if len(algo_values) > 1 else 0.0
+            lines.append(
+                f'<text x="{left + idx * 210}" y="{cell_y + 45}" class="label">'
+                f'{algorithm}: mean {mean:.2f}%, std {std:.2f}%</text>'
+            )
+        lines.append(f'<line x1="{left}" y1="{top + chart_h}" x2="{left + chart_w}" y2="{top + chart_h}" class="axis" />')
+        lines.append(f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_h}" class="axis" />')
+        for bin_idx in range(bins):
+            base_x = left + bin_idx * group_w + group_w * 0.15
+            for algo_idx, algorithm in enumerate(ALGORITHMS):
+                count = counts[algorithm][bin_idx]
+                h = chart_h * count / max_count
+                x = base_x + algo_idx * bar_w
+                y = top + chart_h - h
+                lines.append(
+                    f'<rect x="{x:.2f}" y="{y:.2f}" width="{bar_w:.2f}" height="{max(1.0, h):.2f}" fill="{_hist_color(algorithm)}" />'
+                )
+        for tick in range(3):
+            value = lo + (hi - lo) * tick / 2
+            x = left + chart_w * tick / 2
+            lines.append(f'<text x="{x:.2f}" y="{top + chart_h + 18}" text-anchor="middle" class="label">{value:.1f}%</text>')
+        lines.append(f'<text x="{left - 42}" y="{top + 10}" class="label">max {max_count}</text>')
+
     lines.append("</svg>")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

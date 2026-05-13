@@ -2,3 +2,10 @@
 __pycache__/
 *.pyc
 
+# Scenario study artifacts: keep summary plots/CSV and the compressed archive,
+# but avoid committing thousands of generated instances and plan files.
+data/scenario_study_128/**/*.txt
+data/scenario_study_128/**/plan/
+data/scenario_study_128/**/benchmark_results.csv
+data/scenario_study_128/**/run_time.csv
+scenario_study_128_parallel64.log
