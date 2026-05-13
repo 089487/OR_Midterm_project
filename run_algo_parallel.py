@@ -15,6 +15,7 @@ ALGO_SPECS = {
     "algo3": ("heuristic_algo3", "heuristic_algorithm3"),
     "algo4": ("heuristic_algo4", "heuristic_algorithm4"),
     "algo_union": ("algo_union", "heuristic_algorithm"),
+    "algo_union_170": ("algo_union", "heuristic_algorithm"),
 }
 FIELDS = [
     "instance", "algorithm", "moving_time", "profit", "execution_time",
@@ -99,7 +100,7 @@ def run_one(instance_path: Path, algo_name: str, max_seconds: float) -> dict[str
     start = time.perf_counter()
     try:
         kwargs = {"max_seconds": max_seconds, "raw_test": True}
-        if algo_name in {"algo4", "algo_union"}:
+        if algo_name in {"algo4", "algo_union", "algo_union_170"}:
             kwargs["per_ip_seconds"] = min(2.0, max_seconds)
         assignment, _relocation = func(str(instance_path), **kwargs)
         seconds = time.perf_counter() - start

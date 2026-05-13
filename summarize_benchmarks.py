@@ -5,13 +5,15 @@ import csv
 from pathlib import Path
 
 
-ALGORITHMS = ("algo1", "algo2", "algo3", "algo4", "algo5")
+ALGORITHMS = ("algo1", "algo2", "algo3", "algo4", "algo5", "algo_union", "algo_union_170")
 COLORS = {
     "algo1": "#2563eb",
     "algo2": "#16a34a",
     "algo3": "#f59e0b",
     "algo4": "#7c3aed",
     "algo5": "#dc2626",
+    "algo_union": "#0891b2",
+    "algo_union_170": "#0f766e",
 }
 
 
@@ -225,9 +227,9 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
         f'<line x1="{margin_left}" y1="{win_zero:.2f}" x2="{width - margin_right}" y2="{win_zero:.2f}" class="axis" />',
         f'<line x1="{margin_left}" y1="{top_gap + chart_h + chart_gap}" x2="{margin_left}" y2="{top_gap + 2 * chart_h + chart_gap}" class="axis" />',
     ]
-    legend_x = width - 430
+    legend_x = width - 620
     for idx, algo in enumerate(ALGORITHMS):
-        x = legend_x + idx * 78
+        x = legend_x + idx * 88
         lines.append(
             f'<rect x="{x}" y="18" width="14" height="14" fill="{COLORS[algo]}" />'
             f'<text x="{x + 20}" y="30" class="legend">{algo}</text>'
