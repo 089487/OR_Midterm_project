@@ -71,8 +71,7 @@ def parse_instance(path: str | Path) -> Instance:
     cars = [Car(int(row[0]), int(row[1]), int(row[2])) for row in sections[1][1:]]
     rates = {int(row[0]): int(row[1]) for row in sections[2][1:]}
 
-    first_pickup = min(datetime.strptime(row[4], TIME_FMT) for row in sections[3][1:])
-    start = datetime(first_pickup.year, 1, 1)
+    start = datetime(2023, 1, 1)
     orders: list[Order] = []
     for row in sections[3][1:]:
         pickup = datetime.strptime(row[4], TIME_FMT)
