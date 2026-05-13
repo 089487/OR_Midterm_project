@@ -5,8 +5,18 @@ import csv
 from pathlib import Path
 
 
-ALGORITHMS = ("algo1", "algo2", "algo3", "algo4", "algo5", "algo_union", "algo_union_170")
+ALGORITHMS = (
+    "algo_naive",
+    "algo1",
+    "algo2",
+    "algo3",
+    "algo4",
+    "algo5",
+    "algo_union",
+    "algo_union_170",
+)
 COLORS = {
+    "algo_naive": "#64748b",
     "algo1": "#2563eb",
     "algo2": "#16a34a",
     "algo3": "#f59e0b",
@@ -15,6 +25,7 @@ COLORS = {
     "algo_union": "#0891b2",
     "algo_union_170": "#0f766e",
 }
+FOCUSED_ALGORITHMS = ("algo_naive", "algo_union", "algo_union_170")
 
 
 def _read_rows(path: Path) -> list[dict[str, str]]:
@@ -45,7 +56,7 @@ def _scenario_sort_key(path: Path) -> tuple[int, str]:
     return 9999, name
 
 
-def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path]:
+def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path, Path]:
     scenario_rows: list[dict[str, object]] = []
     comparison_rows: list[dict[str, object]] = []
     optimal_gap_rows: list[dict[str, object]] = []
@@ -149,6 +160,7 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path]:
     detail_path = out_dir / "instance_gap_detail.csv"
     optimal_gap_path = out_dir / "optimal_gap_table.csv"
     chart_path = out_dir / "scenario_algo_comparison.svg"
+    focused_chart_path = out_dir / "scenario_naive_union_comparison.svg"
 
     summary_fields = ["scenario", "instances", "ip_avg_profit", "ip_avg_execution_time"]
     for algo in ALGORITHMS:
@@ -178,11 +190,12 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path]:
     _write_csv(summary_path, scenario_rows, summary_fields)
     _write_csv(detail_path, comparison_rows, detail_fields)
     _write_csv(optimal_gap_path, optimal_gap_rows, ["scenario", *ALGORITHMS])
-    _plot_summary(scenario_rows, chart_path)
-    return summary_path, detail_path, optimal_gap_path, chart_path
+    _plot_summary(scenario_rows, chart_path, ALGORITHMS)
+    _plot_summary(scenario_rows, focused_chart_path, FOCUSED_ALGORITHMS)
+    return summary_path, detail_path, optimal_gap_path, chart_path, focused_chart_path
 
 
-def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
+def _plot_summary(rows: list[dict[str, object]], chart_path: Path, algorithms: tuple[str, ...]) -> None:
     scenarios = [str(row["scenario"]) for row in rows]
     width = 1500
     height = 820
@@ -192,7 +205,7 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
     chart_h = 250
     chart_gap = 120
     bar_group_w = (width - margin_left - margin_right) / max(1, len(scenarios))
-    bar_w = min(14, bar_group_w * 0.13)
+    bar_w = min(16, bar_group_w * 0.55 / max(1, len(algorithms)))
 
     def esc(text: object) -> str:
         return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -211,8 +224,8 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
         rect_h = max(1.0, abs(zero - y))
         return f'<rect x="{x:.2f}" y="{rect_y:.2f}" width="{bar_w:.2f}" height="{rect_h:.2f}" fill="{color}" />'
 
-    gap_values = [float(row[f"{algo}_avg_optimal_gap_pct"]) for row in rows for algo in ALGORITHMS]
-    win_values = [int(row[f"{algo}_wins"]) for row in rows for algo in ALGORITHMS] + [30]
+    gap_values = [float(row[f"{algo}_avg_optimal_gap_pct"]) for row in rows for algo in algorithms]
+    win_values = [int(row[f"{algo}_wins"]) for row in rows for algo in algorithms] + [30]
     gap_zero = y_scale(0, gap_values, top_gap, chart_h)
     win_zero = y_scale(0, win_values, top_gap + chart_h + chart_gap, chart_h)
 
@@ -227,8 +240,8 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
         f'<line x1="{margin_left}" y1="{win_zero:.2f}" x2="{width - margin_right}" y2="{win_zero:.2f}" class="axis" />',
         f'<line x1="{margin_left}" y1="{top_gap + chart_h + chart_gap}" x2="{margin_left}" y2="{top_gap + 2 * chart_h + chart_gap}" class="axis" />',
     ]
-    legend_x = width - 620
-    for idx, algo in enumerate(ALGORITHMS):
+    legend_x = width - 80 - len(algorithms) * 112
+    for idx, algo in enumerate(algorithms):
         x = legend_x + idx * 88
         lines.append(
             f'<rect x="{x}" y="18" width="14" height="14" fill="{COLORS[algo]}" />'
@@ -238,8 +251,8 @@ def _plot_summary(rows: list[dict[str, object]], chart_path: Path) -> None:
     scenarios = [str(row["scenario"]) for row in rows]
     for idx, scenario in enumerate(scenarios):
         center = margin_left + bar_group_w * idx + bar_group_w / 2
-        first_x = center - (len(ALGORITHMS) * bar_w + (len(ALGORITHMS) - 1) * 2) / 2
-        for algo_idx, algo in enumerate(ALGORITHMS):
+        first_x = center - (len(algorithms) * bar_w + (len(algorithms) - 1) * 2) / 2
+        for algo_idx, algo in enumerate(algorithms):
             x = first_x + algo_idx * (bar_w + 2)
             lines.append(
                 bar(float(rows[idx][f"{algo}_avg_optimal_gap_pct"]), gap_values, x, top_gap, chart_h, COLORS[algo])
