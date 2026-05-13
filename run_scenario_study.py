@@ -30,6 +30,7 @@ RESULT_FIELDS = [
     "error",
     "timestamp",
 ]
+IP_FIELDS = ["instance", "plan", "status", "seconds", "accepted_sales", "profit", "error", "timestamp"]
 
 
 def _scenario_sort_key(name: str) -> tuple[int, str]:
@@ -110,9 +111,42 @@ def _instance_paths(root: Path, scenarios: Iterable[str]) -> list[Path]:
     return paths
 
 
-def run_ip(root: Path, scenarios: Iterable[str], force: bool, time_limit: int | None) -> None:
+def _run_ip_one(instance_path: Path, time_limit: int | None, threads: int | None) -> dict[str, object]:
     from ip_solver import solve_instance, write_plan
 
+    scenario_dir = instance_path.parent
+    plan_path = scenario_dir / "plan" / f"{instance_path.stem}_optimal_plan.txt"
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    start = time.perf_counter()
+    try:
+        solution = solve_instance(instance_path, time_limit=time_limit, verbose=False, threads=threads)
+        write_plan(solution, plan_path)
+        seconds = time.perf_counter() - start
+        return {
+            "instance": instance_path.name,
+            "plan": str(plan_path),
+            "status": "ok",
+            "seconds": f"{seconds:.3f}",
+            "accepted_sales": solution["objective"],
+            "profit": solution["profit"],
+            "error": "",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    except Exception as exc:
+        seconds = time.perf_counter() - start
+        return {
+            "instance": instance_path.name,
+            "plan": str(plan_path),
+            "status": "error",
+            "seconds": f"{seconds:.3f}",
+            "accepted_sales": "",
+            "profit": "",
+            "error": f"{type(exc).__name__}: {exc}",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+
+def run_ip(root: Path, scenarios: Iterable[str], force: bool, time_limit: int | None, threads: int | None) -> None:
     paths = _instance_paths(root, scenarios)
     print(f"ip_solver: {len(paths)} instances", flush=True)
     for idx, instance_path in enumerate(paths, start=1):
@@ -129,40 +163,8 @@ def run_ip(root: Path, scenarios: Iterable[str], force: bool, time_limit: int | 
                 print(f"ip_solver [{idx}/{len(paths)}] skip {instance_path}", flush=True)
             continue
 
-        plan_path.parent.mkdir(parents=True, exist_ok=True)
-        start = time.perf_counter()
-        try:
-            solution = solve_instance(instance_path, time_limit=time_limit, verbose=False)
-            write_plan(solution, plan_path)
-            seconds = time.perf_counter() - start
-            row = {
-                "instance": instance_path.name,
-                "plan": str(plan_path),
-                "status": "ok",
-                "seconds": f"{seconds:.3f}",
-                "accepted_sales": solution["objective"],
-                "profit": solution["profit"],
-                "error": "",
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            }
-        except Exception as exc:
-            seconds = time.perf_counter() - start
-            row = {
-                "instance": instance_path.name,
-                "plan": str(plan_path),
-                "status": "error",
-                "seconds": f"{seconds:.3f}",
-                "accepted_sales": "",
-                "profit": "",
-                "error": f"{type(exc).__name__}: {exc}",
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            }
-        _upsert(
-            run_time_path,
-            row,
-            ["instance", "plan", "status", "seconds", "accepted_sales", "profit", "error", "timestamp"],
-            ("instance",),
-        )
+        row = _run_ip_one(instance_path, time_limit, threads)
+        _upsert(run_time_path, row, IP_FIELDS, ("instance",))
         print(
             f"ip_solver [{idx}/{len(paths)}] {row['status']} {instance_path.name} "
             f"seconds={row['seconds']} profit={row['profit']}",
@@ -301,6 +303,106 @@ def run_algorithms(
             print(
                 f"algorithms [{idx}/{len(jobs)}] {row['status']} {instance_path.parent.name}/{row['instance']} "
                 f"{algorithm} seconds={row['execution_time']} profit={row['profit']}",
+                flush=True,
+            )
+
+
+def _existing_ok(path: Path, key_fields: tuple[str, ...], key: tuple[str, ...]) -> bool:
+    for row in _read_rows(path):
+        if tuple(row.get(field, "") for field in key_fields) == key and row.get("status") == "ok":
+            return True
+    return False
+
+
+def _pipeline_job(
+    instance_path: Path,
+    force_ip: bool,
+    force_algorithms: bool,
+    run_ip_stage: bool,
+    run_algorithm_stage: bool,
+) -> tuple[str, bool, tuple[str, ...]]:
+    scenario_dir = instance_path.parent
+    plan_path = scenario_dir / "plan" / f"{instance_path.stem}_optimal_plan.txt"
+    ip_done = plan_path.exists() and _existing_ok(scenario_dir / "run_time.csv", ("instance",), (instance_path.name,))
+    missing_algorithms = ()
+    if run_algorithm_stage:
+        missing_algorithms = tuple(
+            algorithm
+            for algorithm in ALGORITHMS
+            if force_algorithms
+            or not _existing_ok(
+                scenario_dir / "benchmark_results.csv",
+                ("instance", "algorithm"),
+                (instance_path.name, algorithm),
+            )
+        )
+    return str(instance_path), run_ip_stage and (force_ip or not ip_done), missing_algorithms
+
+
+def _run_instance_pipeline(
+    args: tuple[str, bool, tuple[str, ...], int | None, int | None, float],
+) -> tuple[dict[str, object] | None, list[dict[str, object]]]:
+    instance_path = Path(args[0])
+    needs_ip = args[1]
+    algorithms = args[2]
+    ip_time_limit = args[3]
+    ip_threads = args[4]
+    union_seconds = args[5]
+
+    ip_row = _run_ip_one(instance_path, ip_time_limit, ip_threads) if needs_ip else None
+    algorithm_rows = [_run_algorithm_one((str(instance_path), algorithm, union_seconds)) for algorithm in algorithms]
+    return ip_row, algorithm_rows
+
+
+def run_instance_pipelines(
+    root: Path,
+    scenarios: Iterable[str],
+    workers: int,
+    force_ip: bool,
+    force_algorithms: bool,
+    ip_time_limit: int | None,
+    ip_threads: int | None,
+    union_seconds: float,
+    run_ip_stage: bool = True,
+    run_algorithm_stage: bool = True,
+) -> None:
+    jobs: list[tuple[str, bool, tuple[str, ...], int | None, int | None, float]] = []
+    for instance_path in _instance_paths(root, scenarios):
+        path, needs_ip, algorithms = _pipeline_job(
+            instance_path,
+            force_ip,
+            force_algorithms,
+            run_ip_stage,
+            run_algorithm_stage,
+        )
+        if needs_ip or algorithms:
+            jobs.append((path, needs_ip, algorithms, ip_time_limit, ip_threads, union_seconds))
+
+    print(
+        f"instance pipeline: {len(jobs)} jobs with workers={workers}, "
+        f"ip_threads={ip_threads or 'gurobi-default'}, union_seconds={union_seconds}",
+        flush=True,
+    )
+    if not jobs:
+        return
+    with _make_executor(max(1, workers)) as pool:
+        future_to_job = {pool.submit(_run_instance_pipeline, job): job for job in jobs}
+        for idx, future in enumerate(as_completed(future_to_job), start=1):
+            instance_path = Path(future_to_job[future][0])
+            ip_row, algorithm_rows = future.result()
+            if ip_row is not None:
+                _upsert(instance_path.parent / "run_time.csv", ip_row, IP_FIELDS, ("instance",))
+            for row in algorithm_rows:
+                _upsert(instance_path.parent / "benchmark_results.csv", row, RESULT_FIELDS, ("instance", "algorithm"))
+            status_bits = []
+            if ip_row is not None:
+                status_bits.append(f"ip={ip_row['status']}:{ip_row['seconds']}s")
+            status_bits.extend(
+                f"{row['algorithm']}={row['status']}:{row['execution_time']}s" for row in algorithm_rows
+            )
+            print(
+                f"pipeline [{idx}/{len(jobs)}] {instance_path.parent.name}/{instance_path.name} "
+                + " ".join(status_bits),
                 flush=True,
             )
 
@@ -487,8 +589,15 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=114200)
     parser.add_argument("--generate-workers", type=int, default=8)
     parser.add_argument("--algorithm-workers", type=int, default=14)
-    parser.add_argument("--union-seconds", type=float, default=170.0)
+    parser.add_argument(
+        "--pipeline-workers",
+        type=int,
+        default=0,
+        help="run each instance as one parallel job: ip_solver -> algo_naive -> algo_union; 0 keeps staged mode",
+    )
+    parser.add_argument("--union-seconds", type=float, default=10.0)
     parser.add_argument("--ip-time-limit", type=int, default=None)
+    parser.add_argument("--ip-threads", type=int, default=1, help="Gurobi threads per IP job; use 0 for Gurobi default")
     parser.add_argument("--hist-bins", type=int, default=20)
     parser.add_argument("--skip-generate", action="store_true")
     parser.add_argument("--skip-ip", action="store_true")
@@ -505,11 +614,29 @@ def main() -> None:
 
     if not args.skip_generate:
         generate_instances(root, scenarios, args.instances, args.seed, args.generate_workers, args.force_generate)
-    if not args.skip_ip:
-        run_ip(root, scenarios, args.force_ip, args.ip_time_limit)
+    ip_threads = args.ip_threads if args.ip_threads > 0 else None
+    if args.pipeline_workers > 0:
+        if args.skip_ip or args.skip_algorithms:
+            print("pipeline mode: skip flags will omit the matching per-instance stages", flush=True)
+        run_instance_pipelines(
+            root,
+            scenarios,
+            args.pipeline_workers,
+            args.force_ip,
+            args.force_algorithms,
+            args.ip_time_limit,
+            ip_threads,
+            args.union_seconds,
+            run_ip_stage=not args.skip_ip,
+            run_algorithm_stage=not args.skip_algorithms,
+        )
         add_ip_rows(root, scenarios)
-    if not args.skip_algorithms:
-        run_algorithms(root, scenarios, args.algorithm_workers, args.force_algorithms, args.union_seconds)
+    else:
+        if not args.skip_ip:
+            run_ip(root, scenarios, args.force_ip, args.ip_time_limit, ip_threads)
+            add_ip_rows(root, scenarios)
+        if not args.skip_algorithms:
+            run_algorithms(root, scenarios, args.algorithm_workers, args.force_algorithms, args.union_seconds)
     summarize_results(root, scenarios, args.hist_bins)
     print(f"wrote {root / 'scenario_gap_summary.csv'}", flush=True)
     for scenario in scenarios:

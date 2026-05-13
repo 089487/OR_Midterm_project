@@ -16,7 +16,12 @@ from mtp_common import (
 )
 
 
-def solve_instance(path: str | Path, time_limit: int | None = None, verbose: bool = False) -> dict:
+def solve_instance(
+    path: str | Path,
+    time_limit: int | None = None,
+    verbose: bool = False,
+    threads: int | None = None,
+) -> dict:
     inst = parse_instance(path)
     orders = inst.orders
 
@@ -46,6 +51,8 @@ def solve_instance(path: str | Path, time_limit: int | None = None, verbose: boo
     model.Params.OutputFlag = 1 if verbose else 0
     if time_limit is not None:
         model.Params.TimeLimit = time_limit
+    if threads is not None:
+        model.Params.Threads = threads
 
     start = model.addVars([(c, k) for c, k, _ in car_arcs], vtype=GRB.BINARY, name="start")
     link = model.addVars([(c, i, j) for c, i, j, _ in order_arcs], vtype=GRB.BINARY, name="link")
@@ -201,13 +208,14 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("instances", nargs="*", default=[f"data/instance{i:02d}.txt" for i in range(1, 6)])
     parser.add_argument("--time-limit", type=int, default=None)
+    parser.add_argument("--threads", type=int, default=None)
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--plans-dir", default="plans")
     args = parser.parse_args()
 
     Path(args.plans_dir).mkdir(exist_ok=True)
     for path in args.instances:
-        solution = solve_instance(path, args.time_limit, args.verbose)
+        solution = solve_instance(path, args.time_limit, args.verbose, threads=args.threads)
         expected_obj = sum(
             order.revenue for order in solution["instance"].orders if solution["assignment"][order.id - 1]
         )
