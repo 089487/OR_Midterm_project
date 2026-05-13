@@ -224,35 +224,52 @@ the algorithm can safely stop and return the best feasible plan found so far.
 
 \section*{Problem 3}
 
-The intuition behind our heuristic is that the global problem is hard mainly
-because it couples many vehicle routes through the shared relocation budget.  A
-pure greedy method is fast, but it may spend scarce relocation minutes on early
-orders and block better future opportunities.  A full IP sees these tradeoffs
-but is too large.  Our algorithm therefore combines a fast global construction
-with repeated small exact repairs.
+The grading rule gives each program at most three minutes per instance.  We
+therefore designed the algorithm as two parts: a very fast \emph{pre-build}
+stage and a time-limited \emph{optimization} stage.  The pre-build stage must
+quickly return a feasible solution, while the optimization stage spends the
+remaining time improving only promising neighborhoods of that solution.
 
-\begin{enumerate}
-    \item \textbf{Build two initial plans.}  Algo1 emphasizes high immediate
-    revenue and low incremental relocation cost.  Algo5 emphasizes future
-    demand balance by using station-level look-ahead scores.  These two
-    heuristics tend to make different mistakes, so we keep the more profitable
-    of the two.
-    \item \textbf{Convert the assignment into car routes.}  This allows us to
-    calculate route-level moving time and profit, and to remove or repair only a
-    few routes at a time.
-    \item \textbf{Release a small batch of cars.}  Cars are sampled with higher
-    probability when their routes have lower efficiency.  This focuses repair
-    effort on the weakest part of the current solution.
-    \item \textbf{Solve a local IP.}  For the selected cars, we include their
-    released orders and a capped list of compatible high-value candidate orders.
-    The local IP chooses a feasible set of routes for only this batch under the
-    remaining relocation budget.
-    \item \textbf{Accept only improving repairs.}  If the repaired routes
-    increase profit and keep total moving time within $B$, they replace the old
-    routes.  Otherwise the old feasible solution is kept.
-\end{enumerate}
+\textbf{Pre-build.}  Our team proposed two construction approaches.  We run both
+and keep the one with the larger profit.
 
-The procedure is summarized below.
+\begin{itemize}
+    \item \textbf{Algo1: revenue-first insertion.}  Orders are sorted by
+    decreasing revenue and then by pickup time.  For each order, Algo1 checks
+    every compatible car, including the allowed one-level upgrade.  It tries to
+    insert the order into the car's chronological route and accepts the feasible
+    insertion with the smallest extra moving time; ties are broken by smaller
+    upgrade penalty and smaller idle time.  If the average route length is
+    $\bar r=n_K/n_C$, the insertion search costs about
+    $O(n_K n_C\bar r)$ in the worst case, and is much faster in sparse routes.
+
+    \item \textbf{Algo5: demand-aware look-ahead.}  Algo5 first builds six-hour
+    demand buckets for each station and car level.  The score of assigning a car
+    to an order combines immediate profit gain, relocation time, idle time,
+    upgrade penalty, future demand near the return station, and the opportunity
+    cost of removing the car from its current station.  It then performs bounded
+    repairs such as shortage-bucket rescue, route insertion, and one-removal
+    replacement for valuable rejected orders.  Building demand scores costs
+    $O(n_K+n_Sn_LQ)$, where $Q$ is the number of time buckets.  The assignment
+    scan is $O(n_K n_C)$, and the bounded repair loops have fixed caps in the
+    implementation, so the running time remains well below the three-minute
+    limit.
+\end{itemize}
+
+\textbf{Batch IP optimization.}  Since pre-build is fast, we use the remaining
+time to solve many small exact subproblems.  We convert the selected assignment
+into car routes.  In each iteration, we sample a small batch of cars whose
+routes have relatively low efficiency, release their currently served orders,
+add a capped list of high-value compatible candidate orders, and solve a local
+network-flow IP for only those cars and orders.  The local IP has the same
+meaning as the formulation in Problem 1: start variables assign a first order to
+a selected car, link variables connect two consecutive orders, and acceptance
+variables decide which candidate orders are served.  The repaired batch is
+accepted only if it increases profit and keeps the total moving time within
+$B$.  Otherwise, we keep the old feasible solution.  This ``release-and-repair''
+design lets us benefit from exact optimization without building the full IP.
+
+The whole procedure is summarized below.
 
 \[
 \begin{array}{ll}
@@ -270,16 +287,12 @@ The procedure is summarized below.
 \]
 
 Let $n_C$ be the number of cars, $n_K$ the number of orders, and $n_S$ the
-number of stations.  The construction heuristics examine compatible car-order
-pairs and route insertions, so their dominant cost is roughly
-$O(n_C n_K+n_K r)$, where $r$ is the number of route positions checked in the
-repair rules.  In the local IP stage, suppose each batch contains $b$ cars and
-at most $m$ candidate orders.  The local network has $O(bm)$ start arcs and
-$O(bm^2)$ order-to-order arcs in the worst case, so the local IP has
-$O(bm^2)$ binary variables and constraints.  In practice, $b$ and $m$ are capped
-by parameters and the entire loop is bounded by a wall-clock time limit.  Thus
-the algorithm scales to large instances by spending exact optimization effort
-only on small neighborhoods of the current solution.
+number of stations.  The local IP batch contains $b$ selected cars and at most
+$m$ candidate orders.  It has $O(bm)$ start arcs and $O(bm^2)$ order-to-order
+arcs in the worst case, hence $O(bm^2)$ binary variables and constraints.  In
+our implementation, both $b$ and $m$ are capped, and each local IP has a short
+time limit.  The total running time is therefore controlled by the three-minute
+wall-clock limit rather than by solving one enormous model.
 
 \section*{Problem 4}
 
@@ -321,12 +334,21 @@ S14 & Moderate budget & 1:1 & random & random & random, $B=300n_D$\\
 For the final detailed experiment, we selected five representative hard
 scenarios: S6, S8, S10, S13, and S14.  These cover spatial imbalance, hub
 returns, temporal bursts, and relocation-budget sensitivity.  For each selected
-scenario we generated 128 random instances.  For each instance, we solved the IP
-model from Problem 1 with Gurobi to obtain an optimal benchmark, then compared
-our \texttt{algo\_union} heuristic with a simple baseline, \texttt{algo\_naive}.
-The naive baseline processes orders chronologically and assigns each order to
-the feasible car requiring the least relocation time; if no such car exists, the
-order is rejected.  The optimality gap is reported as
+scenario we generated 128 random instances, for 640 instances in total.  To make
+the exact benchmark computationally possible, these selected scenarios use
+$n_C=100$ and $n_K=100$; this size is large enough to stress relocation and
+timing decisions, but still small enough for the IP solver to finish on our
+experiment machine.  Since the IP model is exact for these generated instances,
+its objective value is the optimal profit and serves as an upper bound on any
+heuristic solution.
+
+We also compare against a lower-bound feasible heuristic called
+\texttt{algo\_naive}.  It sorts orders by pickup time, assigns each order to the
+feasible car requiring the least relocation time, and rejects the order if no
+car can serve it.  Since it always returns a feasible plan, its profit is a valid
+lower bound on the optimum, but it intentionally has no look-ahead or repair
+logic.  A good heuristic should clearly outperform this baseline.  The
+optimality gap is reported as
 \[
 \text{gap}=\frac{\text{IP profit}-\text{algorithm profit}}{|\text{IP profit}|}.
 \]
@@ -348,11 +370,19 @@ S14 & 60.83\% & 233.16\% & 1.10\% & 4.66\%\\
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{../data/scenario_study_128/optimal_gap_histograms_combined.svg.png}
+\caption{Optimality-gap histograms for the five selected scenarios.  Each panel
+reports the mean and standard deviation of \texttt{algo\_naive} and
+\texttt{algo\_union}.}
+\end{figure}
+
 The histogram figures are generated under the scenario-study result directory.
-It contains one combined SVG histogram and one SVG histogram for each selected
-scenario.  The full raw experiment, including the 640 generated instances,
-optimal plans, run-time logs, per-instance benchmark rows, and histograms, is
-stored in the compressed artifact \texttt{scenario\_study\_128\_results.tgz}.
+It contains one combined figure and one histogram for each selected scenario.
+The full raw experiment, including the 640 generated instances, optimal plans,
+run-time logs, per-instance benchmark rows, and histograms, is stored in the
+compressed artifact \texttt{scenario\_study\_128\_results.tgz}.
 
 The results show that \texttt{algo\_union} is consistently much closer to the IP
 benchmark than the naive chronological rule.  On S6, the union heuristic matched
