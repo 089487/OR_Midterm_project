@@ -14,6 +14,7 @@ ALGO_SPECS = {
     "algo2": ("heuristic_algo2", "heuristic_algorithm2"),
     "algo3": ("heuristic_algo3", "heuristic_algorithm3"),
     "algo4": ("heuristic_algo4", "heuristic_algorithm4"),
+    "algo_union": ("algo_union", "heuristic_algorithm"),
 }
 FIELDS = [
     "instance", "algorithm", "moving_time", "profit", "execution_time",
@@ -98,7 +99,7 @@ def run_one(instance_path: Path, algo_name: str, max_seconds: float) -> dict[str
     start = time.perf_counter()
     try:
         kwargs = {"max_seconds": max_seconds, "raw_test": True}
-        if algo_name == "algo4":
+        if algo_name in {"algo4", "algo_union"}:
             kwargs["per_ip_seconds"] = min(2.0, max_seconds)
         assignment, _relocation = func(str(instance_path), **kwargs)
         seconds = time.perf_counter() - start
@@ -143,7 +144,7 @@ def run_scenario(args: tuple[str, list[str], float, bool]) -> str:
         for r in read_rows(csv_path)
         if r.get("status") == "ok"
     }
-    log_path = scenario_dir / "algo234_run.log"
+    log_path = scenario_dir / "algo_parallel_run.log"
     jobs = [(p, a) for p in sorted(scenario_dir.glob("*.txt")) for a in algo_names]
     with log_path.open("a", encoding="utf-8") as log:
         log.write(f"START {time.strftime('%Y-%m-%d %H:%M:%S')} jobs={len(jobs)} max_seconds={max_seconds}\n")
@@ -180,7 +181,7 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--algorithm", action="append", choices=sorted(ALGO_SPECS), default=None)
     args = parser.parse_args()
-    algo_names = args.algorithm or ["algo2", "algo3", "algo4"]
+    algo_names = args.algorithm or ["algo2", "algo3", "algo4", "algo_union"]
     scenario_dirs = sorted([p for p in Path(args.root).iterdir() if p.is_dir() and p.name.startswith("S")], key=scenario_sort_key)
     tasks = [(str(p), algo_names, args.max_seconds, args.force) for p in scenario_dirs]
     print(

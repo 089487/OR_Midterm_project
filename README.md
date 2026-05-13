@@ -99,8 +99,8 @@ python run_algorithm_benchmarks.py \
   --root data/exp_instances \
   ./algo1.py ./algo5.py
 
-# Algo2, Algo3, Algo4 with TL=10s, parallelized by scenario.
-python run_algo234_parallel.py \
+# Algo2, Algo3, Algo4, and AlgoUnion with TL=10s, parallelized by scenario.
+python run_algo_parallel.py \
   --root data/exp_instances \
   --max-seconds 10 \
   --jobs 14
