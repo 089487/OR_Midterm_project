@@ -1,6 +1,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+*.log
 
 # Scenario study artifacts: keep summary plots/CSV and the compressed archive,
 # but avoid committing thousands of generated instances and plan files.
