@@ -41,6 +41,7 @@ def heuristic_algorithm(
         exact = _try_exact_for_small_instance(instance_file, inst)
         if exact is not None:
             return exact
+    # Step 1: Order Prioritization
     orders = sorted(inst.orders, key=lambda o: (-o.revenue, o.pickup_minute, o.id))
     states = {car.id: CarState(car.id, car.level, car.station, route=[]) for car in inst.cars}
     order_by_id = {order.id: order for order in inst.orders}
@@ -78,9 +79,13 @@ def _choose_insertion(inst, states, order_by_id: dict[int, Order], order: Order,
     for state in states:
         if not can_serve_level(state.level, order.level):
             continue
+        
+        # Step 2: Chronological Insertion Search
         route_orders = [order_by_id[order_id] for order_id in state.route]
         pickup_times = [route_order.pickup_minute for route_order in route_orders]
         idx = bisect_left(pickup_times, order.pickup_minute)
+        
+        # Step 3: Feasibility Evaluation
         prev_order = route_orders[idx - 1] if idx > 0 else None
         next_order = route_orders[idx] if idx < len(route_orders) else None
         prev_station = state.station if prev_order is None else prev_order.return_station
@@ -98,6 +103,8 @@ def _choose_insertion(inst, states, order_by_id: dict[int, Order], order: Order,
         delta_move = prev_move + next_move - old_move
         if delta_move > remaining_budget:
             continue
+        
+        # Step 4: Lexicographical Selection (delta_move, upgrade_penalty, idle, car_id)
         idle = _local_idle(inst, prev_order, order, next_order)
         upgrade_penalty = state.level - order.level
         key = (delta_move, upgrade_penalty, idle, state.car_id)

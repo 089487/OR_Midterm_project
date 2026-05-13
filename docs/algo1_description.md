@@ -1,0 +1,10 @@
+Approach A serves as a fast and reliable high-profit route generator, operating through a single-pass greedy route insertion process:
+
+\begin{itemize}
+    \item \textbf{Step 1: Order Prioritization.} Orders are sorted primarily in descending order of their revenue and secondarily by pickup time. This ensures that the most profitable orders are processed first while relocation budget and vehicle availabilities are still plentiful.
+    \item \textbf{Step 2: Chronological Insertion Search.} For each prioritized order, the algorithm iterates through all compatible cars (i.e., those offering exact level matches or valid one-level upgrades). It uses binary search to quickly locate the exact chronological position the order would occupy within a candidate car's existing schedule.
+    \item \textbf{Step 3: Feasibility Evaluation.} Once an insertion position is found, the transitions from the predecessor order to the new order, and from the new order to the successor order, are verified. It computes the marginal addition to moving time ($\Delta\text{move}$) to ensure that all timing/cleanup constraints are met and the remaining global relocation budget is not violated.
+    \item \textbf{Step 4: Lexicographical Selection.} Among all feasible candidate insertions for an order, the algorithm greedily picks the one that minimizes the following lexicographical key: \texttt{(marginal moving time, upgrade penalty, local idle time, car ID)}. This breaks ties by strongly prioritizing budget conservation and minimizing unnecessary vehicle upgrades over local idle time.
+\end{itemize}
+
+As a final fallback, similar to the other approach, a bounded exact IP solver is executed for extremely small instances to guarantee optimality, but this step is quickly bypassed for large hidden instances to ensure execution stays well within the three-minute limit.

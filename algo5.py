@@ -356,7 +356,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             _, cid, move = best
             accept_order(order, cid, move)
 
-    # -------- Phase 3: Shortage-bucket repair for rejected orders --------
+    # -------- Phase 2: Shortage-bucket repair for rejected orders --------
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     if rejected:
         # Repair decisions should focus on remaining demand, not orders that the
@@ -406,7 +406,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                     _, cid, move = best
                     accept_order(order, cid, move)
 
-    # -------- Phase 4: Limited route-insertion repair --------
+    # -------- Phase 3: Limited route-insertion repair --------
     # Try to insert high-value rejected orders inside an existing car route.
     # Rebuilding a single car route keeps the move list and timing constraints
     # consistent without requiring a full multi-car re-optimization.
@@ -491,7 +491,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             cid, trial_route = best_route
             replace_car_route(cid, trial_route)
 
-    # -------- Phase 5: One-removal route repair --------
+    # -------- Phase 4: One-removal route repair --------
     # If a high-value rejected order cannot be inserted directly, try removing one
     # low-value accepted order from a compatible car route and rebuild that route.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
@@ -587,7 +587,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             cid, trial_route = best_route
             replace_car_route(cid, trial_route)
 
-    # -------- Phase 6: Limited local replacement of the last order of a car --------
+    # -------- Phase 5: Limited local replacement of the last order of a car --------
     # This repairs some greedy mistakes while keeping schedule feasibility simple.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     rejected.sort(key=lambda o: -o['revenue'])
