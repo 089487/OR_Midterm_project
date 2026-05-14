@@ -25,34 +25,38 @@ Let $S$ be the set of stations, $C$ be the set of cars, and $K$ be the set of
 customer orders.  Each car $c\in C$ has initial station $h_c\in S$ and level
 $q_c$.  Each order $k\in K$ has requested level $\ell_k$, pickup station
 $p_k\in S$, return station $r_k\in S$, pickup time $s_k$, return time $e_k$,
-and revenue $R_k$.  Let $t_{uv}$ be the moving time from station $u\in S$ to
+and revenue $R_k$.  Let $t_{u,v}$ be the moving time from station $u\in S$ to
 station $v\in S$, and let $B$ be the total relocation-time budget.
 
-We build a directed acyclic route network.  An initial arc $(c,k)\in A^0$ is
-created if car $c$ can serve order $k$ by level and can be moved from $h_c$ to
-$p_k$ in time.  A transition arc $(c,i,j)\in A$ is created if the same car $c$
-can serve both orders $i$ and $j$ and can move from the return station of $i$ to
-the pickup station of $j$ after return handling and cleaning.  More precisely,
-a transition from $i$ to $j$ is feasible only if
+We build a directed acyclic route network. Let $\tau(t)$ be the function that converts time $t$ to minutes from the start of the planning horizon (00:00). The set of feasible initial arcs $A^0$ and transition arcs $A$ are strictly defined by level compatibility and time constraints:
 \[
-e_i+240+t_{r_i p_j}\le s_j-30.
+A^0 = \{(c,k)\in C\times K \mid q_c\in\{\ell_k,\ell_k+1\} \text{ and } t_{h_c, p_k}\le \tau(s_k)-30\}
 \]
-The level rule is $q_c\in\{\ell_k,\ell_k+1\}$ for every order $k$ assigned to
-car $c$.  Let $m_{ck}=t_{h_c p_k}$ for $(c,k)\in A^0$, and let
-$m_{ij}=t_{r_i p_j}$ for $(c,i,j)\in A$.
+\[
+A = \Big\{ (c, i, j) \in C \times K \times K \;\Big|\; q_c \in \big(\{\ell_i, \ell_i+1\} \cap \{\ell_j, \ell_j+1\}\big) \text{ and } \tau(e_i) + 240 + t_{r_i, p_j} \le \tau(s_j) - 30 \Big\}
+\]
+Let $m_{c,k}=t_{h_c, p_k}$ for $(c,k)\in A^0$, and let
+$m_{i,j}=t_{r_i, p_j}$ for $(c,i,j)\in A$.
 
 \begin{table}[ht]
 \centering
 \small
 \begin{tabular}{c|l}
 \toprule
-\multicolumn{2}{c}{Parameter}\\
+\multicolumn{2}{c}{\textbf{Sets and Indices}}\\
 \midrule
 $C$ & The set of cars\\
 $K$ & The set of customer orders\\
 $S$ & The set of stations\\
 $A^0$ & The set of feasible initial arcs from a car to its first order\\
 $A$ & The set of feasible order-to-order transition arcs for a car\\
+\midrule
+\multicolumn{2}{c}{\textbf{Functions}}\\
+\midrule
+$\tau(t)$ & The function converting time $t$ to minutes from the start of the horizon\\
+\midrule
+\multicolumn{2}{c}{\textbf{Parameters}}\\
+\midrule
 $h_c$ & The initial station of car $c$\\
 $q_c$ & The level of car $c$\\
 $p_k$ & The pickup station of order $k$\\
@@ -61,12 +65,12 @@ $s_k$ & The pickup time of order $k$\\
 $e_k$ & The return time of order $k$\\
 $\ell_k$ & The requested level of order $k$\\
 $R_k$ & The revenue earned if order $k$ is accepted\\
-$t_{uv}$ & The moving time from station $u$ to station $v$\\
+$t_{u,v}$ & The moving time from station $u$ to station $v$\\
 $B$ & The total moving-time budget\\
-$m_{ck}$ & The moving time of initial arc $(c,k)\in A^0$\\
-$m_{ij}$ & The moving time of transition arc $(c,i,j)\in A$\\
+$m_{c,k}$ & The moving time of initial arc $(c,k)\in A^0$\\
+$m_{i,j}$ & The moving time of transition arc $(c,i,j)\in A$\\
 \midrule
-\multicolumn{2}{c}{Decision variable}\\
+\multicolumn{2}{c}{\textbf{Decision variable}}\\
 \midrule
 \multicolumn{2}{l}{
 $x_{ck} =
@@ -95,24 +99,23 @@ $y_k =
 \end{table}
 
 With these decision variables, the IEDO planning problem can be formulated as
-the following integer program.  Variables associated with infeasible arcs are
-not created and are treated as zero in the expressions below.
+the following integer program. Let $K_c = \{ k \in K \mid (c,k) \in A^0 \text{ or } \exists h \in K \text{ s.t. } (c,h,k) \in A \}$ be the set of valid orders for car $c$.
 \[
 \begin{aligned}
 \max \quad
-& \sum_{k\in K} R_k y_k - 2\sum_{k\in K}R_k(1-y_k) \\
+& \sum_{k\in K} 3 R_k y_k \\
 \text{s.t.}\quad
 & \sum_{c:(c,k)\in A^0}x_{ck}
-  + \sum_{(c,i,k)\in A}z_{cik}
+  + \sum_{c \in C}\sum_{i \in K:(c,i,k)\in A}z_{cik}
   = y_k
   && \forall k\in K,\\
 & \sum_{k:(c,k)\in A^0}x_{ck}\le 1
   && \forall c\in C,\\
 & \sum_{j:(c,i,j)\in A}z_{cij}
-  \le x_{ci}+\sum_{h:(c,h,i)\in A}z_{chi}
-  && \forall c\in C,\ i\in K,\\
-& \sum_{(c,k)\in A^0}m_{ck}x_{ck}
-  +\sum_{(c,i,j)\in A}m_{ij}z_{cij}
+  \le \sum_{k \in \{i\} : (c,k) \in A^0}x_{ck}+\sum_{h:(c,h,i)\in A}z_{chi}
+  && \forall c\in C,\ i\in K_c,\\
+& \sum_{(c,k)\in A^0}m_{c,k}x_{ck}
+  +\sum_{(c,i,j)\in A}m_{i,j}z_{cij}
   \le B,\\
 & x_{ck}\in\{0,1\}
   && \forall (c,k)\in A^0,\\
@@ -130,7 +133,9 @@ constraint is the route-continuity constraint: a car can leave an order only if
 it has first entered that order.  Since all transition arcs go forward in time,
 this also prevents cycles.  The fourth constraint enforces the total employee
 moving-time budget.  The objective maximizes total sales revenue minus rejection
-compensation; equivalently, for a fixed instance it maximizes accepted revenue.
+compensation. Since the total penalty for rejecting all orders, $\sum_{k\in K} 2R_k$,
+is a constant, maximizing the original profit function is mathematically equivalent
+to maximizing $\sum_{k\in K} 3R_k y_k$.
 
 \vspace{0.3cm}
 
