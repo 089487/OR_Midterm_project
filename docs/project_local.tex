@@ -145,22 +145,28 @@ to maximizing $\sum_{k\in K} 3R_k y_k$.
 
 \subsection*{3. Operational Plan}
 
-\small
+The relocation instructions needed before serving an order are integrated in
+the table, so an operator can execute the accepted plan without cross-checking
+another schedule.
 
-\begin{longtable}{cccccc}
+\begingroup
+\scriptsize
+\begin{longtable}{cccccccc}
 \toprule
-Order & Car & Upgrade & Pickup $\rightarrow$ Return & Rental Period & Revenue \\
+Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
+& Pickup $\rightarrow$ Return & Rental Period & Revenue \\
 \midrule
-3 & 3 & No & 5 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 11:30 & 5,600 \\
-4 & 1 & No & 1 $\rightarrow$ 2 & 01/03 12:00 -- 01/05 15:00 & 5,100 \\
-5 & 6 & No & 6 $\rightarrow$ 6 & 01/01 00:00 -- 01/04 20:00 & 36,800 \\
-6 & 4 & Yes & 3 $\rightarrow$ 4 & 01/04 23:00 -- 01/05 14:00 & 1,500 \\
-7 & 5 & No & 2 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 23:30 & 27,200 \\
-8 & 6 & No & 6 $\rightarrow$ 6 & 01/05 04:30 -- 01/05 14:30 & 4,000 \\
-9 & 4 & No & 3 $\rightarrow$ 4 & 01/01 19:30 -- 01/04 15:30 & 27,200 \\
-10 & 2 & No & 4 $\rightarrow$ 2 & 01/01 06:00 -- 01/05 06:00 & 9,600 \\
+3 & 3 & No & - & 0 & 5 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 11:30 & 5,600 \\
+4 & 1 & No & - & 0 & 1 $\rightarrow$ 2 & 01/03 12:00 -- 01/05 15:00 & 5,100 \\
+5 & 6 & No & - & 0 & 6 $\rightarrow$ 6 & 01/01 00:00 -- 01/04 20:00 & 36,800 \\
+6 & 4 & Yes & 5 $\rightarrow$ 3 & 210 & 3 $\rightarrow$ 4 & 01/04 23:00 -- 01/05 14:00 & 1,500 \\
+7 & 5 & No & - & 0 & 2 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 23:30 & 27,200 \\
+8 & 6 & No & - & 0 & 6 $\rightarrow$ 6 & 01/05 04:30 -- 01/05 14:30 & 4,000 \\
+9 & 4 & No & - & 0 & 3 $\rightarrow$ 4 & 01/01 19:30 -- 01/04 15:30 & 27,200 \\
+10 & 2 & No & 4 $\rightarrow$ 2 & 240 & 4 $\rightarrow$ 2 & 01/01 06:00 -- 01/05 06:00 & 9,600 \\
 \bottomrule
 \end{longtable}
+\endgroup
 
 \vspace{0.2cm}
 
@@ -181,6 +187,10 @@ Car & From & To & Depart & Arrive & Minutes \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
+
+\newpage
 
 \section*{Problem 2}
 
@@ -252,32 +262,62 @@ For each order, the algorithm may check $n_C$ cars and inspect a local insertion
 position, so the overall complexity is approximately $O(n_K n_C \bar r)$ in the
 worst case.
 
-\subsection*{Pre-build Approach B: Demand-aware look-ahead}
+\subsection*{5-Phase Meta-heuristic with Demand-aware Look-ahead}
 
-Approach B is intended to fix the main weakness of simple greedy assignment: it
-looks beyond the immediate order.  The planning horizon is divided into six-hour
-buckets.  For each station, car level, and bucket, we estimate future demand
-value.  A car of level $l$ contributes to the ability to serve level $l$ and
-level $l-1$ orders, reflecting the free one-level upgrade rule.  The table is
-computed by adding the value of each future pickup to its pickup station and
-requested level, then using a rolling four-bucket window, i.e., about 24 hours,
-to estimate how useful a car will be near a station in the near future.
+The second pre-build approach is not just a different greedy ordering.  It is a
+five-phase meta-heuristic whose scoring function looks ahead to future spatial
+demand before making each local assignment.
 
-When evaluating whether car $c$ should serve order $k$, Approach B uses a score
-of the following form:
+\subsubsection*{1. Demand-aware Look-ahead Scoring}
+
+The planning horizon is divided into six-hour buckets.  For each station, car
+level, and bucket, we estimate future demand value.  A car of level $l$
+contributes to the ability to serve level $l$ and level $l-1$ orders,
+reflecting the free one-level upgrade rule.  The table is computed by adding the
+value of each future pickup to its pickup station and requested level, then
+using a rolling four-bucket window, i.e., about 24 hours, to estimate how useful
+a car will be near a station in the near future.  When the future order can only
+be served by a one-level upgrade, the future demand contribution is discounted
+to $0.75\times 3R_k$.
+
+When evaluating whether car $c$ should serve order $k$, the method uses
 \[
-3R_k
-+ w_f F(\text{return station},q_{\text{after}})
-- w_o F(\text{current station},q_{\text{now}})
-- w_m M(1+3B_{\text{used}}/B)
+\text{Score}
+=3R_k
++ w_f F(s_{\text{ret}}, \ell_c, b_{\text{ret}})
+- w_o F(s_{\text{cur}}, \ell_c, b_{\text{cur}})
+- P_{\text{move}}
 - w_i I
-- w_u U.
+- w_u \cdot U \cdot \max(1,\ell_c).
 \]
-Here $M$ is the relocation time, $I$ is idle time, and $U$ is the upgrade
-penalty.  The term $F(\cdot)$ is the future demand score.  The positive future
-term rewards returning a car to a useful future location, while the opportunity
-cost penalizes removing a car from a station that will soon need it.  The factor
-$3R_k$ appears because total profit can be rewritten as
+Here $s_{\text{cur}}$ is the car's current station before serving the order,
+$s_{\text{ret}}$ is the order's return station, and $\ell_c$ is the car level.
+The time indices $b_{\text{cur}}$ and $b_{\text{ret}}$ are six-hour bucket
+indices computed from the car's current available time and the ready time after
+serving the order.  The future-demand table is not learned; it is computed
+directly from the remaining order list:
+\[
+D_{s,\ell,b}=\sum_{\substack{k:p_k=s,\ \ell_k=\ell\\
+\lfloor s_k/360\rfloor=b}}3R_k
++\sum_{\substack{k:p_k=s,\ \ell_k+1=\ell\\
+\lfloor s_k/360\rfloor=b}}0.75\cdot 3R_k,
+\quad
+F(s,\ell,b)=\sum_{\tau=b}^{b+3}D_{s,\ell,\tau}.
+\]
+Thus $F(s,\ell,b)$ is the next-24-hour value of placing a level-$\ell$ car at
+station $s$ at bucket $b$.  The terms $I$ and $U$ denote idle time and whether
+an upgrade is used.
+The moving penalty is dynamic:
+\[
+P_{\text{move}}=w_m M\left(1+\frac{3B_{\text{used}}}{B}\right),
+\]
+where $M$ is the relocation time, $w_m$ is the base moving-time penalty weight,
+and $B_{\text{used}}$ is the relocation budget already consumed.  Thus moving
+becomes increasingly expensive as the remaining budget becomes scarce.  The
+upgrade penalty is also level-aware through
+$w_u\cdot U\cdot\max(1,\ell_c)$, which discourages wasting higher-level cars on
+lower-level requests unless the accepted reward and future positioning justify
+it.  The factor $3R_k$ appears because total profit can be rewritten as
 \[
 \sum_{k\in A} R_k-2\sum_{k\notin A}R_k
 =3\sum_{k\in A}R_k-2\sum_k R_k,
@@ -285,26 +325,93 @@ $3R_k$ appears because total profit can be rewritten as
 so accepting one more order improves the objective by $3R_k$ relative to
 rejecting it.
 
-Approach B is then executed through a sequence of phases:
+The five weights are fixed hyperparameters, not quantities fitted from data.
+We run several variants and keep the feasible plan with the largest accepted
+reward:
+\[
+\begin{array}{c|ccccc}
+\text{sort mode} & w_m & w_i & w_u & w_f & w_o\\
+\hline
+\text{bucket} & 1.0 & 0.003 & 250 & 0.012 & 0.006\\
+\text{time} & 1.2 & 0.002 & 400 & 0.010 & 0.008\\
+\text{density} & 0.8 & 0.004 & 300 & 0.015 & 0.006\\
+\text{revenue} & 1.0 & 0.002 & 500 & 0.010 & 0.010
+\end{array}
+\]
+For very large instances, only the first two variants are used so that the
+algorithm stays within the three-minute time limit.
+
+\subsubsection*{2. The 5-Phase Execution Pipeline}
+
+The implementation maintains, for every car, its current station, next available
+time, route history, and relocation records.  The global used relocation budget
+is updated whenever a new order is accepted.  All repair phases reuse the same
+route simulator: a proposed route is replayed from the car's initial station and
+time zero, and it is accepted only if level compatibility, readiness time, and
+the global relocation budget remain feasible.
 
 \begin{itemize}
-    \item \textbf{Initial greedy assignment.} Several parameter variants are
-    tried, such as bucketed density order, chronological order, revenue-density
-    order, and revenue-first order.  Each variant greedily assigns orders to
-    cars using the score above.
-    \item \textbf{Shortage-bucket repair.} Rejected high-value orders are grouped
-    by pickup station, time bucket, and requested level.  Buckets with high
-    remaining value and low expected inbound relocation effort are repaired
-    first.
-    \item \textbf{Limited route insertion.} High-value rejected orders are
-    tested for direct insertion into existing car routes.  Only nearby
-    chronological positions and a capped number of candidate cars are checked.
-    \item \textbf{One-removal swaps.} If direct insertion is impossible, the
-    method tries replacing one lower-value accepted order in a compatible route
-    with a higher-value rejected order.
-    \item \textbf{Limited local replacement.} As a final lightweight repair, the
-    method tries replacing the last order on a compatible car route, which is a
-    cheap way to correct some greedy end-of-route mistakes.
+    \item \textbf{Phase 1: Initial Greedy Assignment.} The method runs several
+    parameter variants and keeps the best final plan.  The variants differ both
+    in sorting order and in score weights: bucketed density, chronological,
+    revenue-density, and revenue-first.  Bucketed density sorts by six-hour
+    pickup bucket, then by revenue density, then by revenue; this is mostly
+    chronological but gives valuable orders priority inside the same time
+    window.  For each order, the algorithm only scans cars with an exact level
+    match or a one-level upgrade, computes the demand-aware score, and chooses
+    the feasible car with the largest tuple
+    \[
+    (\text{score},-\text{move},-\text{upgrade},-\text{idle}).
+    \]
+    This phase quickly builds a complete feasible baseline route set.
+
+    \item \textbf{Phase 2: Shortage-bucket Repair.} After Phase 1, the algorithm
+    rebuilds the future-demand table using only rejected orders.  It groups
+    these orders by pickup station, six-hour bucket, and requested level.  Each
+    group receives a priority
+    \[
+    \frac{\sum_{k\in \text{bucket}}3R_k}
+    {1+\min_{c\text{ compatible}}t_{\text{current}(c),\text{bucket station}}},
+    \]
+    so a high-value shortage cluster is repaired early, but remote clusters that
+    would consume too much relocation budget are delayed.  Inside each bucket,
+    orders are tried by decreasing revenue and assigned with the same car
+    scoring rule as Phase 1.
+
+    \item \textbf{Phase 3: Limited Route Insertion.} The algorithm then looks at
+    rejected orders in decreasing revenue order and tries to insert each one
+    inside one existing car route.  Candidate cars are compatible cars sorted by
+    current distance to the order's pickup station and current available time.
+    Instead of trying every insertion point, it first finds the chronological
+    insertion position and checks only nearby positions up to a fixed cap.  For
+    each trial route, the route simulator recomputes all moves and times.  The
+    insertion is accepted only if the gain
+    \[
+    3R_k - 0.02\max(0,\Delta M)\left(1+\frac{3B_{\text{used}}}{B}\right)
+    \]
+    is positive and the total relocation budget remains feasible.
+
+    \item \textbf{Phase 4: One-removal Swap.} If a valuable rejected order still
+    cannot be inserted directly, the algorithm tries to remove one lower-revenue
+    accepted order from a compatible car route and insert the rejected order
+    near its chronological position.  Only a capped number of candidate cars,
+    removable low-value orders, and insertion positions are checked.  A swap is
+    accepted when the simulated new route is feasible and
+    \[
+    3(R_{\text{new}}-R_{\text{removed}})
+    -0.02\max(0,\Delta M)\left(1+\frac{3B_{\text{used}}}{B}\right)>0.
+    \]
+    This phase fixes cases where the greedy stage used a scarce time slot or car
+    level for a lower-value order.
+
+    \item \textbf{Phase 5: Limited Local Replacement.} The final repair is even
+    cheaper.  For each high-revenue rejected order, the method temporarily rolls
+    a compatible car back to the state before its last accepted order.  It then
+    checks whether the rejected order can replace that last order using the same
+    candidate scoring and relocation-budget test.  If the revenue gain after the
+    dynamic move penalty is positive, the old last order is rejected, its
+    relocation record is cancelled, and the new order is accepted.  This phase
+    corrects end-of-route greedy mistakes without rebuilding long routes.
 \end{itemize}
 
 Each proposed repaired route is simulated from the car's initial station and
@@ -382,8 +489,9 @@ inside the horizon; rental duration is uniformly sampled from 2 to 48 hours.
 Moving time is symmetric with $T_{ii}=0$ and $T_{ij}=90$ minutes for $i\ne j$.
 
 The generator creates fourteen scenarios.  Unless stated otherwise, $n_C=100$.
-In the high-load scenario S4, $n_C=80$ and $n_K=3n_C$; in the other scenarios,
-$n_K$ equals the listed load ratio times $n_C$.  Level distribution is uniform
+In high-load scenarios S2 and S4, $n_C=80$; S2 uses $n_K=10n_C=800$ and
+S4 uses $n_K=3n_C=240$.  In the other scenarios, $n_K$ equals the listed load
+ratio times $n_C$.  Level distribution is uniform
 except S5, where orders are mostly low odd levels while cars are mostly high
 even levels.  Station distribution is uniform except S6, where orders move from
 even pickup stations to odd return stations, and S7--S8, where returns are
@@ -399,7 +507,7 @@ peak centers.  Budgets are either $10^6$, $0$, $30n_D$, or $300n_D$.
 Scenario & Main factor & Ratio $n_K:n_C$ & Levels & Stations & Time/Budget \\
 \midrule
 S1 & Baseline & 1:1 & random & random & random, $B=10^6$\\
-S2 & Ultra-low load & 1:10 & random & random & random, $B=10^6$\\
+S2 & Very high load & 10:1 & random & random & random, $B=10^6$\\
 S3 & Low load & 1:3 & random & random & random, $B=10^6$\\
 S4 & High load & 3:1 & random & random & random, $B=10^6$\\
 S5 & Level mismatch & 1:1 & 8:2 skew & random & random, $B=10^6$\\
@@ -454,7 +562,7 @@ Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (
 & $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
 \midrule
 S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
-S2  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.3 & 99.3\\
+S2  & $0.91 \pm 1.98$ & $0.27 \pm 0.70$ & $0.67 \pm 1.42$ & 98.0 & 97.9\\
 S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.5 & 99.5\\
 S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$ & 99.2 & 99.2\\
 S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\

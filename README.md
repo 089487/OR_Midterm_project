@@ -58,7 +58,7 @@ The generator uses these scenario settings:
 | Scenario | Focus | Ratio | Level | Station | Time | Budget |
 | --- | --- | ---: | --- | --- | --- | --- |
 | S1 | Baseline | 1.0 | random | random | random | 1,000,000 |
-| S2 | Ultra-low load | 0.1 | random | random | random | 1,000,000 |
+| S2 | Very high load | 10.0 | random | random | random | 1,000,000 |
 | S3 | Low load | 0.333 | random | random | random | 1,000,000 |
 | S4 | High load | 3.0 | random | random | random | 1,000,000 |
 | S5 | Level mismatch | 1.0 | 8:2 skew | random | random | 1,000,000 |
@@ -73,7 +73,7 @@ The generator uses these scenario settings:
 | S14 | Moderate budget | 1.0 | random | random | random | 300 * n_D |
 
 For each generated instance, `n_S=100`, `n_L=10`, `n_D` is sampled from 7 to
-100, `n_C=80` for S4 and `n_C=100` otherwise, and `n_K=int(n_C * ratio)`.
+100, `n_C=80` for S2 and S4 and `n_C=100` otherwise, and `n_K=int(n_C * ratio)`.
 
 ## Run Benchmarks
 

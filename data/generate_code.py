@@ -59,9 +59,9 @@ class IEDOProjectGenerator:
         elif b_mode == "300": B = 300 * nD
         else: B = 1000000 # "1M"
         
-        # 3. S4 ratio=3 => N_C =80 else N_C=100, N_K = N_C * ratio
-        if config['ratio']==3 : n_C = 80
-        else: n_C = 100 
+        # 3. Decide fleet size and order count from the scenario load ratio.
+        #    S2 intentionally uses n_C=80, n_K=800 for the 10:1 high-order case.
+        n_C = int(config.get("n_C", 80 if config["ratio"] == 3 else 100))
         n_K = int(n_C * config['ratio'])
 
         lines = [
@@ -111,9 +111,9 @@ class IEDOProjectGenerator:
 CONFIGS = {
     # Base & 負荷測試 (Supply-Demand Ratio Tests)
     "S1":  {"ratio": 1.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 基準情境
-    "S2":  {"ratio": 0.1,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (極低)
+    "S2":  {"ratio": 10.0,  "n_C": 80,  "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (極高)
     "S3":  {"ratio": 0.333, "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (低)
-    "S4":  {"ratio": 3.0,   "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (高)
+    "S4":  {"ratio": 3.0,   "n_C": 80,  "level_mode": "random",   "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 負荷度 (高)
     
     # 等級分布測試
     "S5":  {"ratio": 1.0,   "level_mode": "8:2_skew", "station_mode": "random",    "time_mode": "random",   "budget_mode": "1M"},    # 等級失配 (8:2)
