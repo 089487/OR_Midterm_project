@@ -266,23 +266,27 @@ For each order, the algorithm may check $n_C$ cars and inspect a local insertion
 position, so the overall complexity is approximately $O(n_K n_C \bar r)$ in the
 worst case.
 
-\subsection*{5-Phase Meta-heuristic with Demand-aware Look-ahead}
+\subsection*{Pre-build Approach B: Relocation-aware look-ahead heuristic}
 
-The second pre-build approach is not just a different greedy ordering.  It is a
-five-phase meta-heuristic whose scoring function looks ahead to future spatial
-demand before making each local assignment.
+The second pre-build approach is a relocation-aware multi-variant heuristic.  Its
+main purpose is to construct a strong feasible solution quickly while treating
+employee moving time as a scarce global resource.  Besides looking ahead to
+future spatial demand, it also contains a staging step and a relocation-value
+variant, so it can perform better when the initial car distribution and early
+customer demand are spatially mismatched.
 
 \subsubsection*{1. Demand-aware Look-ahead Scoring}
 
 The planning horizon is divided into six-hour buckets.  For each station, car
-level, and bucket, we estimate future demand value.  A car of level $l$
-contributes to the ability to serve level $l$ and level $l-1$ orders,
-reflecting the free one-level upgrade rule.  The table is computed by adding the
-value of each future pickup to its pickup station and requested level, then
-using a rolling four-bucket window, i.e., about 24 hours, to estimate how useful
-a car will be near a station in the near future.  When the future order can only
-be served by a one-level upgrade, the future demand contribution is discounted
-to $0.75\times 3R_k$.
+level, and bucket, we estimate future demand value.  The compatibility check is
+written from the order side: an order requesting level $r$ can be served by a
+car of level $r$ or level $r+1$.  Therefore each future pickup of requested
+level $r$ adds its full value to the table entry for level $r$ at its pickup
+station, and also adds a discounted value to the entry for level $r+1$, because
+a level-$r+1$ car could serve this order by upgrade.  A rolling four-bucket
+window, i.e., about 24 hours, is then used to estimate how useful a car will be
+near a station in the near future.  The upgraded future-demand contribution is
+discounted to $0.75\times 3R_k$.
 
 When evaluating whether car $c$ should serve order $k$, the method uses
 \[
@@ -302,9 +306,9 @@ serving the order.  The future-demand table is not learned; it is computed
 directly from the remaining order list:
 \[
 D_{s,\ell,b}=\sum_{\substack{k:p_k=s,\ \ell_k=\ell\\
-\lfloor s_k/360\rfloor=b}}3R_k
+\lfloor t^p_k/360\rfloor=b}}3R_k
 +\sum_{\substack{k:p_k=s,\ \ell_k+1=\ell\\
-\lfloor s_k/360\rfloor=b}}0.75\cdot 3R_k,
+\lfloor t^p_k/360\rfloor=b}}0.75\cdot 3R_k,
 \quad
 F(s,\ell,b)=\sum_{\tau=b}^{b+3}D_{s,\ell,\tau}.
 \]
@@ -329,47 +333,73 @@ it.  The factor $3R_k$ appears because total profit can be rewritten as
 so accepting one more order improves the objective by $3R_k$ relative to
 rejecting it.
 
-The five weights are fixed hyperparameters, not quantities fitted from data.
-We run several variants and keep the feasible plan with the largest accepted
-reward:
+The five score weights are fixed hyperparameters, not quantities fitted from
+data.  We run several complementary variants and keep the feasible plan with the
+largest accepted reward:
 \[
-\begin{array}{c|ccccc}
-\text{sort mode} & w_m & w_i & w_u & w_f & w_o\\
+\begin{array}{c|ccccc|l}
+\text{variant} & w_m & w_i & w_u & w_f & w_o & \text{extra feature}\\
 \hline
-\text{bucket} & 1.0 & 0.003 & 250 & 0.012 & 0.006\\
+\text{bucket} & 0.7 & 0.003 & 250 & 0.012 & 0.006 & \text{initial staging}\\
+\text{relocation value} & 0.6 & 0.002 & 350 & 0.012 & 0.008
+& \frac{3R_k}{\text{move}}\text{ gate}\\
+\text{revenue} & 0.8 & 0.002 & 500 & 0.010 & 0.010\\
 \text{time} & 1.2 & 0.002 & 400 & 0.010 & 0.008\\
-\text{density} & 0.8 & 0.004 & 300 & 0.015 & 0.006\\
-\text{revenue} & 1.0 & 0.002 & 500 & 0.010 & 0.010
+\text{density} & 0.8 & 0.004 & 300 & 0.015 & 0.006
 \end{array}
 \]
-For very large instances, only the first two variants are used so that the
-algorithm stays within the three-minute time limit.
+For large instances, only the first two variants are used so that the algorithm
+stays within the three-minute time limit.  These two variants are intentionally
+complementary: the first can relocate a limited number of idle cars before
+serving orders, and the second ranks relocation decisions by marginal value per
+moving minute.
 
-\subsubsection*{2. The 5-Phase Execution Pipeline}
+\subsubsection*{2. The 7-Phase Execution Pipeline}
 
 The implementation maintains, for every car, its current station, next available
-time, route history, and relocation records.  The global used relocation budget
-is updated whenever a new order is accepted.  All repair phases reuse the same
-route simulator: a proposed route is replayed from the car's initial station and
-time zero, and it is accepted only if level compatibility, readiness time, and
-the global relocation budget remain feasible.
+time, route history, relocation records, and the amount of initial staging move
+already spent on that car.  The global used relocation budget is updated whenever
+a staging move or an accepted order uses relocation.  All route-repair phases
+reuse the same simulator: a proposed single-car route is replayed from the car's
+original station and time zero, and it is accepted only if level compatibility,
+readiness time, and the global relocation budget remain feasible.
 
 \begin{itemize}
-    \item \textbf{Phase 1: Initial Greedy Assignment.} The method runs several
-    parameter variants and keeps the best final plan.  The variants differ both
-    in sorting order and in score weights: bucketed density, chronological,
-    revenue-density, and revenue-first.  Bucketed density sorts by six-hour
-    pickup bucket, then by revenue density, then by revenue; this is mostly
-    chronological but gives valuable orders priority inside the same time
-    window.  For each order, the algorithm only scans cars with an exact level
-    match or a one-level upgrade, computes the demand-aware score, and chooses
-    the feasible car with the largest tuple
+    \item \textbf{Phase 1: Optional Initial Staging.} In the staging variant, the
+    algorithm first looks at early demand, currently the first 24 hours, and
+    computes a shortage value for each pickup-station and requested-level pair.
+    It then moves a capped number of idle compatible cars at time zero toward
+    high-shortage buckets, subject to both the global relocation budget and a
+    staging budget cap.  The staging score rewards shortage reduction but
+    penalizes long moves, removing cars from future-demand locations, and using
+    a higher-level car for a lower-level shortage.  This step is designed to
+    handle instances where many cars initially start far from early demand.
+
+    \item \textbf{Phase 2: Initial Greedy Assignment.} After staging, the method
+    scans orders according to the current variant.  The available sorting modes
+    include bucketed density, relocation value, revenue-first, chronological,
+    and revenue density.  The relocation-value mode sorts orders by six-hour
+    bucket and then by
+    \[
+    \frac{3R_k}{1+\min_{c\text{ compatible}}T_{s_c,p_k}},
+    \]
+    so orders with high profit improvement per required moving minute receive
+    early access to the relocation budget.  If the relocation-value gate is
+    enabled, a move is allowed only when
+    \[
+    \frac{3R_k}{M}\ge
+    \lambda\left(1+\alpha\frac{B_{\text{used}}}{B}\right),
+    \]
+    where $M$ is the proposed relocation time.  Thus the algorithm becomes more
+    selective as relocation budget is consumed.  For each order, the algorithm
+    scans only compatible cars, computes the demand-aware score, and chooses the
+    feasible car with the largest tuple
     \[
     (\text{score},-\text{move},-\text{upgrade},-\text{idle}).
     \]
     This phase quickly builds a complete feasible baseline route set.
 
-    \item \textbf{Phase 2: Shortage-bucket Repair.} After Phase 1, the algorithm
+    \item \textbf{Phase 3: Shortage-bucket Repair.} After Phase 2, the algorithm
     rebuilds the future-demand table using only rejected orders.  It groups
     these orders by pickup station, six-hour bucket, and requested level.  Each
     group receives a priority
@@ -380,9 +410,9 @@ the global relocation budget remain feasible.
     so a high-value shortage cluster is repaired early, but remote clusters that
     would consume too much relocation budget are delayed.  Inside each bucket,
     orders are tried by decreasing revenue and assigned with the same car
-    scoring rule as Phase 1.
+    scoring rule as Phase 2.
 
-    \item \textbf{Phase 3: Limited Route Insertion.} The algorithm then looks at
+    \item \textbf{Phase 4: Route Insertion.} The algorithm then looks at
     rejected orders in decreasing revenue order and tries to insert each one
     inside one existing car route.  Candidate cars are compatible cars sorted by
     current distance to the order's pickup station and current available time.
@@ -395,7 +425,7 @@ the global relocation budget remain feasible.
     \]
     is positive and the total relocation budget remains feasible.
 
-    \item \textbf{Phase 4: One-removal Swap.} If a valuable rejected order still
+    \item \textbf{Phase 5: One-removal Swap.} If a valuable rejected order still
     cannot be inserted directly, the algorithm tries to remove one lower-revenue
     accepted order from a compatible car route and insert the rejected order
     near its chronological position.  Only a capped number of candidate cars,
@@ -408,7 +438,7 @@ the global relocation budget remain feasible.
     This phase fixes cases where the greedy stage used a scarce time slot or car
     level for a lower-value order.
 
-    \item \textbf{Phase 5: Limited Local Replacement.} The final repair is even
+    \item \textbf{Phase 6: Last-order Replacement.} The final repair is even
     cheaper.  For each high-revenue rejected order, the method temporarily rolls
     a compatible car back to the state before its last accepted order.  It then
     checks whether the rejected order can replace that last order using the same
@@ -416,19 +446,26 @@ the global relocation budget remain feasible.
     dynamic move penalty is positive, the old last order is rejected, its
     relocation record is cancelled, and the new order is accepted.  This phase
     corrects end-of-route greedy mistakes without rebuilding long routes.
+
+    \item \textbf{Phase 7: Finalization.} Cancelled relocation records are
+    removed, and the accepted revenue of the variant is computed.  Among all
+    variants, the algorithm keeps the feasible plan with the largest accepted
+    revenue, which is equivalent to the largest profit for a fixed instance.
 \end{itemize}
 
 Each proposed repaired route is simulated from the car's initial station and
-ready time, so timing, level compatibility, and relocation budget are checked
+time zero, so timing, level compatibility, and relocation budget are checked
 again before the route replaces the old one.  On very small instances, a bounded
 exact DFS is used as a final improvement; this is automatically skipped on large
 hidden instances.
 
 If $Q$ is the number of six-hour buckets, building the look-ahead table costs
-$O(n_K+n_Sn_LQ)$.  The greedy assignment scan is $O(n_Kn_C)$ for each parameter
-variant.  Repair loops are capped by constants in the implementation, so their
-cost is bounded for grading-time control.  The pre-build stage runs both
-Approach A and Approach B and keeps the feasible solution with larger profit.
+$O(n_K+n_Sn_LQ)$.  The greedy assignment scan is $O(n_KC)$ for each parameter
+variant, where $C$ is the average number of compatible cars inspected per order;
+in the worst case $C=n_C$, giving $O(n_Kn_C)$.  The staging and repair loops are
+capped by constants in the implementation, so their cost is bounded for
+grading-time control.  The pre-build stage runs both Approach A and Approach B
+and keeps the feasible solution with larger profit.
 
 \subsection*{Optimization: batch local IP repair}
 
@@ -636,27 +673,27 @@ improvement is measured against the chronological baseline.}
 \centering
 \begin{minipage}{0.44\textwidth}
 \centering
-\includesvg[width=\linewidth]{./S6_optimal_gap_histogram}
+\includegraphics[width=\linewidth]{./svg-inkscape/S6_optimal_gap_histogram_svg-raw.pdf}
 \end{minipage}\hfill
 \begin{minipage}{0.44\textwidth}
 \centering
-\includesvg[width=\linewidth]{./S8_optimal_gap_histogram}
+\includegraphics[width=\linewidth]{./svg-inkscape/S8_optimal_gap_histogram_svg-raw.pdf}
 \end{minipage}
 
 \vspace{0.3em}
 \begin{minipage}{0.44\textwidth}
 \centering
-\includesvg[width=\linewidth]{./S10_optimal_gap_histogram}
+\includegraphics[width=\linewidth]{./svg-inkscape/S10_optimal_gap_histogram_svg-raw.pdf}
 \end{minipage}\hfill
 \begin{minipage}{0.44\textwidth}
 \centering
-\includesvg[width=\linewidth]{./S13_optimal_gap_histogram}
+\includegraphics[width=\linewidth]{./svg-inkscape/S13_optimal_gap_histogram_svg-raw.pdf}
 \end{minipage}
 
 \vspace{0.3em}
 \begin{minipage}{0.44\textwidth}
 \centering
-\includesvg[width=\linewidth]{./S14_optimal_gap_histogram}
+\includegraphics[width=\linewidth]{./svg-inkscape/S14_optimal_gap_histogram_svg-raw.pdf}
 \end{minipage}
 \caption{Optimality-gap histograms for the five selected scenarios.  Each
 individual scenario figure reports the mean and standard deviation of the

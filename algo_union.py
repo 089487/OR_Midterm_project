@@ -115,11 +115,11 @@ def small_ip_improve(
     deadline = time.perf_counter() + max_seconds
     rng = random.Random(seed)
     ctx = _build_context(inst)
-    select_candidate_orders, solve_local_ip = _algo4_helpers()
     current_routes = _assignment_to_routes(inst, assignment)
     if sum(1 for car_id in assignment if _accepted(car_id)) == inst.n_orders:
         return _routes_to_solution(inst, ctx, current_routes)
 
+    select_candidate_orders, solve_local_ip = _algo4_helpers()
     current_profit = _profit_from_routes(inst, current_routes)
     best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
     best_profit = current_profit
@@ -217,7 +217,7 @@ def heuristic_algorithm(
     instance_file: str | Path = "data/instance05.txt",
     *args: Any,
     iterations: int = 100000,
-    max_seconds: float = 100.0,
+    max_seconds: float = 170.0,
     seed: int = 1142,
     temperature: float = 0.35,
     batch_size: int = 5,
@@ -228,12 +228,16 @@ def heuristic_algorithm(
     **kwargs: Any,
 ):
     """Algo1/Algo5 union pre-build followed by Algo4-style small-IP improve."""
-    assignment, _ = pre_build(instance_file, raw_test=raw_test)
+    start = time.perf_counter()
+    assignment, relocation = pre_build(instance_file, raw_test=raw_test)
+    remaining_seconds = max_seconds - (time.perf_counter() - start)
+    if remaining_seconds <= 0.05:
+        return assignment, relocation
     return small_ip_improve(
         instance_file,
         assignment,
         iterations=iterations,
-        max_seconds=max_seconds,
+        max_seconds=remaining_seconds,
         seed=seed,
         temperature=temperature,
         batch_size=batch_size,
@@ -248,7 +252,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("instance", nargs="?", default="data/instance05.txt")
     parser.add_argument("--iterations", type=int, default=100000)
-    parser.add_argument("--max-seconds", type=float, default=100.0)
+    parser.add_argument("--max-seconds", type=float, default=170.0)
     parser.add_argument("--seed", type=int, default=1142)
     parser.add_argument("--temperature", type=float, default=0.35)
     parser.add_argument("--batch-size", type=int, default=5)
@@ -264,20 +268,25 @@ def main() -> None:
     args = parser.parse_args()
 
     inst = parse_instance(args.instance)
-    pre_assignment, _, meta = pre_build(args.instance, raw_test=args.raw_test, return_metadata=True)
-    assignment, relocation = small_ip_improve(
-        args.instance,
-        pre_assignment,
-        iterations=args.iterations,
-        max_seconds=args.max_seconds,
-        seed=args.seed,
-        temperature=args.temperature,
-        batch_size=args.batch_size,
-        candidate_order_limit=args.candidate_order_limit,
-        per_ip_seconds=args.per_ip_seconds,
-        max_no_improve=args.max_no_improve,
-        raw_test=args.raw_test,
-    )
+    start = time.perf_counter()
+    pre_assignment, pre_relocation, meta = pre_build(args.instance, raw_test=args.raw_test, return_metadata=True)
+    remaining_seconds = args.max_seconds - (time.perf_counter() - start)
+    if remaining_seconds <= 0.05:
+        assignment, relocation = pre_assignment, pre_relocation
+    else:
+        assignment, relocation = small_ip_improve(
+            args.instance,
+            pre_assignment,
+            iterations=args.iterations,
+            max_seconds=remaining_seconds,
+            seed=args.seed,
+            temperature=args.temperature,
+            batch_size=args.batch_size,
+            candidate_order_limit=args.candidate_order_limit,
+            per_ip_seconds=args.per_ip_seconds,
+            max_no_improve=args.max_no_improve,
+            raw_test=args.raw_test,
+        )
     final_profit = _profit_from_assignment(inst, assignment)
     accepted = [order for order in inst.orders if assignment[order.id - 1]]
     print(f"pre_build_source = {meta['source']}")
