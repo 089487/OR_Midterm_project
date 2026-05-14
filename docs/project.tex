@@ -6,6 +6,8 @@
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{graphicx}
+\usepackage{svg}
+\svgsetup{inkscapelatex=false}
 
 \title{OR114-2 Midterm Project}
 \author{}
@@ -444,10 +446,33 @@ S14 & 60.83\% & 233.16\% & 1.10\% & 4.66\%\\
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.95\textwidth]{../data/scenario_study_128/optimal_gap_histograms_combined.svg.png}
-\caption{Optimality-gap histograms for the five selected scenarios.  Each panel
-reports the mean and standard deviation of the chronological baseline and our
-proposed algorithm.}
+\begin{minipage}{0.44\textwidth}
+\centering
+\includesvg[width=\linewidth]{./S6_optimal_gap_histogram}
+\end{minipage}\hfill
+\begin{minipage}{0.44\textwidth}
+\centering
+\includesvg[width=\linewidth]{./S8_optimal_gap_histogram}
+\end{minipage}
+
+\vspace{0.3em}
+\begin{minipage}{0.44\textwidth}
+\centering
+\includesvg[width=\linewidth]{./S10_optimal_gap_histogram}
+\end{minipage}\hfill
+\begin{minipage}{0.44\textwidth}
+\centering
+\includesvg[width=\linewidth]{./S13_optimal_gap_histogram}
+\end{minipage}
+
+\vspace{0.3em}
+\begin{minipage}{0.44\textwidth}
+\centering
+\includesvg[width=\linewidth]{./S14_optimal_gap_histogram}
+\end{minipage}
+\caption{Optimality-gap histograms for the five selected scenarios.  Each
+individual scenario figure reports the mean and standard deviation of the
+chronological baseline and our proposed algorithm.}
 \end{figure}
 
 The results support the algorithm design.  In S6, the proposed algorithm matched

@@ -3,6 +3,12 @@ __pycache__/
 *.pyc
 *.log
 *.aux
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+*.out
+*.toc
 
 # Scenario study artifacts: keep summary plots/CSV and the compressed archive,
 # but avoid committing thousands of generated instances and plan files.
