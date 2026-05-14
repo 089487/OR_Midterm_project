@@ -376,8 +376,9 @@ inside the horizon; rental duration is uniformly sampled from 2 to 48 hours.
 Moving time is symmetric with $T_{ii}=0$ and $T_{ij}=90$ minutes for $i\ne j$.
 
 The generator creates fourteen scenarios.  Unless stated otherwise, $n_C=100$.
-In the high-load scenario S4, $n_C=80$ and $n_K=3n_C$; in the other scenarios,
-$n_K$ equals the listed load ratio times $n_C$.  Level distribution is uniform
+In high-load scenarios S2 and S4, $n_C=80$; S2 uses $n_K=10n_C=800$ and
+S4 uses $n_K=3n_C=240$.  In the other scenarios, $n_K$ equals the listed load
+ratio times $n_C$.  Level distribution is uniform
 except S5, where orders are mostly low odd levels while cars are mostly high
 even levels.  Station distribution is uniform except S6, where orders move from
 even pickup stations to odd return stations, and S7--S8, where returns are
@@ -393,7 +394,7 @@ peak centers.  Budgets are either $10^6$, $0$, $30n_D$, or $300n_D$.
 Scenario & Main factor & Ratio $n_K:n_C$ & Levels & Stations & Time/Budget \\
 \midrule
 S1 & Baseline & 1:1 & random & random & random, $B=10^6$\\
-S2 & Ultra-low load & 1:10 & random & random & random, $B=10^6$\\
+S2 & Very high load & 10:1 & random & random & random, $B=10^6$\\
 S3 & Low load & 1:3 & random & random & random, $B=10^6$\\
 S4 & High load & 3:1 & random & random & random, $B=10^6$\\
 S5 & Level mismatch & 1:1 & 8:2 skew & random & random, $B=10^6$\\
