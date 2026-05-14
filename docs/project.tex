@@ -26,12 +26,12 @@ B11705039 李盈盈
 \subsection*{1. Mathematical Formulation}
 
 \textbf{Notation.}
-Let $C$ be the set of cars and $K$ be the set of customer orders.  Each car
-$c\in C$ has initial station $h_c$ and level $q_c$.  Each order $k\in K$ has
-requested level $\ell_k$, pickup station $p_k$, return station $r_k$, pickup
-time $s_k$, return time $e_k$, and revenue $R_k$.  Let $t_{uv}$ be the moving
-time from station $u$ to station $v$, and let $B$ be the total relocation-time
-budget.
+Let $S$ be the set of stations, $C$ be the set of cars, and $K$ be the set of
+customer orders.  Each car $c\in C$ has initial station $h_c\in S$ and level
+$q_c$.  Each order $k\in K$ has requested level $\ell_k$, pickup station
+$p_k\in S$, return station $r_k\in S$, pickup time $s_k$, return time $e_k$,
+and revenue $R_k$.  Let $t_{uv}$ be the moving time from station $u\in S$ to
+station $v\in S$, and let $B$ be the total relocation-time budget.
 
 We build a directed acyclic route network.  An initial arc $(c,k)\in A^0$ is
 created if car $c$ can serve order $k$ by level and can be moved from $h_c$ to
@@ -55,6 +55,7 @@ $m_{ij}=t_{r_i p_j}$ for $(c,i,j)\in A$.
 \midrule
 $C$ & The set of cars\\
 $K$ & The set of customer orders\\
+$S$ & The set of stations\\
 $A^0$ & The set of feasible initial arcs from a car to its first order\\
 $A$ & The set of feasible order-to-order transition arcs for a car\\
 $h_c$ & The initial station of car $c$\\
