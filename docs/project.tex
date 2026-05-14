@@ -424,12 +424,13 @@ Then the project profit is
 \]
 For a fixed instance, $T$ is constant, so maximizing profit is equivalent to
 maximizing $3A$.  Whenever we compare a heuristic against the IP optimum in the
-histograms, we use the accepted-reward optimality gap
+tables and histograms, we use the accepted-reward optimality gap.  For any method
+$m\in\{\mathrm{base},\mathrm{our}\}$,
 \[
-\text{gap}
-=\frac{3A_{\mathrm{IP}}-3A_{\mathrm{alg}}}{3A_{\mathrm{IP}}}
-=\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{\mathrm{alg}}}
-{\text{profit}_{\mathrm{IP}}+2T}.
+\text{gap}_m
+=\frac{3A_{\mathrm{IP}}-3A_m}{3A_{\mathrm{IP}}}\times 100\%
+=\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{m}}
+{\text{profit}_{\mathrm{IP}}+2T}\times 100\%.
 \]
 The benchmark keeps both references required by the project: the exact IP value
 as an upper benchmark and the chronological feasible heuristic as a lower
@@ -439,67 +440,37 @@ and the accepted-reward improvement over the baseline:
 \frac{3A_{\mathrm{our}}-3A_{\mathrm{base}}}{3A_{\mathrm{base}}}\times 100\%,
 \]
 together with the average order completion rate.  To keep the tables readable,
-the 10-second and 170-second versions are reported separately.  The 10-second
-version is the setting used for the larger 128-instance robustness study below,
-while the 170-second version is the extended setting used for the final
-submission and still stays within the project limit of three minutes.
+we report the 10-second version used for the larger 128-instance robustness
+study below.
 
 \begin{table}[ht]
 \centering
-\tiny
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{lrrrrr}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc|cc}
 \toprule
-Scenario & Base gap $\mu/\sigma$ & Our gap $\mu/\sigma$ & Improve $\mu/\sigma$ & Base CR & Our CR\\
+Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
 \midrule
-S1  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.7\% & 99.7\%\\
-S2  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.3\% & 99.3\%\\
-S3  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.5\% & 99.5\%\\
-S4  & 0.19/0.57\% & 0.03/0.19\% & 0.16/0.43\% & 99.2\% & 99.2\%\\
-S5  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.7\% & 99.7\%\\
-S6  & 3.43/10.15\% & 0.00/0.00\% & 5.16/15.87\% & 95.8\% & 95.8\%\\
-S7  & 2.62/7.09\% & 0.00/0.00\% & 3.33/9.15\% & 96.7\% & 97.2\%\\
-S8  & 5.07/11.30\% & 0.05/0.16\% & 7.32/17.99\% & 93.9\% & 94.8\%\\
-S9  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.9\% & 99.9\%\\
-S10 & 7.79/3.60\% & 0.45/0.50\% & 8.11/4.25\% & 89.7\% & 90.0\%\\
-S11 & 0.18/0.74\% & 0.00/0.00\% & 0.18/0.77\% & 99.9\% & 99.9\%\\
-S12 & 4.64/6.01\% & 1.04/2.86\% & 4.16/7.04\% & 15.6\% & 15.6\%\\
-S13 & 38.61/7.52\% & 0.84/1.36\% & 63.86/20.32\% & 38.2\% & 42.7\%\\
-S14 & 4.20/10.81\% & 0.07/0.28\% & 6.21/17.61\% & 94.4\% & 95.7\%\\
+S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
+S2  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.3 & 99.3\\
+S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.5 & 99.5\\
+S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$ & 99.2 & 99.2\\
+S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
+S6  & $3.43 \pm 10.15$ & $0.00 \pm 0.00$ & $5.16 \pm 15.87$ & 95.8 & 95.8\\
+S7  & $2.62 \pm 7.09$ & $0.00 \pm 0.00$ & $3.33 \pm 9.15$ & 96.7 & 97.2\\
+S8  & $5.07 \pm 11.30$ & $0.05 \pm 0.16$ & $7.32 \pm 17.99$ & 93.9 & 94.8\\
+S9  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.9 & 99.9\\
+S10 & $7.79 \pm 3.60$ & $0.45 \pm 0.50$ & $8.11 \pm 4.25$ & 89.7 & 90.0\\
+S11 & $0.18 \pm 0.74$ & $0.00 \pm 0.00$ & $0.18 \pm 0.77$ & 99.9 & 99.9\\
+S12 & $4.64 \pm 6.01$ & $1.04 \pm 2.86$ & $4.16 \pm 7.04$ & 15.6 & 15.6\\
+S13 & $38.61 \pm 7.52$ & $0.84 \pm 1.36$ & $63.86 \pm 20.32$ & 38.2 & 42.7\\
+S14 & $4.20 \pm 10.81$ & $0.07 \pm 0.28$ & $6.21 \pm 17.61$ & 94.4 & 95.7\\
 \bottomrule
 \end{tabular}
 \caption{All-scenario benchmark for the 10-second proposed method.  Each row
 summarizes 30 generated instances.  Gap is measured against the exact IP upper
 benchmark; improvement is measured against the chronological baseline.}
-\end{table}
-
-\begin{table}[ht]
-\centering
-\tiny
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{lrrrrr}
-\toprule
-Scenario & Base gap $\mu/\sigma$ & Our gap $\mu/\sigma$ & Improve $\mu/\sigma$ & Base CR & Our CR\\
-\midrule
-S1  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.7\% & 99.7\%\\
-S2  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.3\% & 99.3\%\\
-S3  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.5\% & 99.5\%\\
-S4  & 0.19/0.57\% & 0.01/0.06\% & 0.18/0.53\% & 99.2\% & 99.2\%\\
-S5  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.7\% & 99.7\%\\
-S6  & 3.43/10.15\% & 0.00/0.00\% & 5.16/15.87\% & 95.8\% & 95.8\%\\
-S7  & 2.62/7.09\% & 0.00/0.00\% & 3.33/9.15\% & 96.7\% & 97.2\%\\
-S8  & 5.07/11.30\% & 0.05/0.16\% & 7.32/17.99\% & 93.9\% & 94.8\%\\
-S9  & 0.00/0.00\% & 0.00/0.00\% & 0.00/0.00\% & 99.9\% & 99.9\%\\
-S10 & 7.79/3.60\% & 0.45/0.50\% & 8.12/4.25\% & 89.7\% & 90.0\%\\
-S11 & 0.18/0.74\% & 0.00/0.00\% & 0.18/0.77\% & 99.9\% & 99.9\%\\
-S12 & 4.64/6.01\% & 1.04/2.86\% & 4.16/7.04\% & 15.6\% & 15.6\%\\
-S13 & 38.61/7.52\% & 0.71/1.35\% & 64.08/20.39\% & 38.2\% & 42.8\%\\
-S14 & 4.20/10.81\% & 0.06/0.28\% & 6.21/17.61\% & 94.4\% & 95.7\%\\
-\bottomrule
-\end{tabular}
-\caption{All-scenario benchmark for the 170-second proposed method.  Each row
-summarizes 30 generated instances.  This extended setting remains within the
-three-minute project limit.}
 \end{table}
 
 For the final detailed study, we selected S6, S8, S10, S13, and S14 because they
@@ -530,15 +501,17 @@ the reported gap is $36.36\%$.
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrrrrr}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc|cc}
 \toprule
-Scenario & Base gap $\mu/\sigma$ & Our gap $\mu/\sigma$ & Improve $\mu/\sigma$ & Base CR & Our CR\\
+Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
 \midrule
-S6  & 6.90/13.72\% & 0.00/0.00\% & 10.72/22.87\% & 90.5\% & 90.5\%\\
-S8  & 6.24/12.09\% & 0.06/0.21\% & 8.96/18.65\% & 91.7\% & 92.7\%\\
-S10 & 8.45/3.64\% & 0.69/0.65\% & 8.65/4.47\% & 89.9\% & 90.3\%\\
-S13 & 38.13/8.48\% & 1.29/2.00\% & 62.45/22.29\% & 32.7\% & 36.2\%\\
-S14 & 6.21/12.65\% & 0.13/0.42\% & 9.12/19.97\% & 91.7\% & 93.0\%\\
+S6  & $6.90 \pm 13.72$ & $0.00 \pm 0.00$ & $10.72 \pm 22.87$ & 90.5 & 90.5\\
+S8  & $6.24 \pm 12.09$ & $0.06 \pm 0.21$ & $8.96 \pm 18.65$ & 91.7 & 92.7\\
+S10 & $8.45 \pm 3.64$ & $0.69 \pm 0.65$ & $8.65 \pm 4.47$ & 89.9 & 90.3\\
+S13 & $38.13 \pm 8.48$ & $1.29 \pm 2.00$ & $62.45 \pm 22.29$ & 32.7 & 36.2\\
+S14 & $6.21 \pm 12.65$ & $0.13 \pm 0.42$ & $9.12 \pm 19.97$ & 91.7 & 93.0\\
 \bottomrule
 \end{tabular}
 \caption{Five selected 128-instance scenario studies using the 10-second

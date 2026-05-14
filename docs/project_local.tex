@@ -411,53 +411,61 @@ S14 & Moderate budget & 1:1 & random & random & random, $B=300n_D$\\
 \end{table}
 
 The first benchmark uses the generated data in \texttt{data/exp\_instances}.
-It contains all 14 scenarios with 30 instances per scenario.  All reported
-optimal gaps use the accepted-reward normalization.  If $A$ is accepted reward
-and $T$ is the total reward of all input orders, then the project profit is
+It contains all 14 scenarios with 30 instances per scenario.  Let $A$ be the
+accepted reward of a solution and $T$ be the total reward of all input orders.
+Then the project profit is
 \[
 \text{profit}=A-2(T-A)=3A-2T.
 \]
 For a fixed instance, $T$ is constant, so maximizing profit is equivalent to
-maximizing $3A$.  We therefore report
+maximizing $3A$.  Whenever we compare a heuristic against the IP optimum in the
+tables and histograms, we use the accepted-reward optimality gap.  For any method
+$m\in\{\mathrm{base},\mathrm{our}\}$,
 \[
-\text{gap}
-=\frac{3A_{\mathrm{IP}}-3A_{\mathrm{alg}}}{3A_{\mathrm{IP}}}
-=\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{\mathrm{alg}}}
-{\text{profit}_{\mathrm{IP}}+2T}.
+\text{gap}_m
+=\frac{3A_{\mathrm{IP}}-3A_m}{3A_{\mathrm{IP}}}\times 100\%
+=\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{m}}
+{\text{profit}_{\mathrm{IP}}+2T}\times 100\%.
 \]
-The table compares the chronological baseline with two versions of our proposed
-method.  The 10-second version is the setting used for the larger 128-instance
-robustness study below, while the 170-second version is the extended setting
-used for the final submission and still stays within the project limit of three
-minutes.
+The benchmark keeps both references required by the project: the exact IP value
+as an upper benchmark and the chronological feasible heuristic as a lower
+benchmark.  Therefore, each table reports the baseline gap to IP, our gap to IP,
+and the accepted-reward improvement over the baseline:
+\[
+\frac{3A_{\mathrm{our}}-3A_{\mathrm{base}}}{3A_{\mathrm{base}}}\times 100\%,
+\]
+together with the average order completion rate.  To keep the tables readable,
+we report the 10-second version used for the larger 128-instance robustness
+study below.
 
 \begin{table}[ht]
 \centering
-\tiny
+\small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lccc|cc}
 \toprule
-Scenario & Base mean & Base std. & 10s mean & 10s std. & 170s mean & 170s std.\\
+Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
 \midrule
-S1  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S2  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S3  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S4  & 0.19\% & 0.57\% & 0.03\% & 0.19\% & 0.01\% & 0.06\%\\
-S5  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S6  & 3.43\% & 10.15\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S7  & 2.62\% & 7.09\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S8  & 5.07\% & 11.30\% & 0.05\% & 0.16\% & 0.05\% & 0.16\%\\
-S9  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S10 & 7.79\% & 3.60\% & 0.45\% & 0.50\% & 0.45\% & 0.50\%\\
-S11 & 0.18\% & 0.74\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S12 & 4.64\% & 6.01\% & 1.04\% & 2.86\% & 1.04\% & 2.86\%\\
-S13 & 38.61\% & 7.52\% & 0.84\% & 1.36\% & 0.71\% & 1.35\%\\
-S14 & 4.20\% & 10.81\% & 0.07\% & 0.28\% & 0.06\% & 0.28\%\\
+S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
+S2  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.3 & 99.3\\
+S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.5 & 99.5\\
+S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$ & 99.2 & 99.2\\
+S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
+S6  & $3.43 \pm 10.15$ & $0.00 \pm 0.00$ & $5.16 \pm 15.87$ & 95.8 & 95.8\\
+S7  & $2.62 \pm 7.09$ & $0.00 \pm 0.00$ & $3.33 \pm 9.15$ & 96.7 & 97.2\\
+S8  & $5.07 \pm 11.30$ & $0.05 \pm 0.16$ & $7.32 \pm 17.99$ & 93.9 & 94.8\\
+S9  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.9 & 99.9\\
+S10 & $7.79 \pm 3.60$ & $0.45 \pm 0.50$ & $8.11 \pm 4.25$ & 89.7 & 90.0\\
+S11 & $0.18 \pm 0.74$ & $0.00 \pm 0.00$ & $0.18 \pm 0.77$ & 99.9 & 99.9\\
+S12 & $4.64 \pm 6.01$ & $1.04 \pm 2.86$ & $4.16 \pm 7.04$ & 15.6 & 15.6\\
+S13 & $38.61 \pm 7.52$ & $0.84 \pm 1.36$ & $63.86 \pm 20.32$ & 38.2 & 42.7\\
+S14 & $4.20 \pm 10.81$ & $0.07 \pm 0.28$ & $6.21 \pm 17.61$ & 94.4 & 95.7\\
 \bottomrule
 \end{tabular}
-\caption{Accepted-reward optimal gaps on all 14 scenarios.  Each row summarizes
-30 generated instances; both the 10-second and 170-second versions of the
-proposed method are shown.}
+\caption{All-scenario benchmark for the 10-second proposed method.  Each row
+summarizes 30 generated instances.  Gap is measured against the exact IP upper
+benchmark; improvement is measured against the chronological baseline.}
 \end{table}
 
 For the final detailed study, we selected S6, S8, S10, S13, and S14 because they
@@ -475,9 +483,10 @@ requiring the least immediate moving time; if no car is feasible, the order is
 rejected.  It has no look-ahead and no repair, so a strong proposed algorithm
 should clearly beat it.
 
-Lower is better, and zero means matching the IP optimum.  This normalization is
-important in tight-budget cases.  For example, in S13\_study\_079 the IP profit
-is $-3{,}708$, while the chronological baseline profit is $-1{,}359{,}024$.
+For the histograms, lower is better, and zero means matching the IP optimum.
+The accepted-reward normalization is important in tight-budget cases.  For
+example, in S13\_study\_079 the IP profit is $-3{,}708$, while the chronological
+baseline profit is $-1{,}359{,}024$.
 Using $|\text{IP profit}|$ as the denominator would give
 $1{,}355{,}316/3{,}708=365.51$, or $36{,}551.13\%$, only because the optimal
 profit is close to zero.  The total input reward is $1{,}865{,}376$, so the
@@ -487,20 +496,22 @@ the reported gap is $36.36\%$.
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrrrr}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc|cc}
 \toprule
-Scenario & Baseline mean & Baseline std. & 10s mean & 10s std.\\
+Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
 \midrule
-S6  & 6.90\% & 13.72\% & 0.00\% & 0.00\%\\
-S8  & 6.24\% & 12.09\% & 0.06\% & 0.21\%\\
-S10 & 8.45\% & 3.64\% & 0.69\% & 0.65\%\\
-S13 & 38.13\% & 8.48\% & 1.29\% & 2.00\%\\
-S14 & 6.21\% & 12.65\% & 0.13\% & 0.42\%\\
+S6  & $6.90 \pm 13.72$ & $0.00 \pm 0.00$ & $10.72 \pm 22.87$ & 90.5 & 90.5\\
+S8  & $6.24 \pm 12.09$ & $0.06 \pm 0.21$ & $8.96 \pm 18.65$ & 91.7 & 92.7\\
+S10 & $8.45 \pm 3.64$ & $0.69 \pm 0.65$ & $8.65 \pm 4.47$ & 89.9 & 90.3\\
+S13 & $38.13 \pm 8.48$ & $1.29 \pm 2.00$ & $62.45 \pm 22.29$ & 32.7 & 36.2\\
+S14 & $6.21 \pm 12.65$ & $0.13 \pm 0.42$ & $9.12 \pm 19.97$ & 91.7 & 93.0\\
 \bottomrule
 \end{tabular}
-\caption{Accepted-reward optimal gaps on the five selected 128-instance
-scenario studies.  The proposed method uses the 10-second version in this
-larger robustness run.}
+\caption{Five selected 128-instance scenario studies using the 10-second
+proposed method.  Gap is measured against the exact IP upper benchmark;
+improvement is measured against the chronological baseline.}
 \end{table}
 
 \begin{figure}[ht]
@@ -543,9 +554,9 @@ whereas the proposed optimization stage recovers most of the accepted reward.
 The experiment therefore shows both sides requested in the project statement:
 our algorithm is close to the exact optimum on solvable benchmark instances,
 and it is much better than a simple feasible heuristic.  The mean and standard
-deviation are summarized in the table, the distributional evidence is shown in
-the histogram figure, and the full set of instances, optimal plans, run-time
-records, and benchmark rows is preserved in
+deviation of the improvement over the baseline are summarized in the table, the
+optimality-gap distributions are shown in the histogram figure, and the full set
+of instances, optimal plans, run-time records, and benchmark rows is preserved in
 \texttt{scenario\_study\_128\_results.tgz} for reproducibility.
 
 \end{document}
