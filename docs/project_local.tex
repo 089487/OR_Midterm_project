@@ -426,45 +426,46 @@ maximizing $3A$.  We therefore report
 =\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{\mathrm{alg}}}
 {\text{profit}_{\mathrm{IP}}+2T}.
 \]
-The table compares the chronological baseline with our final proposed algorithm.
-For the 14-scenario benchmark, the proposed column uses the extended
-\texttt{algo\_union\_170} run, which stays within the project limit of three
-minutes.  The 128-instance histogram study below uses the faster
-\texttt{algo\_union} setting with a 10-second optimization limit per instance,
-so that the larger robustness experiment remains practical.
+The table compares the chronological baseline with two versions of our proposed
+method.  The 10-second version is the setting used for the larger 128-instance
+robustness study below, while the 170-second version is the extended setting
+used for the final submission and still stays within the project limit of three
+minutes.
 
 \begin{table}[ht]
 \centering
-\scriptsize
-\begin{tabular}{lrrrr}
+\tiny
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrrrr}
 \toprule
-Scenario & Baseline mean & Baseline std. & Proposed mean & Proposed std.\\
+Scenario & Base mean & Base std. & 10s mean & 10s std. & 170s mean & 170s std.\\
 \midrule
-S1  & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S2  & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S3  & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S4  & 0.19\% & 0.57\% & 0.01\% & 0.06\%\\
-S5  & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S6  & 3.43\% & 10.15\% & 0.00\% & 0.00\%\\
-S7  & 2.62\% & 7.09\% & 0.00\% & 0.00\%\\
-S8  & 5.07\% & 11.30\% & 0.05\% & 0.16\%\\
-S9  & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
-S10 & 7.79\% & 3.60\% & 0.45\% & 0.50\%\\
-S11 & 0.18\% & 0.74\% & 0.00\% & 0.00\%\\
-S12 & 4.64\% & 6.01\% & 1.04\% & 2.86\%\\
-S13 & 38.61\% & 7.52\% & 0.71\% & 1.35\%\\
-S14 & 4.20\% & 10.81\% & 0.06\% & 0.28\%\\
+S1  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S2  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S3  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S4  & 0.19\% & 0.57\% & 0.03\% & 0.19\% & 0.01\% & 0.06\%\\
+S5  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S6  & 3.43\% & 10.15\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S7  & 2.62\% & 7.09\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S8  & 5.07\% & 11.30\% & 0.05\% & 0.16\% & 0.05\% & 0.16\%\\
+S9  & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S10 & 7.79\% & 3.60\% & 0.45\% & 0.50\% & 0.45\% & 0.50\%\\
+S11 & 0.18\% & 0.74\% & 0.00\% & 0.00\% & 0.00\% & 0.00\%\\
+S12 & 4.64\% & 6.01\% & 1.04\% & 2.86\% & 1.04\% & 2.86\%\\
+S13 & 38.61\% & 7.52\% & 0.84\% & 1.36\% & 0.71\% & 1.35\%\\
+S14 & 4.20\% & 10.81\% & 0.07\% & 0.28\% & 0.06\% & 0.28\%\\
 \bottomrule
 \end{tabular}
-\caption{Accepted-reward optimal gaps on all scenarios.  Each row summarizes
-30 generated instances from \texttt{data/exp\_instances}.}
+\caption{Accepted-reward optimal gaps on all 14 scenarios.  Each row summarizes
+30 generated instances; both the 10-second and 170-second versions of the
+proposed method are shown.}
 \end{table}
 
 For the final detailed study, we selected S6, S8, S10, S13, and S14 because they
 stress spatial imbalance, hub returns, temporal peaks, and relocation-budget
 sensitivity.  We generated 128 instances per selected scenario.  The exact IP
 model from Problem 1 was solved for every generated instance, and the heuristic
-side used the 10-second \texttt{algo\_union} setting.  Because these instances
+side used the 10-second version of the proposed method.  Because these instances
 have $n_C=100$ and $n_K=100$, the IP is still solvable; its value is therefore
 the optimal profit and an upper benchmark for any heuristic solution.
 
@@ -489,7 +490,7 @@ the reported gap is $36.36\%$.
 \small
 \begin{tabular}{lrrrr}
 \toprule
-Scenario & Baseline mean & Baseline std. & Proposed mean & Proposed std.\\
+Scenario & Baseline mean & Baseline std. & 10s mean & 10s std.\\
 \midrule
 S6  & 6.90\% & 13.72\% & 0.00\% & 0.00\%\\
 S8  & 6.24\% & 12.09\% & 0.06\% & 0.21\%\\
@@ -499,7 +500,8 @@ S14 & 6.21\% & 12.65\% & 0.13\% & 0.42\%\\
 \bottomrule
 \end{tabular}
 \caption{Accepted-reward optimal gaps on the five selected 128-instance
-scenario studies.}
+scenario studies.  The proposed method uses the 10-second version in this
+larger robustness run.}
 \end{table}
 
 \begin{figure}[ht]

@@ -85,12 +85,12 @@ The comparison includes:
 | `algo3` | Algo1 plus local repair; remote benchmark used TL=10s. |
 | `algo4` | Algo1 plus local IP repair; remote benchmark used TL=10s and per-repair IP limit up to 2s. |
 | `algo5` | Generator-compatible heuristic benchmarked locally. |
-| `algo_union` | Pre-build plus local IP improvement; benchmarked with TL=10s. |
-| `algo_union_170` | Extended `algo_union` run with TL=170s, still within the 3-minute project limit. |
+| Proposed method, 10s | Pre-build plus local IP improvement with TL=10s. |
+| Proposed method, 170s | Extended proposed run with TL=170s, still within the 3-minute project limit. |
 
-The 14-scenario summary table reports the extended `algo_union_170` result as
-the final proposed method. The separate 128-instance scenario study uses
-`algo_union` with TL=10s per instance, because that study is a larger robustness
+The 14-scenario summary table reports both the 10-second and 170-second
+versions of the proposed method. The separate 128-instance scenario study uses
+the 10-second version per instance, because that study is a larger robustness
 run rather than the final time-budget submission run.
 
 The important generated files are:
