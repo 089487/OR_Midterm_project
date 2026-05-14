@@ -535,10 +535,10 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
             bucket[idx] += 1
         counts[algorithm] = bucket
 
-    width = 1100
+    width = 1200
     height = 520
     left = 70
-    right = 30
+    right = 70
     top = 65
     chart_h = 340
     chart_w = width - left - right
@@ -557,7 +557,7 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
         f'<line x1="{left}" y1="{top + chart_h}" x2="{width - right}" y2="{top + chart_h}" class="axis" />',
         f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_h}" class="axis" />',
     ]
-    legend_x = width - 450
+    legend_x = width - 590
     for idx, algorithm in enumerate(ALGORITHMS):
         algo_values = [100 * gap for gap in gap_by_algorithm[algorithm]]
         mean = statistics.mean(algo_values) if algo_values else 0.0
@@ -565,7 +565,7 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
         x = legend_x + idx * 220
         lines.append(
             f'<rect x="{x}" y="18" width="14" height="14" fill="{_hist_color(algorithm)}" />'
-            f'<text x="{x + 20}" y="30" class="label">{algorithm}</text>'
+            f'<text x="{x + 20}" y="30" class="label">{_hist_label(algorithm)}</text>'
             f'<text x="{x}" y="49" class="label">mean {mean:.2f}%, std {std:.2f}%</text>'
         )
 
@@ -618,7 +618,7 @@ def _write_combined_histogram(path: Path, scenario_gaps: dict[str, dict[str, lis
         x = legend_x + idx * 165
         lines.append(
             f'<rect x="{x}" y="20" width="14" height="14" fill="{_hist_color(algorithm)}" />'
-            f'<text x="{x + 20}" y="32" class="label">{algorithm}</text>'
+            f'<text x="{x + 20}" y="32" class="label">{_hist_label(algorithm)}</text>'
         )
 
     for scenario_idx, scenario in enumerate(scenarios):
@@ -656,7 +656,7 @@ def _write_combined_histogram(path: Path, scenario_gaps: dict[str, dict[str, lis
             std = statistics.stdev(algo_values) if len(algo_values) > 1 else 0.0
             lines.append(
                 f'<text x="{left + idx * 210}" y="{cell_y + 45}" class="label">'
-                f'{algorithm}: mean {mean:.2f}%, std {std:.2f}%</text>'
+                f'{_hist_label(algorithm)}: mean {mean:.2f}%, std {std:.2f}%</text>'
             )
         lines.append(f'<line x1="{left}" y1="{top + chart_h}" x2="{left + chart_w}" y2="{top + chart_h}" class="axis" />')
         lines.append(f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_h}" class="axis" />')
@@ -684,6 +684,13 @@ def _hist_color(algorithm: str) -> str:
     return {
         "algo_naive": "#64748b",
         "algo_union": "#0891b2",
+    }[algorithm]
+
+
+def _hist_label(algorithm: str) -> str:
+    return {
+        "algo_naive": "baseline",
+        "algo_union": "proposed 10s",
     }[algorithm]
 
 
