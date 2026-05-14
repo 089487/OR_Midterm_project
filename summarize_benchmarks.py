@@ -4,6 +4,8 @@ import argparse
 import csv
 from pathlib import Path
 
+from mtp_common import parse_instance
+
 
 ALGORITHMS = (
     "algo_naive",
@@ -39,6 +41,11 @@ def _to_float(value: str) -> float:
 
 def _mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
+
+
+def _total_revenue(instance_path: Path) -> int:
+    inst = parse_instance(instance_path)
+    return sum(order.revenue for order in inst.orders)
 
 
 def _write_csv(path: Path, rows: list[dict[str, object]], fieldnames: list[str]) -> None:
@@ -95,6 +102,7 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path, Path]:
             completed_instances += 1
             ip_profit = _to_float(algos["ip_solver"]["profit"])
             ip_time = _to_float(algos["ip_solver"]["execution_time"])
+            ip_objective = ip_profit + 2 * _total_revenue(scenario_dir / instance)
             ip_profit_values.append(ip_profit)
             ip_time_values.append(ip_time)
 
@@ -109,7 +117,7 @@ def summarize(root: Path, out_dir: Path) -> tuple[Path, Path, Path, Path, Path]:
             for algo in ALGORITHMS:
                 profit = profits[algo]
                 gap = ip_profit - profit
-                gap_pct = gap / abs(ip_profit) if ip_profit != 0 else 0.0
+                gap_pct = gap / ip_objective if ip_objective > 0 else 0.0
                 algo_stats[algo]["gap"].append(gap)
                 algo_stats[algo]["gap_pct"].append(gap_pct)
                 algo_stats[algo]["profit"].append(profit)

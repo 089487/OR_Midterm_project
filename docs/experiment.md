@@ -85,6 +85,13 @@ The comparison includes:
 | `algo3` | Algo1 plus local repair; remote benchmark used TL=10s. |
 | `algo4` | Algo1 plus local IP repair; remote benchmark used TL=10s and per-repair IP limit up to 2s. |
 | `algo5` | Generator-compatible heuristic benchmarked locally. |
+| `algo_union` | Pre-build plus local IP improvement; benchmarked with TL=10s. |
+| `algo_union_170` | Extended `algo_union` run with TL=170s, still within the 3-minute project limit. |
+
+The 14-scenario summary table reports the extended `algo_union_170` result as
+the final proposed method. The separate 128-instance scenario study uses
+`algo_union` with TL=10s per instance, because that study is a larger robustness
+run rather than the final time-budget submission run.
 
 The important generated files are:
 
@@ -101,10 +108,15 @@ The important generated files are:
 The reported optimal gap is:
 
 ```text
-optimal_gap = (ip_profit - algorithm_profit) / abs(ip_profit)
+profit = accepted_reward - 2 * rejected_reward
+       = 3 * accepted_reward - 2 * total_reward
+
+optimal_gap = (ip_profit - algorithm_profit) / (ip_profit + 2 * total_reward)
 ```
 
-Lower is better; zero means the heuristic matched the IP value.
+Lower is better; zero means the heuristic matched the IP value. This is
+equivalent to normalizing by `3 * IP accepted_reward`, and avoids unstable
+percentages when the final profit is close to zero.
 
 ### 5.1 Average Optimal Gap Results
 
@@ -116,17 +128,17 @@ The following table is the same result as
 | S1 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
 | S2 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
 | S3 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
-| S4 | 0.77% | 0.48% | 0.77% | 0.10% | 0.33% |
+| S4 | 0.18% | 0.11% | 0.18% | 0.02% | 0.07% |
 | S5 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
-| S6 | 0.00% | 4.37% | 0.00% | 0.00% | 0.00% |
-| S7 | 0.62% | 2.47% | 0.62% | 0.04% | 1.72% |
-| S8 | 3.08% | 7.27% | 3.08% | 0.47% | 6.90% |
+| S6 | 0.00% | 0.15% | 0.00% | 0.00% | 0.00% |
+| S7 | 0.18% | 0.70% | 0.18% | 0.01% | 0.49% |
+| S8 | 0.47% | 1.35% | 0.47% | 0.05% | 1.09% |
 | S9 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
-| S10 | 4.16% | 7.20% | 4.15% | 2.00% | 2.61% |
-| S11 | 0.00% | 0.06% | 0.00% | 0.00% | 0.00% |
-| S12 | 1.57% | 0.08% | 1.57% | 0.41% | 0.65% |
-| S13 | 80.15% | 190.19% | 79.72% | 10.79% | 374.15% |
-| S14 | 13.56% | 18.68% | 13.56% | 3.19% | 14.88% |
+| S10 | 1.31% | 2.24% | 1.31% | 0.63% | 0.83% |
+| S11 | 0.00% | 0.02% | 0.00% | 0.00% | 0.00% |
+| S12 | 4.16% | 0.15% | 4.16% | 1.09% | 1.53% |
+| S13 | 4.80% | 11.15% | 4.60% | 0.84% | 20.99% |
+| S14 | 0.47% | 1.38% | 0.47% | 0.10% | 0.98% |
 
 ### 5.2 Sanity Checks and Interpretation
 
@@ -139,8 +151,8 @@ Easy scenarios S1, S2, S3, S5, and S9 are solved equally well by all methods in
 this generated dataset. The harder cases are the spatial hub scenarios S7-S8,
 the peak-demand scenario S10, and the budget-sensitive scenarios S12-S14.
 
-`algo4` gives the strongest robust performance among the heuristics on the hard
-scenarios because its local IP repair can recover choices that the greedy or DP
-rules miss. S13 has very large percentage gaps because the IP average profit is
-negative and close to zero; for that scenario, both absolute profit gap and
-percentage gap should be reported together.
+`algo4` gives the strongest robust performance among the single heuristics on
+the hard scenarios because its local IP repair can recover choices that the
+greedy or DP rules miss. The accepted-reward normalization keeps S13 readable:
+the scenario remains difficult, but the percentage gap is no longer dominated by
+near-zero final profit denominators.

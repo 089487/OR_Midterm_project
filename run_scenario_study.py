@@ -185,6 +185,10 @@ def _profit(inst: Instance, assignment: Iterable[object]) -> int:
     return accepted_revenue - 2 * (total_revenue - accepted_revenue)
 
 
+def _total_revenue(inst: Instance) -> int:
+    return sum(order.revenue for order in inst.orders)
+
+
 def _validate_assignment(inst: Instance, assignment: Iterable[object]) -> tuple[bool, int, list[str]]:
     cars = {car.id: car for car in inst.cars}
     orders = {order.id: order for order in inst.orders}
@@ -453,17 +457,20 @@ def summarize_results(root: Path, scenarios: Iterable[str], bins: int) -> None:
         gap_by_algorithm: dict[str, list[float]] = {algorithm: [] for algorithm in ALGORITHMS}
         profit_by_algorithm: dict[str, list[float]] = {algorithm: [] for algorithm in ALGORITHMS}
         time_by_algorithm: dict[str, list[float]] = {algorithm: [] for algorithm in ALGORITHMS}
-        for algos in by_instance.values():
+        for instance_name, algos in by_instance.items():
             if "ip_solver" not in algos:
                 continue
+            inst = parse_instance(root / scenario / instance_name)
+            total_revenue = _total_revenue(inst)
             ip_profit = float(algos["ip_solver"]["profit"])
-            if ip_profit == 0:
+            ip_objective = ip_profit + 2 * total_revenue
+            if ip_objective <= 0:
                 continue
             for algorithm in ALGORITHMS:
                 if algorithm not in algos:
                     continue
                 profit = float(algos[algorithm]["profit"])
-                gap_by_algorithm[algorithm].append((ip_profit - profit) / abs(ip_profit))
+                gap_by_algorithm[algorithm].append((ip_profit - profit) / ip_objective)
                 profit_by_algorithm[algorithm].append(profit)
                 time_by_algorithm[algorithm].append(float(algos[algorithm]["execution_time"]))
 
@@ -546,7 +553,7 @@ def _write_histogram(path: Path, scenario: str, gap_by_algorithm: dict[str, list
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff" />',
         '<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:22px;font-weight:700}.label{font-size:12px}.axis{stroke:#374151;stroke-width:1}</style>',
-        f'<text x="{left}" y="34" class="title">{esc(scenario)} Optimal Gap Histogram</text>',
+        f'<text x="{left}" y="34" class="title">{esc(scenario)} Accepted-Reward Gap Histogram</text>',
         f'<line x1="{left}" y1="{top + chart_h}" x2="{width - right}" y2="{top + chart_h}" class="axis" />',
         f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_h}" class="axis" />',
     ]
@@ -604,7 +611,7 @@ def _write_combined_histogram(path: Path, scenario_gaps: dict[str, dict[str, lis
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff" />',
         '<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1f2937}.title{font-size:24px;font-weight:700}.subtitle{font-size:16px;font-weight:700}.label{font-size:11px}.axis{stroke:#374151;stroke-width:1}</style>',
-        '<text x="32" y="34" class="title">Optimal Gap Histograms by Scenario</text>',
+        '<text x="32" y="34" class="title">Accepted-Reward Gap Histograms by Scenario</text>',
     ]
     legend_x = width - 360
     for idx, algorithm in enumerate(ALGORITHMS):

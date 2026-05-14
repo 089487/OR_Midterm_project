@@ -34,11 +34,11 @@
 <rect x="329.11" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="319.11" y="340" text-anchor="middle" class="label">S3</text>
 <text x="319.11" y="710" text-anchor="middle" class="label">S3</text>
-<rect x="392.75" y="319.73" width="16.00" height="1.00" fill="#64748b" />
+<rect x="392.75" y="318.77" width="16.00" height="1.23" fill="#64748b" />
 <rect x="392.75" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="410.75" y="319.94" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="410.75" y="319.78" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="410.75" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="428.75" y="319.98" width="16.00" height="1.00" fill="#0f766e" />
+<rect x="428.75" y="319.93" width="16.00" height="1.00" fill="#0f766e" />
 <rect x="428.75" y="681.67" width="16.00" height="8.33" fill="#0f766e" />
 <text x="418.75" y="340" text-anchor="middle" class="label">S4</text>
 <text x="418.75" y="710" text-anchor="middle" class="label">S4</text>
@@ -50,7 +50,7 @@
 <rect x="528.39" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="518.39" y="340" text-anchor="middle" class="label">S5</text>
 <text x="518.39" y="710" text-anchor="middle" class="label">S5</text>
-<rect x="592.04" y="295.08" width="16.00" height="24.92" fill="#64748b" />
+<rect x="592.04" y="297.79" width="16.00" height="22.21" fill="#64748b" />
 <rect x="592.04" y="690.00" width="16.00" height="1.00" fill="#64748b" />
 <rect x="610.04" y="320.00" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="610.04" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
@@ -58,7 +58,7 @@
 <rect x="628.04" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="618.04" y="340" text-anchor="middle" class="label">S6</text>
 <text x="618.04" y="710" text-anchor="middle" class="label">S6</text>
-<rect x="691.68" y="316.54" width="16.00" height="3.46" fill="#64748b" />
+<rect x="691.68" y="303.04" width="16.00" height="16.96" fill="#64748b" />
 <rect x="691.68" y="690.00" width="16.00" height="1.00" fill="#64748b" />
 <rect x="709.68" y="320.00" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="709.68" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
@@ -66,11 +66,11 @@
 <rect x="727.68" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="717.68" y="340" text-anchor="middle" class="label">S7</text>
 <text x="717.68" y="710" text-anchor="middle" class="label">S7</text>
-<rect x="791.32" y="304.48" width="16.00" height="15.52" fill="#64748b" />
+<rect x="791.32" y="287.19" width="16.00" height="32.81" fill="#64748b" />
 <rect x="791.32" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="809.32" y="319.83" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="809.32" y="319.67" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="809.32" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="827.32" y="319.83" width="16.00" height="1.00" fill="#0f766e" />
+<rect x="827.32" y="319.67" width="16.00" height="1.00" fill="#0f766e" />
 <rect x="827.32" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="817.32" y="340" text-anchor="middle" class="label">S8</text>
 <text x="817.32" y="710" text-anchor="middle" class="label">S8</text>
@@ -82,15 +82,15 @@
 <rect x="926.96" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="916.96" y="340" text-anchor="middle" class="label">S9</text>
 <text x="916.96" y="710" text-anchor="middle" class="label">S9</text>
-<rect x="990.61" y="310.51" width="16.00" height="9.49" fill="#64748b" />
+<rect x="990.61" y="269.58" width="16.00" height="50.42" fill="#64748b" />
 <rect x="990.61" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="1008.61" y="319.47" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="1008.61" y="317.05" width="16.00" height="2.95" fill="#0891b2" />
 <rect x="1008.61" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="1026.61" y="319.47" width="16.00" height="1.00" fill="#0f766e" />
+<rect x="1026.61" y="317.10" width="16.00" height="2.90" fill="#0f766e" />
 <rect x="1026.61" y="681.67" width="16.00" height="8.33" fill="#0f766e" />
 <text x="1016.61" y="340" text-anchor="middle" class="label">S10</text>
 <text x="1016.61" y="710" text-anchor="middle" class="label">S10</text>
-<rect x="1090.25" y="319.80" width="16.00" height="1.00" fill="#64748b" />
+<rect x="1090.25" y="318.84" width="16.00" height="1.16" fill="#64748b" />
 <rect x="1090.25" y="690.00" width="16.00" height="1.00" fill="#64748b" />
 <rect x="1108.25" y="320.00" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="1108.25" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
@@ -98,31 +98,31 @@
 <rect x="1126.25" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="1116.25" y="340" text-anchor="middle" class="label">S11</text>
 <text x="1116.25" y="710" text-anchor="middle" class="label">S11</text>
-<rect x="1189.89" y="319.38" width="16.00" height="1.00" fill="#64748b" />
+<rect x="1189.89" y="289.93" width="16.00" height="30.07" fill="#64748b" />
 <rect x="1189.89" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="1207.89" y="319.85" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="1207.89" y="313.25" width="16.00" height="6.75" fill="#0891b2" />
 <rect x="1207.89" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="1225.89" y="319.85" width="16.00" height="1.00" fill="#0f766e" />
+<rect x="1225.89" y="313.25" width="16.00" height="6.75" fill="#0f766e" />
 <rect x="1225.89" y="690.00" width="16.00" height="1.00" fill="#0f766e" />
 <text x="1215.89" y="340" text-anchor="middle" class="label">S12</text>
 <text x="1215.89" y="710" text-anchor="middle" class="label">S12</text>
 <rect x="1289.54" y="70.00" width="16.00" height="250.00" fill="#64748b" />
 <rect x="1289.54" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="1307.54" y="315.97" width="16.00" height="4.03" fill="#0891b2" />
+<rect x="1307.54" y="314.58" width="16.00" height="5.42" fill="#0891b2" />
 <rect x="1307.54" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="1325.54" y="316.39" width="16.00" height="3.61" fill="#0f766e" />
+<rect x="1325.54" y="315.41" width="16.00" height="4.59" fill="#0f766e" />
 <rect x="1325.54" y="648.33" width="16.00" height="41.67" fill="#0f766e" />
 <text x="1315.54" y="340" text-anchor="middle" class="label">S13</text>
 <text x="1315.54" y="710" text-anchor="middle" class="label">S13</text>
-<rect x="1389.18" y="278.28" width="16.00" height="41.72" fill="#64748b" />
+<rect x="1389.18" y="292.81" width="16.00" height="27.19" fill="#64748b" />
 <rect x="1389.18" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="1407.18" y="319.49" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="1407.18" y="319.56" width="16.00" height="1.00" fill="#0891b2" />
 <rect x="1407.18" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
-<rect x="1425.18" y="319.50" width="16.00" height="1.00" fill="#0f766e" />
+<rect x="1425.18" y="319.60" width="16.00" height="1.00" fill="#0f766e" />
 <rect x="1425.18" y="681.67" width="16.00" height="8.33" fill="#0f766e" />
 <text x="1415.18" y="340" text-anchor="middle" class="label">S14</text>
 <text x="1415.18" y="710" text-anchor="middle" class="label">S14</text>
-<text x="12" y="84" class="label">max 669.4%</text>
+<text x="12" y="84" class="label">max 38.6%</text>
 <text x="12" y="320" class="label">min 0.0%</text>
 <text x="12" y="454" class="label">30 wins</text>
 <text x="35" y="690" class="label">0</text>
