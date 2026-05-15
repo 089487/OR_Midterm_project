@@ -139,7 +139,7 @@ to maximizing $\sum_{k\in K} 3R_k y_k$.
 
 \subsection*{2. Optimal Solution for Instance 05}
 
-\hspace{2em} The optimization model accepts 8 out of 10 orders, including Orders 3, 4, 5, 6, 7, 8, 9, and 10. Orders 1 and 2 are rejected. The accepted sales revenue is 117,000, and the final profit after rejection compensation costs is 106,800. The total relocation time used is 1,080 minutes, which satisfies the relocation budget limit ($1080 \le 1200$). Only one vehicle upgrade is required in the final solution, where a level-2 vehicle is assigned to Order 6, which requests a level-1 vehicle.
+\hspace{2em} The optimization model accepts 8 out of 10 orders, including Orders 3, 4, 5, 6, 7, 8, 9, and 10. Orders 1 and 2 are rejected. The 8 completed orders generate an accepted sales revenue of 117,000. The rejected orders require compensation of $2 \times 1{,}900 + 2 \times 3{,}200 = 10{,}200$, so the final profit after compensation is $117{,}000 - 10{,}200 = 106{,}800$. The total relocation time used is 1,080 minutes, which satisfies the relocation budget limit ($1080 \le 1200$). Only one vehicle upgrade is required in the final solution, where a level-2 vehicle is assigned to Order 6, which requests a level-1 vehicle.
 
 \subsection*{3. Operational Plan}
 
@@ -154,14 +154,14 @@ another schedule.
 Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
 & Pickup $\rightarrow$ Return & Rental Period & Revenue \\
 \midrule
-3 & 3 & No & - & 0 & 5 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 11:30 & 5,600 \\
+3 & 3 & No & 3 $\rightarrow$ 5 & 210 & 5 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 11:30 & 5,600 \\
 4 & 1 & No & - & 0 & 1 $\rightarrow$ 2 & 01/03 12:00 -- 01/05 15:00 & 5,100 \\
 5 & 6 & No & - & 0 & 6 $\rightarrow$ 6 & 01/01 00:00 -- 01/04 20:00 & 36,800 \\
-6 & 4 & Yes & 5 $\rightarrow$ 3 & 210 & 3 $\rightarrow$ 4 & 01/04 23:00 -- 01/05 14:00 & 1,500 \\
-7 & 5 & No & - & 0 & 2 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 23:30 & 27,200 \\
+6 & 4 & Yes & 4 $\rightarrow$ 3 & 180 & 3 $\rightarrow$ 4 & 01/04 23:00 -- 01/05 14:00 & 1,500 \\
+7 & 5 & No & 4 $\rightarrow$ 2 & 240 & 2 $\rightarrow$ 1 & 01/02 03:30 -- 01/04 23:30 & 27,200 \\
 8 & 6 & No & - & 0 & 6 $\rightarrow$ 6 & 01/05 04:30 -- 01/05 14:30 & 4,000 \\
-9 & 4 & No & - & 0 & 3 $\rightarrow$ 4 & 01/01 19:30 -- 01/04 15:30 & 27,200 \\
-10 & 2 & No & 4 $\rightarrow$ 2 & 240 & 4 $\rightarrow$ 2 & 01/01 06:00 -- 01/05 06:00 & 9,600 \\
+9 & 4 & No & 5 $\rightarrow$ 3 & 210 & 3 $\rightarrow$ 4 & 01/01 19:30 -- 01/04 15:30 & 27,200 \\
+10 & 2 & No & 2 $\rightarrow$ 4 & 240 & 4 $\rightarrow$ 2 & 01/01 06:00 -- 01/05 06:00 & 9,600 \\
 \bottomrule
 \end{longtable}
 \endgroup
