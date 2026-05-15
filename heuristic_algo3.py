@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from algorithm_module import heuristic_algorithm
+from algo1 import heuristic_algorithm
 from mtp_common import (
     Order,
     can_serve_level,

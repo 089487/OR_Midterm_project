@@ -9,7 +9,7 @@ from typing import Iterable
 import gurobipy as gp
 from gurobipy import GRB
 
-from algorithm_module import heuristic_algorithm
+from algo1 import heuristic_algorithm
 from heuristic_algo3 import (
     _assignment_to_routes,
     _build_context,

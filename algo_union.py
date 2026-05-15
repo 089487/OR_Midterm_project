@@ -35,6 +35,23 @@ def _normalize_assignment(inst: Instance, assignment: list[object]) -> list[int]
     return normalized
 
 
+def _to_grading_output(assignment: list[object], relocation: list[list]) -> tuple[list[int], list[list]]:
+    """Convert internal benchmark output to the official grading format.
+
+    Internal solvers may use 0 for rejected orders and may store extra relocation
+    fields such as arrival time, moving minutes, and reason. The official checker
+    expects -1 for rejected orders and exactly:
+    [car_id, from_station, to_station, departure_time].
+    """
+    grading_assignment = [int(car_id) if _accepted(car_id) else -1 for car_id in assignment]
+    grading_relocation: list[list] = []
+    for row in relocation:
+        if len(row) < 4:
+            continue
+        grading_relocation.append([int(row[0]), int(row[1]), int(row[2]), str(row[3])])
+    return grading_assignment, grading_relocation
+
+
 def _profit_from_assignment(inst: Instance, assignment: list[int]) -> int:
     accepted_revenue = sum(
         order.revenue for order, car_id in zip(inst.orders, assignment) if _accepted(car_id)
@@ -232,20 +249,31 @@ def heuristic_algorithm(
     assignment, relocation = pre_build(instance_file, raw_test=raw_test)
     remaining_seconds = max_seconds - (time.perf_counter() - start)
     if remaining_seconds <= 0.05:
-        return assignment, relocation
-    return small_ip_improve(
-        instance_file,
-        assignment,
-        iterations=iterations,
-        max_seconds=remaining_seconds,
-        seed=seed,
-        temperature=temperature,
-        batch_size=batch_size,
-        candidate_order_limit=candidate_order_limit,
-        per_ip_seconds=per_ip_seconds,
-        max_no_improve=max_no_improve,
-        raw_test=raw_test,
-    )
+        result = (assignment, relocation)
+    else:
+        try:
+            result = small_ip_improve(
+                instance_file,
+                assignment,
+                iterations=iterations,
+                max_seconds=remaining_seconds,
+                seed=seed,
+                temperature=temperature,
+                batch_size=batch_size,
+                candidate_order_limit=candidate_order_limit,
+                per_ip_seconds=per_ip_seconds,
+                max_no_improve=max_no_improve,
+                raw_test=raw_test,
+            )
+        except Exception:
+            # The improvement phase depends on the small local IP helper. If
+            # Gurobi or its license is unavailable in the grading environment,
+            # keep the strong deterministic pre-build solution instead of
+            # failing the whole submission.
+            result = (assignment, relocation)
+    if raw_test:
+        return result
+    return _to_grading_output(*result)
 
 
 def main() -> None:
