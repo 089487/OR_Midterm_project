@@ -7,7 +7,6 @@
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{graphicx}
-\usepackage{svg}
 
 \title{OR114-2 Midterm Project \\[0.5em] \large Group 4}
 \author{
@@ -584,43 +583,45 @@ $m\in\{\mathrm{base},\mathrm{our}\}$,
 \]
 The benchmark keeps both references required by the project: the exact IP value
 as an upper benchmark and the chronological feasible heuristic as a lower
-benchmark.  Therefore, each table reports the baseline gap to IP, our gap to IP,
+benchmark.  Therefore, Table~3 reports only the three scenario-level quantities
+we use for comparison: the baseline gap to IP, the proposed method's gap to IP,
 and the accepted-reward improvement over the baseline:
 \[
-\frac{3A_{\mathrm{our}}-3A_{\mathrm{base}}}{3A_{\mathrm{base}}}\times 100\%,
+\frac{3A_{\mathrm{our}}-3A_{\mathrm{base}}}{3A_{\mathrm{base}}}\times 100\%.
 \]
-together with the average order completion rate.  To keep the tables readable,
-we report the 10-second version used for the larger 128-instance robustness
-study below.
+To keep the comparison aligned with the final submission setting, we report the
+10-second version of the proposed method.
 
 \begin{table}[ht]
 \centering
 \small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lccc|cc}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lccc}
 \toprule
-Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
-& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
+Scenario & Baseline gap (\%) & Proposed gap (\%) & Improvement over baseline (\%)\\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$\\
 \midrule
-S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
-S2  & $0.91 \pm 1.98$ & $0.27 \pm 0.70$ & $0.67 \pm 1.42$ & 98.0 & 97.9\\
-S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.5 & 99.5\\
-S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$ & 99.2 & 99.2\\
-S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
-S6  & $3.43 \pm 10.15$ & $0.00 \pm 0.00$ & $5.16 \pm 15.87$ & 95.8 & 95.8\\
-S7  & $2.62 \pm 7.09$ & $0.00 \pm 0.00$ & $3.33 \pm 9.15$ & 96.7 & 97.2\\
-S8  & $5.07 \pm 11.30$ & $0.05 \pm 0.16$ & $7.32 \pm 17.99$ & 93.9 & 94.8\\
-S9  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.9 & 99.9\\
-S10 & $7.79 \pm 3.60$ & $0.45 \pm 0.50$ & $8.11 \pm 4.25$ & 89.7 & 90.0\\
-S11 & $0.18 \pm 0.74$ & $0.00 \pm 0.00$ & $0.18 \pm 0.77$ & 99.9 & 99.9\\
-S12 & $4.64 \pm 6.01$ & $1.04 \pm 2.86$ & $4.16 \pm 7.04$ & 15.6 & 15.6\\
-S13 & $38.61 \pm 7.52$ & $0.84 \pm 1.36$ & $63.86 \pm 20.32$ & 38.2 & 42.7\\
-S14 & $4.20 \pm 10.81$ & $0.07 \pm 0.28$ & $6.21 \pm 17.61$ & 94.4 & 95.7\\
+S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$\\
+S2  & $0.91 \pm 2.02$ & $0.26 \pm 0.65$ & $0.69 \pm 1.52$\\
+S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$\\
+S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$\\
+S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$\\
+S6  & $3.43 \pm 10.15$ & $0.00 \pm 0.00$ & $5.16 \pm 15.87$\\
+S7  & $2.62 \pm 7.09$ & $0.00 \pm 0.00$ & $3.33 \pm 9.15$\\
+S8  & $5.07 \pm 11.30$ & $0.05 \pm 0.16$ & $7.32 \pm 17.99$\\
+S9  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$\\
+S10 & $7.79 \pm 3.60$ & $0.48 \pm 0.52$ & $8.08 \pm 4.26$\\
+S11 & $0.18 \pm 0.74$ & $0.00 \pm 0.00$ & $0.18 \pm 0.77$\\
+S12 & $4.64 \pm 6.01$ & $1.04 \pm 2.86$ & $4.16 \pm 7.04$\\
+S13 & $38.61 \pm 7.52$ & $0.84 \pm 1.36$ & $63.86 \pm 20.32$\\
+S14 & $4.20 \pm 10.81$ & $0.07 \pm 0.28$ & $6.21 \pm 17.61$\\
 \bottomrule
 \end{tabular}
-\caption{All-scenario benchmark for the 10-second proposed method.  Each row
-summarizes 30 generated instances.  Gap is measured against the exact IP upper
-benchmark; improvement is measured against the chronological baseline.}
+\caption{All-scenario benchmark for the 10-second proposed method.
+Each row summarizes 30 generated instances. Baseline gap and proposed gap
+are measured against the exact IP upper benchmark using accepted reward;
+improvement is the proposed method's accepted-reward gain over the
+chronological baseline.}
 \end{table}
 
 For the final detailed study, we selected S6, S8, S10, S13, and S14 because they

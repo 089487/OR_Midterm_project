@@ -84,10 +84,10 @@
 <text x="916.96" y="710" text-anchor="middle" class="label">S9</text>
 <rect x="990.61" y="269.58" width="16.00" height="50.42" fill="#64748b" />
 <rect x="990.61" y="690.00" width="16.00" height="1.00" fill="#64748b" />
-<rect x="1008.61" y="317.05" width="16.00" height="2.95" fill="#0891b2" />
-<rect x="1008.61" y="690.00" width="16.00" height="1.00" fill="#0891b2" />
+<rect x="1008.61" y="316.89" width="16.00" height="3.11" fill="#0891b2" />
+<rect x="1008.61" y="681.67" width="16.00" height="8.33" fill="#0891b2" />
 <rect x="1026.61" y="317.10" width="16.00" height="2.90" fill="#0f766e" />
-<rect x="1026.61" y="681.67" width="16.00" height="8.33" fill="#0f766e" />
+<rect x="1026.61" y="640.00" width="16.00" height="50.00" fill="#0f766e" />
 <text x="1016.61" y="340" text-anchor="middle" class="label">S10</text>
 <text x="1016.61" y="710" text-anchor="middle" class="label">S10</text>
 <rect x="1090.25" y="318.84" width="16.00" height="1.16" fill="#64748b" />
