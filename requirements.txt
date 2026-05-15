@@ -2,11 +2,3 @@ gurobipy>=13.0.1
 numpy
 pandas
 
-
-
-你要的是跟上下界算 ratio 還是自己跟下界做法分別算 optimal_gap(比上屆)
-跟下界比要怎麼算 ratio ? 
-你要的是 raw score ?
-
-假設你比 gap 那 std_gap 可能只是不同測資生成的 gap 的標準差，跟你比 ratio 的 std_ratio 是不一樣的東西
-
