@@ -7,6 +7,8 @@
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{graphicx}
+\usepackage{caption} % <--- 加上這一行
+\usepackage{hyperref}
 
 \title{OR114-2 Midterm Project \\[0.5em] \large Group 4}
 \author{
@@ -37,7 +39,8 @@ Let $m_{c,k}=t_{h_c, p_k}$ for $(c,k)\in A^0$, and let
 $m_{i,j}=t_{r_i, p_j}$ for $(c,i,j)\in A$.
 
 \vspace{5pt}
-With the variables and so listed in Table 1, the IEDO planning problem can be formulated as the following integer program. Let $K_c = \{ k \in K \mid (c,k) \in A^0 \cup \exists h \in K , (c,h,k) \in A \}$ be the set of valid orders for car $c$.
+With the variables defined above, the IEDO planning problem can be formulated as the following integer program.
+
 \[
 \begin{aligned}
 \max \quad
@@ -70,15 +73,15 @@ With the variables and so listed in Table 1, the IEDO planning problem can be fo
 
 \hspace{2em} The optimization model accepts 8 out of 10 orders, including Orders 3, 4, 5, 6, 7, 8, 9, and 10. Orders 1 and 2 are rejected. The 8 completed orders generate an accepted sales revenue of 117,000. The rejected orders require compensation of $2 \times 1{,}900 + 2 \times 3{,}200 = 10{,}200$, so the final profit after compensation is $117{,}000 - 10{,}200 = 106{,}800$. The total relocation time used is 1,080 minutes, which satisfies the relocation budget limit ($1080 \le 1200$). Only one vehicle upgrade is required in the final solution, where a level-2 vehicle is assigned to Order 6, which requests a level-1 vehicle.
 
-\subsection*{3. Operational Plan}
 
-The relocation instructions needed before serving an order are integrated in
-the table, so an operator can execute the accepted plan without cross-checking
-another schedule.
+\subsection*{3. Operational and Relocation Plans}
+
+The relocation instructions needed before serving an order are integrated in Table \ref{tab:op_plan}, so an operator can execute the accepted plan without cross-checking another schedule. The detailed vehicle relocation schedule is summarized in Table \ref{tab:reloc_plan}.
 
 \begingroup
 \small
 \begin{longtable}{cccccccc}
+\caption{Operational Plan for Instance 05\label{tab:op_plan}} \\
 \toprule
 Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
 & Pickup $\rightarrow$ Return & Rental Period & Revenue \\
@@ -95,10 +98,9 @@ Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
 \end{longtable}
 \endgroup
 
-\subsection*{4. Vehicle Relocation Plan}
-
 \begin{table}[ht]
 \centering
+\caption{Vehicle Relocation Plan for Instance 05} \label{tab:reloc_plan} 
 \begin{tabular}{cccccc}
 \toprule
 Car & From & To & Depart & Arrive & Minutes \\
@@ -468,23 +470,33 @@ constant-size exact repair loop whose runtime is bounded by the three-minute
 wall-clock limit.
 
 \section*{Problem 4}
-To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology provided, generating random instances designed with different factors and scenarios.\\
-In all experiments, the planning horizon will always start at 2023/01/01 00:00, and there are always $n_L=10$ different levels and $n_S=100$ stations. The number of cars $n_c$ is mostly 100 but will reduce to 80 for specific relatively large instances.  We set $n_D \sim U(7, 100)$, and pickup time $s_k$ are rounded to 30-minute slots, fixed within the first $n_D-2$ days so that rentals can finish inside the horizon while rental duration is uniformly sampled from 2 to 48 hours. The level of a car $q_c\sim U(1, n_L=10)$, and  for all $l\in L$, hourly rate of a level-$l$ car $F_l$ is generated as a strictly increasing sequence: $F_1 \sim (150, 250)$, then each next level adds a increment $inc=F_{l+1}-F_l\sim(50, 150)$. At last, moving time is symmetric with $T_{ii}=0$ and $T_{ij}=90$ minutes for $i\ne j$.
+To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology. Since the instance generator code is not submitted, we explicitly detail the statistical distributions and parameters used to create our datasets.
 
-\vspace{0.1cm}
-We identify 5 factors and several scenarios for each to see how the solution varies in different settings, shown in the table down below. 
+\textbf{General Settings:} 
+Across all instances, the planning horizon starts at \texttt{2023/01/01 00:00}. The network consists of $n_S=100$ stations and $n_L=10$ vehicle levels. The length of the planning horizon is sampled as $n_D \sim U(7, 100)$ days. Pickup times $s_k$ are rounded to 30-minute slots and fall within the first $n_D-2$ days to ensure rentals finish within the horizon. Rental durations are uniformly distributed between 2 and 48 hours. Vehicle levels are generally assigned as $q_c \sim U(1, 10)$. The hourly rate for a level-$l$ car is strictly increasing: $F_1 \sim U(150, 250)$, with level increments $F_{l+1}-F_l \sim U(50, 150)$. The moving time between stations is symmetric, where $t_{i,i}=0$ and $t_{i,j}=90$ minutes for all $i \neq j$.
+
+We designed 14 scenarios driven by 5 core operational factors to stress-test the algorithm under various business environments:
 
 \begin{itemize}
-    \item \textbf{Factor A: System Load ($n_K:n_C$):} We vary the ratio of orders to cars from 1:3 (sparse), 3:1(normal order load) to 10:1 (highly saturated) to test the algorithm's order selection efficiency.
-    \item \textbf{Factor B: Level Mismatch:} We compare a uniform level distribution ($q_c\sim U(1, n_L=10), \forall c\in C$) with an 8:2 Skew, where 80\% of orders request low-tier odd levels ($P(l_k=x)=\frac{1}{5}, x\in (1, 3, 5, 7, 9)$) while 80\% of the level a car belongs to are even ($P(q_c=y)=\frac{1}{5}, y\in (2, 4, 6, 8, 10) $). This forces heavy reliance on the upgrade mechanism.
+    \item \textbf{Factor A: System Load ($n_K:n_C$):} We vary the order-to-car ratio to test algorithm efficiency under different supply-demand pressures. The baseline is a 1:1 ratio ($n_C=100, n_K=100$). We introduce a \textit{Low Load} scenario (1:3 ratio, $n_C=100, n_K=33$), a \textit{High Load} scenario (3:1 ratio, $n_C=80, n_K=240$), and a \textit{Highly Saturated} scenario (10:1 ratio, $n_C=80, n_K=800$).    
+    \item \textbf{Factor B: Level Mismatch:} Compared to the baseline uniform distribution, the \textit{8:2 Skew} scenario assigns 80\% of customer requests to low-tier odd levels ($1,3,5,7,9$) while 80\% of the available fleet belongs to even levels. This forces the algorithm to heavily utilize the upgrade mechanism.
+    
     \item \textbf{Factor C: Spatial Flow Dynamics:} 
     \begin{itemize}
-        \item \textbf{Odd/Even Flow:} We enforced all cars to be  initialized at odd-numbered stations, while all orders depart from even and return to odd stations, making relocation mandatory.
-        \item \textbf{Hub Effect:} Return probabilities are concentrated around one or two "hub groups" (5 stations per hub) to simulate geographical resource accumulation.
+        \item \textbf{Odd/Even Flow:} All cars are initialized at odd-numbered stations. However, all orders depart from even-numbered stations and return to odd-numbered ones. This creates a structural spatial mismatch where initial relocation is 100\% mandatory.
+        \item \textbf{Hub Effect:} To simulate geographical resource accumulation (e.g., airports or city centers), return probabilities are heavily skewed. Normal stations have a weight of 1, while stations in a "Hub Group" (5 stations per group) have a weight of 100. We test 1-Hub and 2-Hub variants.
     \end{itemize}
-    \item \textbf{Factor D: Temporal Volatility:} We designed something so called \textbf{Weekend Effects}, giving higher probability weights for Friday to Sunday when remaining other weekdays uniformly distributed. Furthermore, to simulate the \textbf{Consecutive Holiday Effect} (e.g., long public holidays), we utilize \textbf{Peak Bursts} modeled via normal distribution centers ($t \sim N(\mu, \sigma^2)$). These 1 or 3 bursts represent extreme demand surges over a 3-to-4 day window to test the cleaning and readiness buffer bottleneck.
-    \item \textbf{Factor E: Relocation Budget ($B$):} We scale $B$ as a function of $n_D$ (0, $30n_D$ or $300n_D$) to test how the  "relocation pressure" affects our algorithm performance.
+    
+    \item \textbf{Factor D: Temporal Volatility:} 
+    \begin{itemize}
+        \item \textbf{Weekend Effect:} Pickup probabilities on Fridays, Saturdays, and Sundays are weighted 5 times higher than on other weekdays.
+        \item \textbf{Peak Bursts:} To simulate consecutive holiday effects, order pickups are drawn from normal distributions $N(\mu, \sigma^2)$ rather than uniformly. We use 1 or 3 temporal centers ($\mu$) with a highly concentrated standard deviation of $\sigma = 180$ minutes. This creates massive 3-hour demand surges that severely test the cleaning and readiness buffers.
+    \end{itemize}
+    
+    \item \textbf{Factor E: Relocation Budget ($B$):} We scale $B$ to observe behavior under relocation pressure. We use an unconstrained budget ($B=10^6$ minutes) for pure objective testing, a moderate budget ($B=300 n_D$), a tight budget ($B=30 n_D$), and a zero-budget strict case ($B=0$).
 \end{itemize}
+
+The parameter configurations for all 14 scenarios are summarized in Table \ref{tab:scenarios}. Our numerical study is divided into two stages: a breadth test (30 instances per scenario across all 14 scenarios) to verify general viability, and a depth robustness test (128 instances per scenario on 7 selected stressful scenarios).
 
 \begin{table}[ht]
 \centering
@@ -509,6 +521,9 @@ S13 & Tight budget & 1:1 & random & random & random, $B=30n_D$\\
 S14 & Moderate budget & 1:1 & random & random & random, $B=300n_D$\\
 \bottomrule
 \end{tabular}
+\caption{Summary of the 14 experimental scenarios and their specific parameter configurations.}
+\label{tab:scenarios}
+
 \end{table}
 
 The first benchmark uses the generated data in \texttt{data/exp\_instances}.
@@ -612,9 +627,8 @@ S13 & $38.13 \pm 8.48$ & $1.19 \pm 1.88$ & $62.63 \pm 22.31$ & 32.7 & 36.3\\
 S14 & $6.21 \pm 12.65$ & $0.07 \pm 0.29$ & $9.20 \pm 20.10$ & 91.7 & 93.1\\
 \bottomrule
 \end{tabular}
-\caption{Seven selected 128-instance scenario studies using the 10-second
-proposed method.  Gap is measured against the exact IP upper benchmark;
-improvement is measured against the chronological baseline.}
+\caption{Seven selected 128-instance scenario studies using the 10-second proposed method. Gap is measured against the exact IP upper benchmark; improvement is measured against the chronological baseline.}
+\label{tab:bench_selected}
 \end{table}
 
 \begin{figure}[ht]
@@ -646,6 +660,8 @@ improvement is measured against the chronological baseline.}
 \caption{Optimality-gap histograms for S6, S7, S8, S10, and S12.  Each
 individual scenario figure reports the mean and standard deviation of the
 chronological baseline and our proposed algorithm.}
+\label{fig:hist_group1}
+
 \end{figure}
 
 \begin{figure}
@@ -661,6 +677,8 @@ chronological baseline and our proposed algorithm.}
 \caption{Optimality-gap histograms for S13 and S14.  Each
 individual scenario figure reports the mean and standard deviation of the
 chronological baseline and our proposed algorithm.}
+\label{fig:hist_group2}
+
 \end{figure}
 
 The results support the algorithm design.  In S6, the proposed algorithm matched
@@ -672,9 +690,6 @@ whereas the proposed optimization stage recovers most of the accepted reward.
 The experiment therefore shows both sides requested in the project statement:
 our algorithm is close to the exact optimum on solvable benchmark instances,
 and it is much better than a simple feasible heuristic.  The mean and standard
-deviation of the improvement over the baseline are summarized in the table, the
-optimality-gap distributions are shown in the histogram figure, and the full set
-of instances, optimal plans, run-time records, and benchmark rows is preserved in
-\texttt{scenario\_study\_128\_results.tgz} for reproducibility.
+deviation of the improvement over the baseline are summarized in the table, The mean and standard deviation of the improvement over the baseline are summarized in Tables \ref{tab:bench_all} and \ref{tab:bench_selected}, and the optimality-gap distributions are shown in Figures \ref{fig:hist_group1} and \ref{fig:hist_group2}. The full set of instances, optimal plans, run-time records, and benchmark rows is preserved in \texttt{scenario\_study\_128\_results.tgz}, and the source code is publicly available on the GitHub repository (\url{https://github.com/089487/OR_Midterm_project}) for reproducibility.
 
 \end{document}
