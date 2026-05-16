@@ -469,32 +469,29 @@ wall-clock limit.
 
 \section*{Problem 4}
 To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology provided, generating random instances designed with different factors and scenarios.\\
-In all experiments, the planning horizon will always start at 2023/01/01 00:00, and there are always $n_L=10$ different levels. We set $n_D \sim U(7, 100)$, and for all $l\in L$, hourly rate of a level-$l$ car $F_l$ is generated as a strictly increasing sequence: $F_1$ starts from a random value between 150 and 250
-$n_S=100$ stations.  For every instance, $n_D$ is sampled uniformly from 7 to 100.
-Hourly rates are generated as a strictly increasing sequence: the first base
-rate starts from a random value between 150 and 250, and each next level adds a
-random increment between 50 and 150.  Pickup times are rounded to 30-minute
-slots and generated within the first $n_D-2$ days so that rentals can finish
-inside the horizon; rental duration is uniformly sampled from 2 to 48 hours.
-Moving time is symmetric with $T_{ii}=0$ and $T_{ij}=90$ minutes for $i\ne j$.
+In all experiments, the planning horizon will always start at 2023/01/01 00:00, and there are always $n_L=10$ different levels and $n_S=100$ stations. The number of cars $n_c$ is mostly 100 but will reduce to 80 for specific relatively large instances.  We set $n_D \sim U(7, 100)$, and pickup time $s_k$ are rounded to 30-minute slots, fixed within the first $n_D-2$ days so that rentals can finish inside the horizon while rental duration is uniformly sampled from 2 to 48 hours. The level of a car $q_c\sim U(1, n_L=10)$, and  for all $l\in L$, hourly rate of a level-$l$ car $F_l$ is generated as a strictly increasing sequence: $F_1 \sim (150, 250)$, then each next level adds a increment $inc=F_{l+1}-F_l\sim(50, 150)$. At last, moving time is symmetric with $T_{ii}=0$ and $T_{ij}=90$ minutes for $i\ne j$.
 
-The generator creates fourteen scenarios.  Unless stated otherwise, $n_C=100$.
-In high-load scenarios S2 and S4, $n_C=80$; S2 uses $n_K=10n_C=800$ and
-S4 uses $n_K=3n_C=240$.  In the other scenarios, $n_K$ equals the listed load
-ratio times $n_C$.  Level distribution is uniform
-except S5, where orders are mostly low odd levels while cars are mostly high
-even levels.  Station distribution is uniform except S6, where orders move from
-even pickup stations to odd return stations, and S7--S8, where returns are
-concentrated around one or two hub groups.  Time distribution is uniform except
-S9, which weights weekend days, and S10--S11, which create one or three normal
-peak centers.  Budgets are either $10^6$, $0$, $30n_D$, or $300n_D$.
+\vspace{0.1cm}
+We identify 5 factors and several scenarios for each to see how the solution varies in different settings, shown in the table down below. 
+
+\begin{itemize}
+    \item \textbf{Factor A: System Load ($n_K:n_C$):} We vary the ratio of orders to cars from 1:3 (sparse), 3:1(normal order load) to 10:1 (highly saturated) to test the algorithm's order selection efficiency.
+    \item \textbf{Factor B: Level Mismatch:} We compare a uniform level distribution ($q_c\sim U(1, n_L=10), \forall c\in C$) with an 8:2 Skew, where 80\% of orders request low-tier odd levels ($P(l_k=x)=\frac{1}{5}, x\in (1, 3, 5, 7, 9)$) while 80\% of the level a car belongs to are even ($P(q_c=y)=\frac{1}{5}, y\in (2, 4, 6, 8, 10) $). This forces heavy reliance on the upgrade mechanism.
+    \item \textbf{Factor C: Spatial Flow Dynamics:} 
+    \begin{itemize}
+        \item \textbf{Odd/Even Flow:} We enforced all cars to be  initialized at odd-numbered stations, while all orders depart from even and return to odd stations, making relocation mandatory.
+        \item \textbf{Hub Effect:} Return probabilities are concentrated around one or two "hub groups" (5 stations per hub) to simulate geographical resource accumulation.
+    \end{itemize}
+    \item \textbf{Factor D: Temporal Volatility:} We designed something so called \textbf{Weekend Effects}, giving higher probability weights for Friday to Sunday when remaining other weekdays uniformly distributed. Furthermore, to simulate the \textbf{Consecutive Holiday Effect} (e.g., long public holidays), we utilize \textbf{Peak Bursts} modeled via normal distribution centers ($t \sim N(\mu, \sigma^2)$). These 1 or 3 bursts represent extreme demand surges over a 3-to-4 day window to test the cleaning and readiness buffer bottleneck.
+    \item \textbf{Factor E: Relocation Budget ($B$):} We scale $B$ as a function of $n_D$ (0, $30n_D$ or $300n_D$) to test how the  "relocation pressure" affects our algorithm performance.
+\end{itemize}
 
 \begin{table}[ht]
 \centering
 \small
 \begin{tabular}{clcccc}
 \toprule
-Scenario & Main factor & Ratio $n_K:n_C$ & Levels & Stations & Time/Budget \\
+Scenario & Main factor & Ratio $n_K:n_C$ & Levels dis. & Stations dis. & Time/Budget \\
 \midrule
 S1 & Baseline & 1:1 & random & random & random, $B=10^6$\\
 S2 & Very high load & 10:1 & random & random & random, $B=10^6$\\
