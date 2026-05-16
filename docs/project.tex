@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article} 
 
 \usepackage[a4paper,margin=0.7in]{geometry}
 \usepackage{xeCJK}
@@ -121,7 +121,7 @@ it can waste scarce relocation minutes early.  We therefore divide the algorithm
     repair, improving only small neighborhoods of the current solution.
 \end{itemize}
 In implementation, the pre-build stage is intended to finish quickly and every
-local IP call in optimization stage receives only a short time limit.  We always checks the wall-clock deadline before starting another repair.
+local IP call in optimization stage receives only a short time limit.  We always check the wall-clock deadline before starting another repair.
 
 \subsection*{Pre-build Approach A: Revenue-first route insertion}
 
@@ -142,8 +142,7 @@ Approach A is designed to be a fast, reliable high-profit route generator using 
     compatibility, and remaining global relocation budget.
     \item \textbf{Lexicographical selection.} Among all feasible insertions for
     the current order, the algorithm chooses the minimum lexicographical key:
-    marginal moving time first, upgrade penalty second, local idle time third,
-    and car ID last.
+    marginal moving time $\rightarrow$ upgrade penalty $\rightarrow$  local idle time $\rightarrow$ car ID.
 \end{itemize}
 
 If $i$ and $j$ are the predecessor and successor around $k$, the marginal moving
@@ -172,8 +171,7 @@ $\bar r$ be the average route length.  Sorting orders costs $O(n_K\log n_K)$.
 For each order, the algorithm may check $n_C$ cars and inspect a local insertion
 position.  Since $\bar r$ is at most the number of orders already processed,
 $\bar r\le n_K$, the construction cost is
-$O(n_K\log n_K+n_Kn_C\bar r)\subseteq O(n_Cn_K^2)$.
-If the number of cars is treated as fixed for a scenario, this is $O(n_K^2)$.
+$O(n_K\log n_K+n_Kn_C\bar r)\subseteq O(n_K^2)$.
 This is a deliberately loose upper bound: in practice each route is much shorter
 than $n_K$, only one chronological insertion neighborhood is checked, and the
 method runs very quickly.
@@ -189,16 +187,13 @@ customer demand are spatially mismatched.
 
 \subsubsection*{1. Demand-aware Look-ahead Scoring}
 
-The planning horizon is divided into six-hour buckets.  For each station, car
-level, and bucket, we estimate future demand value.  The compatibility check is
-written from the order side: an order requesting level $r$ can be served by a
-car of level $r$ or level $r+1$.  Therefore each future pickup of requested
+The planning horizon is divided into 6-hour buckets.  For each station, car level, and bucket, we estimate future demand value.  The compatibility check is
+written from the order side: an order requesting level $r$ can be served by a car of level $r$ or $r+1$.  Therefore each future pickup of requested
 level $r$ adds its full value to the table entry for level $r$ at its pickup
-station, and also adds a discounted value to the entry for level $r+1$, because
-a level-$r+1$ car could serve this order by upgrade.  A rolling four-bucket
+station, and also adds a discounted value, $0.75\times 3R_k$, to the entry for level $r+1$, because
+a level-$r+1$ car could serve this order by upgrade.  A rolling 4-bucket
 window, i.e., about 24 hours, is then used to estimate how useful a car will be
-near a station in the near future.  The upgraded future-demand contribution is
-discounted to $0.75\times 3R_k$.
+near a station in the near future.
 
 When evaluating whether car $c$ should serve order $k$, the method uses
 \[
@@ -212,9 +207,9 @@ When evaluating whether car $c$ should serve order $k$, the method uses
 \]
 Here $s_{\text{cur}}$ is the car's current station before serving the order,
 $s_{\text{ret}}$ is the order's return station, and $\ell_c$ is the car level.
-The time indices $b_{\text{cur}}$ and $b_{\text{ret}}$ are six-hour bucket
-indices computed from the car's current available time and the ready time after
-serving the order.  The future-demand table is not learned; it is computed
+And $b_{\text{cur}}$ and $b_{\text{ret}}$ are 6-hour bucket
+time indices computed from the car's current available time and the ready time after
+serving the order.  The future-demand table is computed
 directly from the remaining order list:
 \[
 D_{s,\ell,b}=\sum_{\substack{k:p_k=s,\ \ell_k=\ell\\
@@ -245,11 +240,11 @@ and $w_o$ control relocation-minute penalty, idle-minute penalty, one-level
 upgrade penalty, future-positioning reward, and current-position opportunity
 cost, respectively.
 Moreover, the factor $3R_k$ appears because total profit can be rewritten as
-$\sum_{k\in A} R_k-2\sum_{k\notin A}R_k = 3\sum_{k\in A}R_k-2\sum_k R_k$,
+\[\sum_{k\in A} R_k-2\sum_{k\notin A}R_k = 3\sum_{k\in A}R_k-2\sum_k R_k\]
 so accepting one more order improves the objective by $3R_k$ relative to
 rejecting it.
 
-At last, for the five fixed score-weights-hyperparameters, we run several complementary variants and keep the feasible plan with the largest accepted reward:
+At last, for the five fixed score-weight hyperparameters, we run several complementary variants and keep the feasible plan with the largest accepted reward:
 \[
 \begin{array}{c|ccccc|l}
 \text{variant} & w_m & w_i & w_u & w_f & w_o & \text{extra feature}\\
@@ -278,8 +273,8 @@ and time zero, accepting it only if level, timing, and budget feasibility hold.
     \item \textbf{Phase 1: Optional Initial Staging.} The staging variant uses the first 24 hours of demand to compute shortage values for each pickup-station and requested-level pair.  It moves a capped number of idle compatible cars at time 0 toward high-shortage buckets, subject to the global budget and a staging cap.  The score rewards shortage reduction and
     penalizes long moves, removal from high-future-demand origins, and upgrades.\\
     Given $N_{s, \ell}$ as the number of cars of level $\ell$ initially located at station $s$ and $V_{\text{supply}}=1200$ as the approximate early $3R$ demand covered by one
-    initially local compatible car, shortage values $SV_{s, \ell}$ is defined as:
-    $SV_{s, \ell} = \max\left(0, F(s, \ell, 0) - V_{\text{supply}} \cdot N_{s, \ell}\right)$
+    initially local compatible car, shortage value $SV_{s, \ell}$ is defined as:
+    \[SV_{s, \ell} = \max\left(0, F(s, \ell, 0) - V_{\text{supply}} \cdot N_{s, \ell}\right)\]
 
     \item \textbf{Phase 2: Initial Greedy Assignment.} After staging, the method
     scans orders according to the current variant.  The available sorting modes
@@ -292,10 +287,10 @@ and time zero, accepting it only if level, timing, and budget feasibility hold.
     \[
     \frac{3R_k}{M}\ge \lambda\left(1+\alpha\frac{B_{\text{used}}}{B}\right),
     \]
-    where $M$ is the proposed relocation time, $\lambda=2$ defines the minimum profit-per-moving-minute required when the budget is completely full ($B_{\text{used}} = 0$), ensuring that every move justifies its own cost at a minimum, and $\alpha=2.5$ as the budget-pressure multiplier.  
+    where $M$ is the proposed relocation time, $\lambda=2$ be the minimum profit-per-moving-minute required when the budget is completely full ($B_{\text{used}} = 0$), ensuring that every move justifies its minimum cost, and $\alpha=2.5$ as a budget-pressure multiplier.  
     Thus the algorithm becomes more
-    selective as relocation budget is consumed.  For each order, the algorithm
-    scans only compatible cars, computes the demand-aware score, and chooses the
+    selective as relocation budget is consumed.  For each order, we
+    scan only compatible cars, compute the demand-aware score, and choose
     feasible car with the largest tuple $(\text{score},-\text{move},-\text{upgrade},-\text{idle}).$
     This phase builds a complete feasible baseline route set.
 
@@ -312,8 +307,8 @@ and time zero, accepting it only if level, timing, and budget feasibility hold.
     existing compatible route.  Candidate cars are sorted by current distance to
     the pickup station and available time.  Only positions near the chronological
     insertion point are checked.  A simulated insertion is accepted only if
-    $3R_k - 0.02\max(0,\Delta M)\left(1+\frac{3B_{\text{used}}}{B}\right)$
-    is positive and the total relocation budget remains feasible.
+    \[3R_k - 0.02\max(0,\Delta M)\left(1+\frac{3B_{\text{used}}}{B}\right) >0\]
+    and the total relocation budget remains feasible.
 
     \item \textbf{Phase 5: One-removal Swap.} If a valuable rejected order still
     cannot be inserted directly, the algorithm removes one lower-revenue
@@ -359,7 +354,7 @@ of cars whose routes are relatively inefficient.  For a car route $c$, define
 $v_c=\text{sales}_c/(1+\text{move}_c)$.
 Routes with smaller $v_c$ are more likely to be released. We then
 use a softmax-style sampling without replacement:
-$w_c=\exp\!\left(-\frac{v_c-v_{\min}}{\max(10^{-9},\ |\bar v|\cdot \theta)}\right)$,
+\[w_c=\exp\!\left(-\frac{v_c-v_{\min}}{\max(10^{-9},\ |\bar v|\cdot \theta)}\right)\]
 where $\theta=0.35$ is the temperature, $v_{\min}$ is the smallest route value,
 and $\bar v$ is the average route value among nonempty routes.  A lower-value
 route therefore receives a larger sampling weight, but the temperature keeps
@@ -424,33 +419,34 @@ constant-size exact repair loop whose runtime is bounded by the three-minute
 wall-clock limit.
 
 \section*{Problem 4}
-To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology. Since the instance generator code is not submitted, we explicitly detail the statistical distributions and parameters used to create our datasets.
+To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology, generating random instances designed with different factors and scenarios.
 
 \textbf{General Settings:} 
-Across all instances, the planning horizon starts at \texttt{2023/01/01 00:00}. The network consists of $n_S=100$ stations and $n_L=10$ vehicle levels. The length of the planning horizon is sampled as $n_D \sim U(7, 100)$ days. Pickup times $s_k$ are rounded to 30-minute slots and fall within the first $n_D-2$ days to ensure rentals finish within the horizon. Rental durations are uniformly distributed between 2 and 48 hours. Vehicle levels are generally assigned as $q_c \sim U(1, 10)$. The hourly rate for a level-$l$ car is strictly increasing: $F_1 \sim U(150, 250)$, with level increments $F_{l+1}-F_l \sim U(50, 150)$. The moving time between stations is symmetric, where $t_{i,i}=0$ and $t_{i,j}=90$ minutes for all $i \neq j$.
+Across all instances, the network consists of $n_S=100$ stations and $n_L=10$ car levels. The planning horizon starts at \texttt{2023/01/01 00:00}, given the length sampled as $n_D \sim U(7, 100)$ days. Pickup times $s_k$ are rounded to 30-minute slots and fall within the first $n_D-2$ days to ensure rentals finish within the horizon. Rental durations are uniformly distributed between 2 and 48 hours. Car levels are assigned as $q_c \sim U(1, 10)$. Hourly rate for a level-$l$ car is strictly increasing: $F_1 \sim U(150, 250)$, with level increments $F_{l+1}-F_l \sim U(50, 150)$. Last, the moving time between stations is symmetric, where $t_{i,i}=0$ and $t_{i,j}=90$ minutes for all $i \neq j$.
 
-We designed 14 scenarios driven by 5 core operational factors to stress-test the algorithm under various business environments:
+\vspace{0.1cm}
+We designed 14 scenarios driven by 5 operational factors to test the algorithm under various environments:
 
 \begin{itemize}[itemsep=2pt, parsep=0pt, topsep=4pt]
-    \item \textbf{Factor A: System Load ($n_K:n_C$):} We vary the order-to-car ratio to test algorithm efficiency under different supply-demand pressures. The baseline is a 1:1 ratio ($n_C=100, n_K=100$). We introduce a \textit{Low Load} scenario (1:3 ratio, $n_C=100, n_K=33$), a \textit{High Load} scenario (3:1 ratio, $n_C=80, n_K=240$), and a \textit{Highly Saturated} scenario (10:1 ratio, $n_C=80, n_K=800$).    
-    \item \textbf{Factor B: Level Mismatch:} Compared to the baseline uniform distribution, the \textit{8:2 Skew} scenario assigns 80\% of customer requests to low-tier odd levels ($1,3,5,7,9$) while 80\% of the available fleet belongs to even levels. This forces the algorithm to heavily utilize the upgrade mechanism.
+    \item \textbf{Factor A: System Load ($n_K:n_C$):} We vary the order-to-car ratio to test algorithm efficiency under different supply-demand pressures. The baseline is a 1:1 ratio ($n_C=100, n_K=100$). We introduce a \textit{Low Load} (1:3 ratio, $n_C=100, n_K=33$), a \textit{Medium Load} (3:1 ratio, $n_C=80, n_K=240$), and a \textit{Highly Saturated} scenario (10:1 ratio, $n_C=80, n_K=800$).    
+    \item \textbf{Factor B: Level Mismatch:} Compared to the baseline uniform distribution($q_c\sim U(1, n_L=10), \forall c\in C$), the 8:2 Skew scenario assigns 80\% of customer requests to low-tier odd levels ($P(l_k=x)=\frac{1}{5}, x\in (1, 3, 5, 7, 9)$) while 80\% of the level a car belongs to are even ($P(q_c=y)=\frac{1}{5}, y\in (2, 4, 6, 8, 10)$). This forces the algorithm to heavily utilize the upgrade mechanism.
     
     \item \textbf{Factor C: Spatial Flow Dynamics:} 
     \begin{itemize}[itemsep=2pt, parsep=0pt, topsep=2pt]
-        \item \textbf{Odd/Even Flow:} All cars are initialized at odd-numbered stations. However, all orders depart from even-numbered stations and return to odd-numbered ones. This creates a structural spatial mismatch where initial relocation is 100\% mandatory.
-        \item \textbf{Hub Effect:} To simulate geographical resource accumulation (e.g., airports or city centers), return probabilities are heavily skewed. Normal stations have a weight of 1, while stations in a "Hub Group" (5 stations per group) have a weight of 100. We test 1-Hub and 2-Hub variants.
+        \item \textbf{Odd/Even Flow:} We enforced all cars to be  initialized at odd-numbered stations, while all orders depart from even and return to odd stations, making relocation mandatory.
+        \item \textbf{Hub Effect:} To simulate geographical resource accumulation (e.g., airports or city centers), requested pickup-and-return-station probabilities are heavily skewed. Normal stations have a weight of 1, while stations in a "Hub Group" (5 stations per group) have a weight of 100 when doing uniform sampling. We test 1-Hub and 2-Hub variants.
     \end{itemize}
     
     \item \textbf{Factor D: Temporal Volatility:} 
     \begin{itemize}[itemsep=2pt, parsep=0pt, topsep=2pt]
-        \item \textbf{Weekend Effect:} Pickup probabilities on Fridays, Saturdays, and Sundays are weighted 5 times higher than on other weekdays.
-        \item \textbf{Peak Bursts:} To simulate consecutive holiday effects, order pickups are drawn from normal distributions $N(\mu, \sigma^2)$ rather than uniformly. We use 1 or 3 temporal centers ($\mu$) with a highly concentrated standard deviation of $\sigma = 180$ minutes. This creates massive 3-hour demand surges that severely test the cleaning and readiness buffers.
+        \item \textbf{Weekend Effect:} Pickup probabilities on Fridays, Saturdays, and Sundays are weighted 5 times higher than on other weekdays (which are uniformly distributed).
+        \item \textbf{Peak Bursts:} To simulate consecutive holiday effects, order pickups are drawn from normal distributions $N(\mu, \sigma^2)$ rather than uniformly. We use 1 or 3 temporal centers ($\mu$) with a highly concentrated standard deviation of $\sigma = 180$ minutes. These bursts represent extreme demand to test the cleaning and readiness buffer bottleneck.
     \end{itemize}
     
-    \item \textbf{Factor E: Relocation Budget ($B$):} We scale $B$ to observe behavior under relocation pressure. We use an unconstrained budget ($B=10^6$ minutes) for pure objective testing, a moderate budget ($B=300 n_D$), a tight budget ($B=30 n_D$), and a zero-budget strict case ($B=0$).
+    \item \textbf{Factor E: Relocation Budget ($B$):} We scale $B$ to observe behavior under relocation pressure. Given an unconstrained budget ($B=10^6$ minutes) for pure objective testing, a moderate budget ($B=300 n_D$), a tight budget ($B=30 n_D$), and a zero-budget strict case ($B=0$).
 \end{itemize}
 
-The parameter configurations for all 14 scenarios are summarized in Table \ref{tab:scenarios}. Our numerical study is divided into two stages: a breadth test (30 instances per scenario across all 14 scenarios) to verify general viability, and a depth robustness test (128 instances per scenario on 7 selected stressful scenarios).
+The parameter configurations for all 14 scenarios are summarized in Table \ref{tab:scenarios}. Our numerical study is divided into two stages: a breadth test (30 instances per scenario across all 14 scenarios) to verify general viability, and a depth robustness test (128 instances per scenario on 7 selected scenarios ).
 
 \begin{table}[htbp]
 \centering
@@ -472,7 +468,7 @@ S8 & Two hubs & 1:1 & random & hub 2G & random, $B=300n_D$\\
 S9 & Weekend effect & 1:1 & random & random & weekend, $B=10^6$\\
 S10 & One peak & 1:1 & random & random & one peak, $B=10^6$\\
 S11 & Three peaks & 1:1 & random & random & three peaks, $B=10^6$\\
-S12 & No relocation budget & 1:1 & random & random & random, $B=0$\\
+S12 & Zero relocation budget & 1:1 & random & random & random, $B=0$\\
 S13 & Tight budget & 1:1 & random & random & random, $B=30n_D$\\
 S14 & Moderate budget & 1:1 & random & random & random, $B=300n_D$\\
 \bottomrule
@@ -485,127 +481,139 @@ $\text{profit}=A-2(T-A)=3A-2T$.
 For a fixed instance, $T$ is constant, so maximizing profit is equivalent to
 maximizing $3A$.  Whenever we compare a heuristic against the IP optimum in the
 tables and histograms, we use the accepted-reward optimality gap.  For any method
-$m\in\{\mathrm{base},\mathrm{our}\}$,
+$m\in\{\mathrm{base},\mathrm{heuristic}\}$,
 \[
 \text{gap}_m
 =\frac{3A_{\mathrm{IP}}-3A_m}{3A_{\mathrm{IP}}}\times 100\%
 =\frac{\text{profit}_{\mathrm{IP}}-\text{profit}_{m}}
 {\text{profit}_{\mathrm{IP}}+2T}\times 100\%.
 \]
-To evaluate our algorithm systematically, we compare it against both the exact IP optimum (upper bound) and a chronological feasible heuristic (lower baseline). The following metrics are reported in the subsequent tables:
-\begin{itemize}[itemsep=2pt, parsep=0pt, topsep=4pt]
-    \item \textbf{Base gap / Our gap (\%):} The accepted-reward optimality gap compared to the IP optimum, defined as $\frac{3A_{\mathrm{IP}} - 3A_m}{3A_{\mathrm{IP}}} \times 100\%$, where $m \in \{\mathrm{base}, \mathrm{our}\}$.
-    \item \textbf{Improve (\%):} The relative accepted-reward improvement of our method over the baseline, computed as $\frac{3A_{\mathrm{our}} - 3A_{\mathrm{base}}}{3A_{\mathrm{base}}} \times 100\%$.
+To evaluate our algorithm systematically, we compare it against both the exact IP optimum (upper bound) and a simple chronological heuristic (lower baseline) which first sorts
+all orders by pickup time and breaking ties by order ID: for each order, it assigns the feasible compatible car
+requiring the least immediate moving time chronologically; the order is directly rejected if no car is feasible. As the latter algorithm has no look-ahead or repair, our sophisticated algorithm should clearly beat it in theory.
+\vspace{0.1cm}
+\\The following metrics are reported in the subsequent tables:
+\vspace{0.1cm}
+\begin{itemize}[parsep=0pt, itemsep=-5pt, topsep=-2pt]
+    \item \textbf{Base gap / Our gap (\%):} The accepted-reward optimality gap compared to the IP optimum, defined as \[\frac{3A_{\mathrm{IP}} - 3A_m}{3A_{\mathrm{IP}}} \times 100\%, m \in \{\mathrm{base}, \mathrm{\text{our heuristic}}\}\].
+    \item \textbf{Improve (\%):} The relative accepted-reward improvement of our method over the baseline, computed as \[\frac{3A_{\mathrm{our}} - 3A_{\mathrm{base}}}{3A_{\mathrm{base}}} \times 100\%\].
     \item \textbf{CR (\%):} The order Completion Rate, representing the percentage of total orders successfully assigned.
 \end{itemize}
-To keep the tables readable, we report the 10-second version of our algorithm used for the larger 128-instance robustness study below.
+
+\vspace{0.2cm}
+To keep the tables readable, we report the 10-second version of our algorithm used for the later-discussed larger 128-instance robustness study shown below.
 
 \begin{table}[htbp]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\caption{All-scenario benchmark for the 10-second proposed method.  Each row
-summarizes 30 generated instances.  Gap is measured against the exact IP upper
-benchmark; improvement is measured against the chronological baseline.}
+\caption{All-scenario benchmark for the 10-second proposed method.  Each row summarizes 30 generated instances.  Gaps are measured against the exact IP (upper benchmark); improvement is measured against the simple baseline.}
 \label{tab:bench_all}
-\begin{tabular}{lccc|cc}
+% 將 3 個 c 替換成 r@{\;$\pm$\;}l，利用左右兩欄夾住加減號來對齊
+\begin{tabular}{l r@{\;$\pm$\;}l r@{\;$\pm$\;}l r@{\;$\pm$\;}l |cc}
 \toprule
-Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
-& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
+Scenario & 
+\multicolumn{2}{c}{Base gap (\%)} & 
+\multicolumn{2}{c}{Our gap (\%)} & 
+\multicolumn{2}{c|}{Improve (\%)} & 
+Base CR (\%) & Our CR (\%)\\
+& 
+\multicolumn{2}{c}{$\mu \pm \sigma$} & 
+\multicolumn{2}{c}{$\mu \pm \sigma$} & 
+\multicolumn{2}{c|}{$\mu \pm \sigma$} & 
+avg. & avg.\\
 \midrule
-S1  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
-S2  & $0.91 \pm 2.02$ & $0.26 \pm 0.65$ & $0.69 \pm 1.52$ & 98.0 & 97.9\\
-S3  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.5 & 99.5\\
-S4  & $0.19 \pm 0.57$ & $0.03 \pm 0.19$ & $0.16 \pm 0.43$ & 99.2 & 99.2\\
-S5  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.7 & 99.7\\
-S6  & $3.43 \pm 10.15$ & $0.00 \pm 0.00$ & $5.16 \pm 15.87$ & 95.8 & 95.8\\
-S7  & $2.62 \pm 7.09$ & $0.00 \pm 0.00$ & $3.33 \pm 9.15$ & 96.7 & 97.2\\
-S8  & $5.07 \pm 11.30$ & $0.05 \pm 0.16$ & $7.32 \pm 17.99$ & 93.9 & 94.8\\
-S9  & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & $0.00 \pm 0.00$ & 99.9 & 99.9\\
-S10 & $7.79 \pm 3.60$ & $0.48 \pm 0.52$ & $8.08 \pm 4.26$ & 89.7 & 89.8\\
-S11 & $0.18 \pm 0.74$ & $0.00 \pm 0.00$ & $0.18 \pm 0.77$ & 99.9 & 99.9\\
-S12 & $4.64 \pm 6.01$ & $1.04 \pm 2.86$ & $4.16 \pm 7.04$ & 15.6 & 15.6\\
-S13 & $38.61 \pm 7.52$ & $0.84 \pm 1.36$ & $63.86 \pm 20.32$ & 38.2 & 42.7\\
-S14 & $4.20 \pm 10.81$ & $0.07 \pm 0.28$ & $6.21 \pm 17.61$ & 94.4 & 95.7\\
+S1  &  0.00 & 0.00 & 0.00 & 0.00 &  0.00 & 0.00 & 99.7 & 99.7\\
+S2  &  0.91 & 2.02 & 0.26 & 0.65 &  0.69 & 1.52 & 98.0 & 97.9\\
+S3  &  0.00 & 0.00 & 0.00 & 0.00 &  0.00 & 0.00 & 99.5 & 99.5\\
+S4  &  0.19 & 0.57 & 0.03 & 0.19 &  0.16 & 0.43 & 99.2 & 99.2\\
+S5  &  0.00 & 0.00 & 0.00 & 0.00 &  0.00 & 0.00 & 99.7 & 99.7\\
+S6  & \textbf{3.43} & \textbf{10.15} & 0.00 & 0.00 & \textbf{5.16} & \textbf{15.87} & 95.8 & 95.8\\
+S7  & \textbf{2.62} & \textbf{7.09} & 0.00 & 0.00 & \textbf{3.33} & \textbf{9.15} & 96.7 & 97.2\\
+S8  & \textbf{5.07} & \textbf{11.30} & 0.05 & 0.16 & \textbf{7.32} & \textbf{17.99} & 93.9 & 94.8\\
+S9  &  0.00 & 0.00 & 0.00 & 0.00 &  0.00 & 0.00 & 99.9 & 99.9\\
+S10 & \textbf{7.79} & \textbf{3.60} & 0.48 & 0.52 & \textbf{8.08} & \textbf{4.26} & 89.7 & 89.8\\
+S11 &  0.18 & 0.74 & 0.00 & 0.00 &  0.18 & 0.77 & 99.9 & 99.9\\
+S12 & \textbf{4.64} & \textbf{6.01} & 1.04 & 2.86 & \textbf{4.16} & \textbf{7.04} & 15.6 & 15.6\\
+S13 & \textbf{38.61} & \textbf{7.52} & 0.84 & 1.36 & \textbf{63.86} & \textbf{20.32} & 38.2 & 42.7\\
+S14 & \textbf{4.20} & \textbf{10.81} & 0.07 & 0.28 & \textbf{6.21} & \textbf{17.61} & 94.4 & 95.7\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-For the final detailed study, we selected S6, S7, S8, S10, S12, S13, and S14 because they
-stress spatial imbalance, hub returns, temporal peaks, revenue scarcity, and
-relocation-budget sensitivity.  We generated 128 instances per selected scenario.  The exact IP
-model from Problem 1 was solved for every generated instance, and the heuristic
-side used the 10-second version of the proposed method.  Because these instances
-have $n_C=100$ and $n_K=100$, the IP is still solvable; its value is therefore
-the optimal profit and an upper benchmark for any heuristic solution.
+By grouping the 14 scenarios within 5 factors, by comparing each to scenario S1, it is observed that 
+\begin{enumerate}[label=\Alph*., itemsep=-1pt]
+    \item \textbf{S2-S4:} The higher the load of orders, it is more difficult for the heuristic algorithms to reach the optimum.
+    \item \textbf{S5:} Algorithms have little barrier utilizing the upgrading mechanism, given the gaps equal to 0.
+    \item \textbf{S6-S8 / S12-S14:}  The most dramatic performance gains are seen here, giving the conclusion that the relocation of cars from station to station has significant impact to the algorithm. The most dramatic performance gains are observed in these scenarios. Specifically, S13 (Tight Budget) shows a massive 63.86\% improvement over the baseline. This can be explained through two lenses:
+\begin{itemize}
+\item \textbf{Budget Depletion:} In S13, the relocation budget is extremely scarce. Simple heuristics fail because they exhaust the budget on the first few orders they encounter. Once $B$ is spent, the fleet remains "frozen," and high-value orders at remote stations must be rejected with heavy penalties.
+\item \textbf{Strategic Selectivity:} Our algorithm's look-ahead scoring and Relocation-Value Gate treat moving time as a high-value asset. By calculating the ROI of every relocation ($\frac{3R_k}{M}$), we ensure that the limited budget is spent only on orders that maximize the net profit swing.
+\end{itemize}
+Furthermore, in S8 (Two Hubs), our algorithm maintains an optimality gap of 0.05\% compared to the baseline's 5.07\%. This demonstrates that look-ahead scoring successfully identifies the marginal utility of relocation even in "car graveyard" scenarios, effectively quantifying the "shadow price" of moving time and rebalancing the fleet across the 100-day horizon.
+    \item \textbf{S9-S11:} The scenarios' result seems to be extreme, while S10 shows strong effect on the algorithm in time peaks, both S9 and S11 have weak significance so. It is inferred that the polarized results are due to the excessive frequency of the peaks within the fixed $n_D=100$, resulting in the factor impact reduction.
+\end{enumerate}
 
-We also used a simple feasible lower-bound heuristic.  This baseline first sorts
-all orders by pickup time, breaking ties by order ID, and then processes this
-chronological list.  For each order, it assigns the feasible compatible car
-requiring the least immediate moving time; if no car is feasible, the order is
-rejected.  It has no look-ahead and no repair, so a strong proposed algorithm
-should clearly beat it.
+In conclusion, the effectiveness of our designed algorithm is strongly supported following the "Our Gap" column in Table 4: our gap is smaller than the base gap for all scenarios and is consistent to a certain extent (given a range variants about 1 percent only). 
+To double check our conclusion, we then selected S6, S7, S8, S10, S12, S13, and S14 to generate more instances and plotted their gap histograms for deeper studies since they receive higher gaps ($\mu>1$) between the upper(IP) and lower(simple) benchmark algorithm (base gap) in comparison.
 
-For the optimality-gap histograms, a lower value is better, with zero indicating a perfect match with the IP optimum. Note that using the accepted-reward formulation ($3A$) as the denominator ensures numerical stability, preventing exaggerated gap percentages in tight-budget scenarios (like S13) where the absolute net profit approaches zero.
+\subsection*{Deeper Study and Conclusion: Robustness Across 128 Instances}
 
-\begin{table}[htbp]
+\begin{table}[h]
 \centering
+\caption{Seven selected 128-instance scenario studies using the 10-second proposed method.}
+\label{tab:robustness}
 \small
-\setlength{\tabcolsep}{3pt}
-\caption{Seven selected 128-instance scenario studies using the 10-second proposed method. Gap is measured against the exact IP upper benchmark; improvement is measured against the chronological baseline.}
-\label{tab:bench_selected}
 \begin{tabular}{lccc|cc}
-\toprule
-Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%)\\
-& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg.\\
-\midrule
-S6  & $6.90 \pm 13.72$ & $0.00 \pm 0.00$ & $10.72 \pm 22.87$ & 90.5 & 90.5\\
-S7  & $3.44 \pm 9.95$ & $0.01 \pm 0.08$ & $5.12 \pm 15.46$ & 95.2 & 95.8\\
-S8  & $6.24 \pm 12.09$ & $0.03 \pm 0.13$ & $8.99 \pm 18.68$ & 91.7 & 92.8\\
-S10 & $8.45 \pm 3.64$ & $0.73 \pm 0.71$ & $8.60 \pm 4.44$ & 89.9 & 90.2\\
-S12 & $2.49 \pm 4.38$ & $0.36 \pm 1.29$ & $2.42 \pm 5.65$ & 15.7 & 15.7\\
-S13 & $38.13 \pm 8.48$ & $1.19 \pm 1.88$ & $62.63 \pm 22.31$ & 32.7 & 36.3\\
-S14 & $6.21 \pm 12.65$ & $0.07 \pm 0.29$ & $9.20 \pm 20.10$ & 91.7 & 93.1\\
-\bottomrule
+\hline
+Scenario & Base gap (\%) & Our gap (\%) & Improve (\%) & Base CR (\%) & Our CR (\%) \\
+& $\mu \pm \sigma$ & $\mu \pm \sigma$ & $\mu \pm \sigma$ & avg. & avg. \\ \hline
+$S_6$ & $6.90 \pm 13.72$ & $0.00 \pm 0.00$ & $10.72 \pm 22.87$ & 90.5 & 90.5 \\
+$S_7$ & $3.44 \pm 9.95$ & $0.01 \pm 0.08$ & $5.12 \pm 15.46$ & 95.2 & 95.8 \\
+$S_8$ & $6.24 \pm 12.09$ & $0.03 \pm 0.13$ & $8.99 \pm 18.68$ & 91.7 & 92.8 \\
+$S_{10}$ & $8.45 \pm 3.64$ & $0.73 \pm 0.71$ & $8.60 \pm 4.44$ & 89.9 & 90.2 \\
+$S_{12}$ & $2.49 \pm 4.38$ & $0.36 \pm 1.29$ & $2.42 \pm 5.65$ & 15.7 & 15.7 \\
+$S_{13}$ & $38.13 \pm 8.48$ & $1.19 \pm 1.88$ & $62.63 \pm 22.31$ & 32.7 & 36.3 \\
+$S_{14}$ & $6.21 \pm 12.65$ & $0.07 \pm 0.29$ & $9.20 \pm 20.10$ & 91.7 & 93.1 \\ \hline
 \end{tabular}
 \end{table}
+
+By observation, the "Our gap" column remains consistent when the instances grow even for the "stressed" environments. As shown in Table \ref{tab:robustness}, our proposed method maintains an average optimality gap of less than 1.3\% across all $128*7=896$ test instances. Notably, in $S_6$ (Forced Relocation), our algorithm perfectly matched the IP optimum ($0.00\%$ gap) across all 128 instances, demonstrating that our relocation-aware look-ahead successfully pre-positions the fleet even under mandatory relocation constraints.
+
+\vspace{0.2cm}
+The experimental results strongly support our algorithm design. By combining a strategic look-ahead pre-build with targeted local IP repair, we achieve near-optimal solutions within the strict three-minute time limit.
 
 \begin{figure}[htbp]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{./svg-inkscape/S6_optimal_gap_histogram_svg-raw.pdf}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
         \includegraphics[width=\linewidth]{./svg-inkscape/S10_optimal_gap_histogram_svg-raw.pdf}
-    \end{minipage}
-
-    \vspace{1.5em}
+        % 可以加上這行在圖底下標示 (需確保前面有 \usepackage{caption})
+        \caption*{S10: Demand surges} 
+    \end{minipage}\hfill % <--- 注意：\hfill 移到這裡了！撐開兩張圖
     \begin{minipage}{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{./svg-inkscape/S13_optimal_gap_histogram_svg-raw.pdf}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{./svg-inkscape/S14_optimal_gap_histogram_svg-raw.pdf}
+        \caption*{S13: Tight budget}
     \end{minipage}
-    \caption{Representative optimality-gap histograms highlighting distinct operational stressors: spatial robustness (S6), demand surges (S10), tight budget bottlenecks (S13), and a moderate baseline (S14). Each subfigure reports the mean and standard deviation of both algorithms.}
+    
+    % 如果你只要放兩張，建議把 caption 裡面的 S6 和 S14 拿掉，以免教授/助教疑惑
+    \caption{Representative optimality-gap histograms highlighting distinct operational stressors: demand surges (S10) and tight budget bottlenecks (S13), reporting the mean and standard deviation of both algorithms.}
     \label{fig:all_hists}
 \end{figure}
+\vspace{-0.3cm}
+The histograms in Figure 1 contrast our 10-second proposed method (teal) against the baseline (grey) for S10 \& S13. These distributions provide clear evidence of our algorithm's effectiveness regarding 2 key criteria:
 
-\subsection*{Results and Discussion}
-
-The experimental results strongly support our algorithm design. Across all selected stressful scenarios, our proposed algorithm maintained an average optimality gap strictly below 1.3\%, decisively outperforming the chronological baseline, which suffered gaps ranging from 2.49\% to 38.13\%. However, performance variations across different operational stressors reveal insightful boundaries of our local-search approach:
-
-\begin{itemize}[itemsep=2pt, parsep=0pt, topsep=4pt]
-    \item \textbf{Relocation Budget as a Global Bottleneck (S13):} Scenario S13 exhibits the largest optimality gap (1.19\%) for our algorithm and severely penalizes the baseline (38.13\%). The relocation budget is a strict global linking constraint. The exact IP utilizes its full-horizon foresight to allocate scarce moving minutes to the absolute highest-margin orders. In contrast, our local IP repair optimizes only a batch of 5 vehicles at a time. It can occasionally fall into local optima by greedily consuming the budget for locally optimal assignments, leaving insufficient minutes for potentially more profitable orders outside the current batch.
+\begin{enumerate}
+    \item \textbf{Near-Optimality:} In both S10 and S13, the teal distributions are heavily clustered at the leftmost edge of the x-axis. For S10, the vast majority of instances result in a gap between $0.0\%$ and $0.5\%$. Even in the most constrained scenario, S13, the algorithm maintains a mean gap of only $1.19\%$. This extreme concentration near the $0\%$ mark proves that our heuristic consistently identifies solutions that are practically indistinguishable from the exact IP optimum.
     
-    \item \textbf{Temporal Demand Surges (S10):} In S10 (One peak), our gap slightly increases to 0.73\%. The highly concentrated 3-hour demand burst creates intense contention for vehicle readiness. Since our optimization phase dynamically truncates the candidate list ($m=160$) to enforce the 3-minute wall-clock limit, it may occasionally fail to identify the global optimal order-to-car matching during extreme demand density.
+    \item \textbf{Superiority over Benchmark:} The histograms reveal a dramatic "gap shift" between the two methods. 
+    \begin{itemize}[itemsep=-1pt]
+        \item \textbf{Reliability:} Our method shows significantly lower variance (a narrow teal spike), whereas the baseline is highly volatile (a wide grey spread). 
+        \item \textbf{Risk Mitigation:} In S13, the baseline exhibits gaps reaching up to $58.9\%$ because it exhausts the relocation budget prematurely. Our method successfully compresses the entire distribution toward the origin, ensuring that even our worst-case performance is vastly superior to the baseline's average.
+    \end{itemize}
+\end{enumerate}
 
-    \item \textbf{High Spatial Robustness (S6):} Interestingly, pure spatial mismatches do not degrade our algorithm's performance as long as the relocation budget is relatively sufficient. In S6 (Forced relocation), our algorithm perfectly matched the IP optimum (0.00\% gap) on all 128 instances. This validates the effectiveness of our Pre-build Approach B, where initial staging and demand-aware look-ahead scoring successfully pre-position the fleet without requiring the exact IP's global view.
-\end{itemize}
-
-In conclusion, the experiment demonstrates both aspects requested in the project statement: our algorithm achieves near-optimal performance on solvable benchmark instances and significantly outperforms a simple feasible heuristic under complex operational constraints. The mean and standard deviation of the gaps and improvements are summarized in Tables \ref{tab:bench_all} and \ref{tab:bench_selected}, while the detailed optimality-gap distributions are shown in Figure \ref{fig:all_hists}. The full set of instances, optimal plans, run-time records, and benchmark rows is preserved in \texttt{scenario\_study\_128\_results.tgz}, and the source code is publicly available on our GitHub repository (\url{https://github.com/089487/OR_Midterm_project}) for reproducibility.
+Based on the above analysis, it is demonstrated that our framework and all designs satisfy the project objectives, delivering a heuristic that provides high-profit, near-optimal plans while remaining resilient to the operational stressors of budget scarcity and demand surges. The full set of instances, optimal plans, run-time records, and benchmark rows is preserved in \texttt{scenario\_study\_128\_results.tgz}, and the source code is publicly available on our GitHub repository (\url{https://github.com/089487/OR_Midterm_project}) for reproducibility.
 
 \end{document}
