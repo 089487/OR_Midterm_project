@@ -1,83 +1,67 @@
-try:
-    from MTP_lib import *
-except ModuleNotFoundError:
-    from datetime import datetime, timedelta
-    import time as t
-
+from MTP_lib import *
 
 # ============================
-# libraries need TA to import, if import then we can skip above import
+# 去除所有 MTP_lib 以外的 import，全面改用內建物件或 MTP_lib (如 numpy, t)
 # ============================
-
-import heapq
-import math
-import random
-import time
-from bisect import bisect_left
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Iterable
-
 
 TIME_FMT = "%Y/%m/%d %H:%M"
 READY_BEFORE_PICKUP = 30
 RETURN_DELAY_AND_CLEANING = 240
+TOP_K_STATIONS = 10
 
-
-@dataclass(frozen=True)
+# 替換 dataclass
 class Car:
-    id: int
-    level: int
-    station: int
+    def __init__(self, id, level, station):
+        self.id = id
+        self.level = level
+        self.station = station
 
-
-@dataclass(frozen=True)
 class Order:
-    id: int
-    level: int
-    pickup_station: int
-    return_station: int
-    pickup_minute: int
-    return_minute: int
-    revenue: int
+    def __init__(self, id, level, pickup_station, return_station, pickup_minute, return_minute, revenue):
+        self.id = id
+        self.level = level
+        self.pickup_station = pickup_station
+        self.return_station = return_station
+        self.pickup_minute = pickup_minute
+        self.return_minute = return_minute
+        self.revenue = revenue
 
-
-@dataclass(frozen=True)
 class Instance:
-    n_stations: int
-    n_cars: int
-    n_levels: int
-    n_orders: int
-    n_days: int
-    moving_budget: int
-    cars: list[Car]
-    rates: dict[int, int]
-    orders: list[Order]
-    move_time: dict[tuple[int, int], int]
-    start: datetime
+    def __init__(self, n_stations, n_cars, n_levels, n_orders, n_days, moving_budget, cars, rates, orders, move_time, start):
+        self.n_stations = n_stations
+        self.n_cars = n_cars
+        self.n_levels = n_levels
+        self.n_orders = n_orders
+        self.n_days = n_days
+        self.moving_budget = moving_budget
+        self.cars = cars
+        self.rates = rates
+        self.orders = orders
+        self.move_time = move_time
+        self.start = start
 
-
-def _read_sections(path: str | Path) -> list[list[list[str]]]:
-    sections: list[list[list[str]]] = []
-    current: list[list[str]] = []
-    for raw in Path(path).read_text(encoding="utf-8-sig").splitlines():
-        line = raw.strip()
-        if not line:
-            continue
-        if line == "==========":
-            if current:
-                sections.append(current)
-                current = []
-            continue
-        current.append([cell.strip() for cell in line.split(",")])
+def _read_sections(path):
+    sections = []
+    current = []
+    # 替換 Path().read_text()
+    with open(path, "r", encoding="utf-8-sig") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line:
+                continue
+            if line == "==========":
+                if current:
+                    sections.append(current)
+                    current = []
+                continue
+            current.append([cell.strip() for cell in line.split(",")])
     if current:
         sections.append(current)
     if len(sections) != 5:
         raise ValueError(f"expected 5 sections in {path}, got {len(sections)}")
     return sections
 
-
-def parse_instance(path: str | Path) -> Instance:
+def parse_instance(path):
     sections = _read_sections(path)
     n_stations, n_cars, n_levels, n_orders, n_days, budget = map(int, sections[0][1])
 
@@ -85,7 +69,7 @@ def parse_instance(path: str | Path) -> Instance:
     rates = {int(row[0]): int(row[1]) for row in sections[2][1:]}
 
     start = datetime(2023, 1, 1)
-    orders: list[Order] = []
+    orders = []
     for row in sections[3][1:]:
         pickup = datetime.strptime(row[4], TIME_FMT)
         ret = datetime.strptime(row[5], TIME_FMT)
@@ -120,20 +104,16 @@ def parse_instance(path: str | Path) -> Instance:
         start=start,
     )
 
-
-def can_serve_level(car_level: int, order_level: int) -> bool:
+def can_serve_level(car_level, order_level):
     return car_level == order_level or car_level == order_level + 1
 
-
-def order_ready_minute(order: Order) -> int:
+def order_ready_minute(order):
     return order.return_minute + RETURN_DELAY_AND_CLEANING
 
-
-def latest_arrival_for_pickup(order: Order) -> int:
+def latest_arrival_for_pickup(order):
     return order.pickup_minute - READY_BEFORE_PICKUP
 
-
-def feasible_transition(inst: Instance, prev: Order | None, station: int, nxt: Order) -> tuple[bool, int, int]:
+def feasible_transition(inst, prev, station, nxt):
     move = inst.move_time[(station, nxt.pickup_station)]
     ready = 0 if prev is None else order_ready_minute(prev)
     if prev is None and move == 0 and nxt.pickup_minute == 0:
@@ -142,49 +122,45 @@ def feasible_transition(inst: Instance, prev: Order | None, station: int, nxt: O
         feasible = ready + move <= latest_arrival_for_pickup(nxt)
     return feasible, move, ready
 
-
-def objective_from_assignment(inst: Instance, assignment: Iterable[int]) -> int:
+def objective_from_assignment(inst, assignment):
     accepted = {order.id for order, car_id in zip(inst.orders, assignment) if car_id}
     accepted_revenue = sum(order.revenue for order in inst.orders if order.id in accepted)
     total_revenue = sum(order.revenue for order in inst.orders)
     return accepted_revenue - 2 * (total_revenue - accepted_revenue)
 
-
-def format_minute(inst: Instance, minute: int) -> str:
-    return (inst.start.replace() + __import__("datetime").timedelta(minutes=minute)).strftime(TIME_FMT)
-
+def format_minute(inst, minute):
+    return (inst.start.replace() + timedelta(minutes=minute)).strftime(TIME_FMT)
 
 # ============================================================
 # Inlined algo1.py
 # ============================================================
 
-@dataclass
+# 替換 dataclass
 class CarState:
-    car_id: int
-    level: int
-    station: int
-    ready: int = 0
-    route: list[int] = field(default_factory=list)
+    def __init__(self, car_id, level, station, ready=0, route=None):
+        self.car_id = car_id
+        self.level = level
+        self.station = station
+        self.ready = ready
+        self.route = route if route is not None else []
 
+# 手刻 binary search 替代 bisect_left
+def custom_bisect_left(a, x):
+    lo, hi = 0, len(a)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if a[mid] < x:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
 
-def algo1_heuristic(
-    instance_file: str | Path = "data/instance05.txt",
-    *args: Any,
-    raw_test: bool = False,
-    **kwargs: Any,
-):
-    """Return (assignment, relocation) for an instance file.
-
-    assignment[k - 1] is the car ID serving order k, or 0 if rejected.
-    relocation is a 2-D list of records:
-    [car_id, from_station, to_station, depart_time, arrive_time, moving_minutes, reason].
-    """
+def algo1_heuristic(instance_file="data/instance05.txt", *args, raw_test=False, **kwargs):
     inst = parse_instance(instance_file)
     if not raw_test:
         exact = _try_exact_for_small_instance(instance_file, inst)
         if exact is not None:
             return exact
-    # Step 1: Order Prioritization
     orders = sorted(inst.orders, key=lambda o: (-o.revenue, o.pickup_minute, o.id))
     states = {car.id: CarState(car.id, car.level, car.station, route=[]) for car in inst.cars}
     order_by_id = {order.id: order for order in inst.orders}
@@ -203,23 +179,20 @@ def algo1_heuristic(
     relocations = _build_relocations(inst, states.values(), order_by_id)
     return assignment, relocations
 
-
-def _try_exact_for_small_instance(instance_file: str | Path, inst):
-    # Standalone submission cannot rely on the local ip_solver.py module.
+def _try_exact_for_small_instance(instance_file, inst):
     return None
-def _choose_insertion(inst, states, order_by_id: dict[int, Order], order: Order, remaining_budget: int):
+
+def _choose_insertion(inst, states, order_by_id, order, remaining_budget):
     best = None
     best_key = None
     for state in states:
         if not can_serve_level(state.level, order.level):
             continue
         
-        # Step 2: Chronological Insertion Search
         route_orders = [order_by_id[order_id] for order_id in state.route]
         pickup_times = [route_order.pickup_minute for route_order in route_orders]
-        idx = bisect_left(pickup_times, order.pickup_minute)
+        idx = custom_bisect_left(pickup_times, order.pickup_minute) # 用自訂的 bisect
         
-        # Step 3: Feasibility Evaluation
         prev_order = route_orders[idx - 1] if idx > 0 else None
         next_order = route_orders[idx] if idx < len(route_orders) else None
         prev_station = state.station if prev_order is None else prev_order.return_station
@@ -238,7 +211,6 @@ def _choose_insertion(inst, states, order_by_id: dict[int, Order], order: Order,
         if delta_move > remaining_budget:
             continue
         
-        # Step 4: Lexicographical Selection (delta_move, upgrade_penalty, idle, car_id)
         idle = _local_idle(inst, prev_order, order, next_order)
         upgrade_penalty = state.level - order.level
         key = (delta_move, upgrade_penalty, idle, state.car_id)
@@ -247,8 +219,7 @@ def _choose_insertion(inst, states, order_by_id: dict[int, Order], order: Order,
             best = (state, idx, delta_move)
     return best
 
-
-def _local_idle(inst, prev_order: Order | None, order: Order, next_order: Order | None) -> int:
+def _local_idle(inst, prev_order, order, next_order):
     idle = 0
     if prev_order is not None:
         idle += order.pickup_minute - order_ready_minute(prev_order)
@@ -256,9 +227,8 @@ def _local_idle(inst, prev_order: Order | None, order: Order, next_order: Order 
         idle += next_order.pickup_minute - order_ready_minute(order)
     return idle
 
-
-def _build_relocations(inst, states, order_by_id: dict[int, Order]) -> list[list]:
-    relocations: list[list] = []
+def _build_relocations(inst, states, order_by_id):
+    relocations = []
     for state in states:
         station = state.station
         ready = 0
@@ -281,41 +251,24 @@ def _build_relocations(inst, states, order_by_id: dict[int, Order]) -> list[list
             ready = order_ready_minute(order)
     return relocations
 
-
 # ============================================================
 # Inlined algo5.py
 # ============================================================
 
-# ============================================================
-# Demand-aware Look-ahead Relocation Heuristic
-#
-# Main idea:
-#   1. Build a feasible greedy assignment.
-#   2. Spend relocation budget according to marginal value.
-#   3. Repair rejected high-value orders by rebuilding single-car routes.
-#
-# Submission note:
-#   Rename this file to algorithm_module.py before submission.
-# ============================================================
-
 BASE_DATE = datetime(2023, 1, 1, 0, 0)
-CLEAN_AND_LATE_MIN = 240     # 1 hour possible late return + 3 hours cleaning
-READY_BUFFER_MIN = 30        # car must be ready 30 minutes before pickup
-BUCKET_MIN = 360             # 6-hour time bucket for demand look-ahead
-LOOKAHEAD_BUCKETS = 4         # 24 hours look-ahead under 6-hour buckets
-DEFAULT_TIME_LIMIT_SEC = 170.0
-
+CLEAN_AND_LATE_MIN = 240
+READY_BUFFER_MIN = 30
+BUCKET_MIN = 360
+LOOKAHEAD_BUCKETS = 4
+DEFAULT_ALGO5_TIME_LIMIT_SEC = 50.0
 
 def _to_minute(time_str, base_date=None):
-    """Convert 'YYYY/MM/DD HH:MM' into minutes after this instance's base date."""
     if base_date is None:
         base_date = BASE_DATE
     dt = datetime.strptime(time_str.strip(), "%Y/%m/%d %H:%M")
     return int((dt - base_date).total_seconds() // 60)
 
-
 def _to_time_str(minute, base_date=None):
-    """Convert minutes after this instance's base date into required string format."""
     if base_date is None:
         base_date = BASE_DATE
     if minute < 0:
@@ -323,12 +276,10 @@ def _to_time_str(minute, base_date=None):
     dt = base_date + timedelta(minutes=int(minute))
     return dt.strftime("%Y/%m/%d %H:%M")
 
-
 def _parse_instance(file_path):
-    """Read the instance file.  The parser is intentionally simple and robust."""
     global BASE_DATE
 
-    with open(file_path, 'r') as fp:
+    with open(file_path, 'r', encoding="utf-8-sig") as fp:
         raw_lines = [line.strip() for line in fp.readlines() if line.strip() != '']
 
     parts = []
@@ -343,12 +294,10 @@ def _parse_instance(file_path):
     if cur:
         parts.append(cur)
 
-    # Part 0: general parameters
     general = [x.strip() for x in parts[0][1].split(',')]
     nS = int(general[0]); nC = int(general[1]); nL = int(general[2])
     nK = int(general[3]); nD = int(general[4]); B = int(general[5])
 
-    # Part 1: cars
     cars = {}
     car_ids = []
     for row in parts[1][1:]:
@@ -357,18 +306,14 @@ def _parse_instance(file_path):
         cars[cid] = {'id': cid, 'level': lev, 'station': st}
         car_ids.append(cid)
 
-    # Part 2: rates
     rates = {}
     for row in parts[2][1:]:
         a = [x.strip() for x in row.split(',')]
         rates[int(a[0])] = float(a[1])
 
-    # Match mtp_common.py: measure all instance times from the first pickup date.
-    first_pickup = min(datetime.strptime(row.split(',')[4].strip(), "%Y/%m/%d %H:%M")
-                       for row in parts[3][1:])
+    first_pickup = min(datetime.strptime(row.split(',')[4].strip(), "%Y/%m/%d %H:%M") for row in parts[3][1:])
     BASE_DATE = datetime(first_pickup.year, first_pickup.month, first_pickup.day)
 
-    # Part 3: orders
     orders = []
     for row in parts[3][1:]:
         a = [x.strip() for x in row.split(',')]
@@ -389,7 +334,6 @@ def _parse_instance(file_path):
             'ready_after_return': rt + CLEAN_AND_LATE_MIN
         })
 
-    # Part 4: moving time matrix, 1-indexed
     T = [[0 for _ in range(nS + 1)] for __ in range(nS + 1)]
     for row in parts[4][1:]:
         a = [x.strip() for x in row.split(',')]
@@ -400,18 +344,9 @@ def _parse_instance(file_path):
 
     return nS, nC, nL, nK, nD, B, cars, car_ids, rates, orders, T
 
-
 def _build_future_score(nS, nL, nD, orders):
-    """
-    Estimate future demand value by station, car level, and time bucket.
-
-    A car of level L can serve level L orders directly and level L-1 orders
-    through a free upgrade.  Each order contributes 3R because accepting it
-    improves profit by R - (-2R) = 3R compared with rejecting it.
-    """
     horizon_min = nD * 24 * 60
     Q = int(horizon_min // BUCKET_MIN) + LOOKAHEAD_BUCKETS + 3
-
     demand = [[[0.0 for _ in range(Q + 1)] for __ in range(nL + 1)] for ___ in range(nS + 1)]
 
     for o in orders:
@@ -419,12 +354,10 @@ def _build_future_score(nS, nL, nD, orders):
         s = o['pickup_station']
         lev = o['level']
         val = 3.0 * o['revenue']
-        # Same-level service receives full future value.
         if lev <= nL:
             demand[s][lev][q] += val
-        # One-level upgrades are useful but discounted to preserve high-level cars.
         if lev + 1 <= nL:
-            demand[s][lev + 1][q] += 0.75 * val   # upgrade future value is useful but discounted
+            demand[s][lev + 1][q] += 0.75 * val
 
     future = [[[0.0 for _ in range(Q + 1)] for __ in range(nL + 1)] for ___ in range(nS + 1)]
     for s in range(1, nS + 1):
@@ -438,11 +371,7 @@ def _build_future_score(nS, nL, nD, orders):
                 future[s][lev][q] = rolling
     return future, Q
 
-
-def _candidate_car_score(order, cid, car_level, car_station, car_available,
-                         T, used_move, B, future_score, max_q,
-                         w_move, w_idle, w_upgrade, w_future, w_opp):
-    """Return a score for assigning one feasible car to one order; otherwise None."""
+def _candidate_car_score(order, cid, car_level, car_station, car_available, T, used_move, B, future_score, max_q, w_move, w_idle, w_upgrade, w_future, w_opp):
     lev = order['level']
     if not (car_level == lev or car_level == lev + 1):
         return None
@@ -451,7 +380,6 @@ def _candidate_car_score(order, cid, car_level, car_station, car_available,
     if used_move + move > B:
         return None
 
-    # A car must be at the pickup station at least 30 minutes before pickup.
     if car_available + move > order['ready_deadline']:
         return None
 
@@ -465,40 +393,28 @@ def _candidate_car_score(order, cid, car_level, car_station, car_available,
     if q_after > max_q:
         q_after = max_q
 
-    # Value of having this car at the return station after the order.
     fv = future_score[order['return_station']][car_level][q_after]
-    # Opportunity cost of removing this car from its current station now.
     oc = future_score[car_station][car_level][q_now]
 
-    # Relocation budget becomes more precious as it is consumed.
     budget_pressure = 0.0
     if B > 0:
         budget_pressure = used_move / float(B)
     move_penalty = w_move * move * (1.0 + 3.0 * budget_pressure)
 
-    # The base value is 3R, the true profit improvement of accept vs. reject.
-    score = (3.0 * order['revenue']
-             + w_future * fv
-             - w_opp * oc
-             - move_penalty
-             - w_idle * idle
-             - w_upgrade * upgrade * max(1, car_level))
+    score = (3.0 * order['revenue'] + w_future * fv - w_opp * oc - move_penalty - w_idle * idle - w_upgrade * upgrade * max(1, car_level))
     return score, move, idle, upgrade
 
-
 def _time_left(deadline):
-    return deadline is None or t.time() < deadline
-
+    return deadline is None or t.perf_counter() < deadline
 
 def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadline=None):
-    """Construct one complete feasible plan under a given parameter variant."""
     assignment = [-1 for _ in range(nK)]
     relocation = []
 
     car_level = {}
     car_station = {}
     car_available = {}
-    car_history = {}  # stack for limited local replacement
+    car_history = {}
     car_staged_move = {}
     cars_by_level = [[] for _ in range(nL + 2)]
 
@@ -514,8 +430,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
 
     future_score, max_q = _build_future_score(nS, nL, nD, orders)
 
-    # Variant weights control how aggressively this plan spends relocation budget,
-    # uses upgrades, tolerates idle time, and values future station demand.
     w_move = variant.get('w_move', 1.0)
     w_idle = variant.get('w_idle', 0.005)
     w_upgrade = variant.get('w_upgrade', 250.0)
@@ -525,7 +439,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
     relocation_pressure_mult = variant.get('relocation_pressure_mult', 2.0)
 
     def initial_min_move(order):
-        """Estimate the cheapest initial relocation needed to reach this order."""
         best_move = None
         levels = [order['level']]
         if order['level'] + 1 <= nL:
@@ -538,7 +451,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         return best_move if best_move is not None else 999999
 
     def relocation_value_ok(order, move):
-        """Gate low-value relocations when a variant enables relocation-value control."""
         if move <= 0 or relocation_value_floor is None:
             return True
         if B <= 0:
@@ -548,7 +460,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         return (3.0 * order['revenue']) / float(move) >= dynamic_floor
 
     def best_car_for(order, restricted_car=None):
-        """Find the best currently feasible car for one order under this variant."""
         best = None
         levels = [order['level']]
         if order['level'] + 1 <= nL:
@@ -572,14 +483,12 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             score, move, idle, upgrade = res
             if not relocation_value_ok(order, move):
                 continue
-            # Tie-breakers prefer shorter moves, no upgrade, and less idle time.
             key = (score, -move, -upgrade, -idle)
             if best is None or key > best[0]:
                 best = (key, cid, move)
         return best
 
     def accept_order(order, cid, move):
-        """Commit one order to one car and update assignment, relocation, and car state."""
         old_station = car_station[cid]
         old_available = car_available[cid]
         move_idx = -1
@@ -600,7 +509,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         car_available[cid] = order['ready_after_return']
 
     def simulate_car_route(cid, route_order_ids):
-        """Rebuild one car route from scratch and return its relocation plan if feasible."""
         station = cars[cid]['station']
         available = 0
         total_move = 0
@@ -635,7 +543,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         return total_move, new_relocation, new_history, station, available
 
     def replace_car_route(cid, new_route_order_ids):
-        """Replace one car's entire route after a successful route simulation."""
         old_move = car_staged_move[cid]
         for h in car_history[cid]:
             old_move += h['move_time']
@@ -672,10 +579,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
 
     used_move = [0]
 
-    # -------- Phase 1: Optional initial staging --------
-    # Before greedy assignment, move a limited number of idle cars at time 0
-    # toward early high-shortage station-level buckets.  This is a general
-    # relocation warm start, not a hard-coded station pattern.
     def initial_staging():
         if not variant.get('initial_staging', False) or B <= 0:
             return
@@ -748,10 +651,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                     origin_key = (car_station[cid], car_level[cid])
                     origin_pressure = future_score[car_station[cid]][car_level[cid]][0]
                     upgrade = 1 if car_level[cid] == level + 1 else 0
-                    score = (shortage
-                             - variant.get('staging_move_weight', 2.0) * move
-                             - variant.get('staging_origin_weight', 0.01) * origin_pressure
-                             - variant.get('staging_upgrade_penalty', 300.0) * upgrade)
+                    score = (shortage - variant.get('staging_move_weight', 2.0) * move - variant.get('staging_origin_weight', 0.01) * origin_pressure - variant.get('staging_upgrade_penalty', 300.0) * upgrade)
                     key = (score, -move, -upgrade, -local_supply.get(origin_key, 0))
                     if best is None or key > best[0]:
                         best = (key, cid, move)
@@ -772,9 +672,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
 
     initial_staging()
 
-    # -------- Phase 2: Initial greedy assignment --------
-    # Build a first feasible plan by scanning orders in the variant's order and
-    # assigning each accepted order to its best currently feasible car.
     if variant.get('sort_mode') == 'time':
         sorted_orders = sorted(orders, key=lambda o: (o['pickup_time'], -o['revenue'] / (o['duration_h'] + 1.0)))
     elif variant.get('sort_mode') == 'revenue':
@@ -782,15 +679,9 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
     elif variant.get('sort_mode') == 'density':
         sorted_orders = sorted(orders, key=lambda o: (-o['revenue'] / (o['duration_h'] + 1.0), o['pickup_time']))
     elif variant.get('sort_mode') == 'relocation_value':
-        sorted_orders = sorted(orders, key=lambda o: (int(o['pickup_time'] // BUCKET_MIN),
-                                                      -(3.0 * o['revenue']) / (1.0 + initial_min_move(o)),
-                                                      -o['revenue']))
+        sorted_orders = sorted(orders, key=lambda o: (int(o['pickup_time'] // BUCKET_MIN), -(3.0 * o['revenue']) / (1.0 + initial_min_move(o)), -o['revenue']))
     else:
-        # Bucketed density is mostly chronological, but prioritizes valuable orders
-        # inside each 6-hour bucket.
-        sorted_orders = sorted(orders, key=lambda o: (int(o['pickup_time'] // BUCKET_MIN),
-                                                      -o['revenue'] / (o['duration_h'] + 1.0),
-                                                      -o['revenue']))
+        sorted_orders = sorted(orders, key=lambda o: (int(o['pickup_time'] // BUCKET_MIN), -o['revenue'] / (o['duration_h'] + 1.0), -o['revenue']))
 
     for order in sorted_orders:
         if not _time_left(deadline):
@@ -800,24 +691,17 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             _, cid, move = best
             accept_order(order, cid, move)
 
-    # -------- Phase 3: Shortage-bucket repair --------
-    # Group rejected orders by station, time bucket, and level.  Repair buckets
-    # with high shortage value per expected relocation minute first.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     if rejected:
-        # Repair should focus only on demand that the greedy phase did not serve.
         future_score, max_q = _build_future_score(nS, nL, nD, rejected)
-
         buckets = {}
         for o in rejected:
-            # Bucket by pickup station, time quantum, and requested level.
             bkey = (o['pickup_station'], int(o['pickup_time'] // BUCKET_MIN), o['level'])
             if bkey not in buckets:
                 buckets[bkey] = {'value': 0.0, 'orders': []}
             buckets[bkey]['value'] += 3.0 * o['revenue']
             buckets[bkey]['orders'].append(o)
 
-        # Prefer large shortage buckets that can be reached with low relocation effort.
         for bkey, b in buckets.items():
             station, _, level = bkey
             best_inbound = None
@@ -837,7 +721,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         for b in bucket_list:
             if not _time_left(deadline):
                 break
-            # Inside a shortage bucket, rescue high-revenue orders first.
             b['orders'].sort(key=lambda o: (-o['revenue'], o['pickup_time']))
             for order in b['orders']:
                 if not _time_left(deadline):
@@ -849,10 +732,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                     _, cid, move = best
                     accept_order(order, cid, move)
 
-    # -------- Phase 4: Route-insertion repair --------
-    # Insert high-value rejected orders into existing single-car routes when this
-    # can be done without removing any accepted order.  Every candidate route is
-    # rebuilt from scratch, so timing and relocation records stay consistent.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     rejected.sort(key=lambda o: -o['revenue'])
     max_insert_rejected = min(len(rejected), variant.get('max_insert_rejected', 120))
@@ -899,8 +778,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                 positions = [0]
             else:
                 chronological_pos = 0
-                while (chronological_pos < len(route)
-                       and orders[route[chronological_pos] - 1]['pickup_time'] <= order['pickup_time']):
+                while (chronological_pos < len(route) and orders[route[chronological_pos] - 1]['pickup_time'] <= order['pickup_time']):
                     chronological_pos += 1
                 positions = []
                 for delta in range(0, len(route) + 1):
@@ -934,9 +812,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             cid, trial_route = best_route
             replace_car_route(cid, trial_route)
 
-    # -------- Phase 5: One-removal route repair --------
-    # If direct insertion fails, try replacing one low-value accepted order inside
-    # a compatible car route with one high-value rejected order.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     rejected.sort(key=lambda o: -o['revenue'])
     max_swap_rejected = min(len(rejected), variant.get('max_swap_rejected', 100))
@@ -994,8 +869,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                 removed_order = orders[remove_oid - 1]
 
                 chronological_pos = 0
-                while (chronological_pos < len(base_route)
-                       and orders[base_route[chronological_pos] - 1]['pickup_time'] <= order['pickup_time']):
+                while (chronological_pos < len(base_route) and orders[base_route[chronological_pos] - 1]['pickup_time'] <= order['pickup_time']):
                     chronological_pos += 1
 
                 positions = []
@@ -1030,9 +904,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             cid, trial_route = best_route
             replace_car_route(cid, trial_route)
 
-    # -------- Phase 6: Last-order replacement repair --------
-    # As a cheaper final local search, replace only the current last order of a
-    # compatible car route.  This avoids rebuilding later orders.
     rejected = [o for o in orders if assignment[o['id'] - 1] == -1]
     rejected.sort(key=lambda o: -o['revenue'])
     max_repl_rejected = min(len(rejected), variant.get('max_repl_rejected', 300))
@@ -1043,7 +914,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             continue
         best_gain = 0.0
         best_tuple = None
-        # Only the route's last order is considered in this phase.
         levels = [order['level']]
         if order['level'] + 1 <= nL:
             levels.append(order['level'] + 1)
@@ -1051,7 +921,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
         for lev in levels:
             candidate_cars.extend(cars_by_level[lev])
 
-        # Keep this final repair bounded for large instances.
         checked = 0
         for cid in candidate_cars:
             if not _time_left(deadline):
@@ -1065,7 +934,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             old_oid = last['order_id']
             old_order = orders[old_oid - 1]
 
-            # Temporarily roll this car back to the state before its last order.
             saved_station = car_station[cid]
             saved_available = car_available[cid]
             saved_used = used_move[0]
@@ -1080,7 +948,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                 w_move, w_idle, w_upgrade, w_future, w_opp
             )
 
-            # Restore the car state before evaluating the next candidate.
             car_station[cid] = saved_station
             car_available[cid] = saved_available
             used_move[0] = saved_used
@@ -1088,8 +955,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             if res is None:
                 continue
             score, new_move, idle, upgrade = res
-            # True objective improvement is based on accepted revenue; the small
-            # budget penalty discourages spending scarce relocation minutes late.
             budget_pen = 0.0
             if B > 0:
                 budget_pen = 0.02 * max(0, new_move - last['move_time']) * (1.0 + 3.0 * used_move[0] / float(B))
@@ -1100,7 +965,6 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
 
         if best_tuple is not None:
             cid, last, old_oid, new_move = best_tuple
-            # Remove the old last order from this car.
             popped = car_history[cid].pop()
             assignment[old_oid - 1] = -1
             if popped['move_idx'] >= 0:
@@ -1108,12 +972,8 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
                 used_move[0] -= popped['move_time']
             car_station[cid] = popped['prev_station']
             car_available[cid] = popped['prev_available']
-            # Accept the replacement order.
             accept_order(order, cid, new_move)
 
-    # -------- Phase 7: Finalize this variant plan --------
-    # Remove relocation records canceled by route replacement and compute the
-    # accepted revenue used to compare this variant with other variants.
     relocation = [r for r in relocation if r is not None]
 
     accepted_revenue = 0.0
@@ -1122,18 +982,7 @@ def _make_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, variant, deadlin
             accepted_revenue += o['revenue']
     return assignment, relocation, accepted_revenue
 
-
-
-def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
-                      initial_assignment=None, initial_relocation=None, initial_value=-1.0,
-                      time_limit_sec=18.0):
-    """
-    Bounded exact DFS for small instances only.
-
-    The search maximizes accepted revenue, which is equivalent to maximizing
-    profit for a fixed instance.  It is skipped for large hidden instances and
-    protected by a short time limit.
-    """
+def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T, initial_assignment=None, initial_relocation=None, initial_value=-1.0, time_limit_sec=18.0):
     if nK > 22 or nC > 12:
         return initial_assignment, initial_relocation, initial_value
 
@@ -1163,7 +1012,6 @@ def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
         if t.time() - start_clock > time_limit_sec:
             return
 
-        # Upper bound: prune if even accepting all remaining orders cannot win.
         if accepted_revenue + suffix[idx] <= best_value + 1e-9:
             return
 
@@ -1174,7 +1022,6 @@ def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
                 best_relocation = relocation[:]
             return
 
-        # Dominance memoization: same state with lower accepted revenue is useless.
         state_key = (idx, used_move, tuple(zip(car_available, car_station)))
         prev = seen.get(state_key)
         if prev is not None and prev >= accepted_revenue - 1e-9:
@@ -1192,12 +1039,10 @@ def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
                 continue
             if car_available[cidx] + move <= o['ready_deadline']:
                 upgrade = 1 if cl == o['level'] + 1 else 0
-                # Try cheap, non-upgrade assignments first for stronger incumbents.
                 options.append((move, upgrade, car_available[cidx], cidx, cid))
 
         options.sort()
 
-        # Branch 1: accept the order using one feasible car.
         for move, upgrade, avail, cidx, cid in options:
             old_station = car_station[cidx]
             old_available = car_available[cidx]
@@ -1216,37 +1061,25 @@ def _small_exact_plan(nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
             if move > 0:
                 relocation.pop()
 
-        # Branch 2: reject the order.
         dfs(idx + 1, used_move, accepted_revenue)
 
     dfs(0, 0, 0.0)
     return best_assignment, best_relocation, best_value
 
-
-def algo5_heuristic(file_path, raw_test: bool = False):
-    '''
-    Return:
-        assignment: list of length n_K. assignment[i-1] = car ID or -1.
-        relocation: list of [car ID, start station, end station, start time string].
-    '''
-    start_clock = t.time()
-    deadline = start_clock + DEFAULT_TIME_LIMIT_SEC
+def algo5_heuristic(file_path, raw_test=False, max_seconds=DEFAULT_ALGO5_TIME_LIMIT_SEC, deadline=None):
+    local_deadline = t.perf_counter() + max_seconds
+    if deadline is None or local_deadline < deadline:
+        deadline = local_deadline
     nS, nC, nL, nK, nD, B, cars, car_ids, rates, orders, T = _parse_instance(file_path)
 
-    # Try several complementary variants and keep the largest accepted revenue.
-    # For a fixed instance, this is equivalent to keeping the largest profit.
     variants = [
-        {'sort_mode': 'bucket',  'w_move': 0.7, 'w_idle': 0.003, 'w_upgrade': 250.0, 'w_future': 0.012, 'w_opp': 0.006,
-         'initial_staging': True, 'staging_budget_frac': 0.35, 'max_staging_moves': 120},
-        {'sort_mode': 'relocation_value', 'w_move': 0.6, 'w_idle': 0.002, 'w_upgrade': 350.0, 'w_future': 0.012, 'w_opp': 0.008,
-         'relocation_value_floor': 2.0, 'relocation_pressure_mult': 2.5},
+        {'sort_mode': 'bucket',  'w_move': 0.7, 'w_idle': 0.003, 'w_upgrade': 250.0, 'w_future': 0.012, 'w_opp': 0.006, 'initial_staging': True, 'staging_budget_frac': 0.35, 'max_staging_moves': 120},
+        {'sort_mode': 'relocation_value', 'w_move': 0.6, 'w_idle': 0.002, 'w_upgrade': 350.0, 'w_future': 0.012, 'w_opp': 0.008, 'relocation_value_floor': 2.0, 'relocation_pressure_mult': 2.5},
         {'sort_mode': 'revenue', 'w_move': 0.8, 'w_idle': 0.002, 'w_upgrade': 500.0, 'w_future': 0.010, 'w_opp': 0.010},
         {'sort_mode': 'time',    'w_move': 1.2, 'w_idle': 0.002, 'w_upgrade': 400.0, 'w_future': 0.010, 'w_opp': 0.008},
         {'sort_mode': 'density', 'w_move': 0.8, 'w_idle': 0.004, 'w_upgrade': 300.0, 'w_future': 0.015, 'w_opp': 0.006},
     ]
 
-    # Large instances use fewer variants and bounded repair searches to stay under
-    # the 3-minute grading limit.
     if nK > 8000 or nC > 900 or nD > 60:
         variants = variants[:2]
         for var in variants:
@@ -1287,154 +1120,38 @@ def algo5_heuristic(file_path, raw_test: bool = False):
             best_assignment = assignment
             best_relocation = relocation
 
-    # Small public-like instances get a bounded exact improvement pass.
-    if not raw_test and nK <= 22 and nC <= 12 and t.time() + 2.0 < deadline:
-        exact_budget = min(18.0, max(1.0, deadline - t.time() - 1.0))
+    if not raw_test and nK <= 22 and nC <= 12 and t.perf_counter() + 2.0 < deadline:
+        exact_budget = min(18.0, max(1.0, deadline - t.perf_counter() - 1.0))
         best_assignment, best_relocation, best_value = _small_exact_plan(
             nS, nC, nL, nK, nD, B, cars, car_ids, orders, T,
             best_assignment, best_relocation, best_value, time_limit_sec=exact_budget
         )
 
-    # Chronological move order is not required by format, but helps simulators.
     best_relocation = sorted(best_relocation, key=lambda r: (r[3], r[0], r[1], r[2]))
     return best_assignment, best_relocation
 
-
 # ============================================================
-# Inlined heuristic_algo3.py helpers
+# Inlined heuristic_algo4.py helpers
 # ============================================================
 
-LAMBDA_SET = [0, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3, 0.5, 0.75, 1.0]
-TOP_K_STATIONS = 10
-
-
-@dataclass(frozen=True)
-class Candidate:
-    station: int
-    ready: int
-    move_time: int
-    weight: float
-    sales: int
-    route: tuple[int, ...]
-
-
-@dataclass(frozen=True)
-class Plan:
-    order_ids: list[int]
-    move_time: int
-    sales: int
-    weight: float
-
-
-@dataclass(frozen=True)
+# 替換 dataclass
 class Algo3Context:
-    total_revenue: int
-    revenue_weight: dict[int, float]
-    move_matrix: list[list[int]]
-    nearest_sources: dict[int, list[int]]
-    order_by_id: dict[int, Order]
-    car_by_id: dict[int, object]
+    def __init__(self, total_revenue, revenue_weight, move_matrix, nearest_sources, order_by_id, car_by_id):
+        self.total_revenue = total_revenue
+        self.revenue_weight = revenue_weight
+        self.move_matrix = move_matrix
+        self.nearest_sources = nearest_sources
+        self.order_by_id = order_by_id
+        self.car_by_id = car_by_id
 
-
-def heuristic_algorithm3(
-    instance_file: str | Path = "data/instance05.txt",
-    lambdas: Iterable[float] = LAMBDA_SET,
-    iterations: int = 100000,
-    max_seconds: float = 100.0,
-    seed: int = 1142,
-    temperature: float = 0.35,
-    batch_size: int = 5,
-    raw_test: bool = False,
-):
-    """Algo1 plus release-multiple-cars local search.
-
-    Start from Algo1, then repeatedly sample low-efficiency trajectories,
-    release them, shuffle those cars, and rebuild them with a top-10 station
-    sweep DP. The DP score is route revenue divided by one plus route moving
-    time, so there is no inner lambda loop.
-    """
-    inst = parse_instance(instance_file)
-    deadline = time.perf_counter() + max_seconds
-    rng = random.Random(seed)
-    assignment, _ = algo1_heuristic(instance_file, raw_test=raw_test)
-    ctx = _build_context(inst)
-    routes = _assignment_to_routes(inst, assignment)
-    current_routes = {car_id: route[:] for car_id, route in routes.items()}
-    current_profit = _profit_from_routes(inst, current_routes)
-    best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
-    best_profit = _profit_from_routes(inst, best_routes)
-
-    for _ in range(iterations):
-        if time.perf_counter() >= deadline:
-            break
-        car_ids = _sample_routes_by_softmax_efficiency(
-            inst,
-            ctx,
-            current_routes,
-            rng,
-            temperature,
-            batch_size,
-        )
-        if not car_ids:
-            break
-        base_routes = {cid: route[:] for cid, route in current_routes.items()}
-        released_orders: set[int] = set()
-        for car_id in car_ids:
-            released_orders.update(base_routes[car_id])
-            base_routes[car_id] = []
-        used_without_car = _moving_from_routes(inst, ctx, base_routes)
-        if used_without_car > inst.moving_budget:
-            continue
-
-        assigned_elsewhere = {
-            order_id
-            for cid, route in base_routes.items()
-            if cid not in car_ids
-            for order_id in route
-        }
-        available = {order.id for order in inst.orders if order.id not in assigned_elsewhere}
-        available.update(released_orders)
-
-        trial_routes = {cid: route[:] for cid, route in base_routes.items()}
-        rng.shuffle(car_ids)
-        used_budget = used_without_car
-        for car_id in car_ids:
-            if time.perf_counter() >= deadline:
-                break
-            remaining_budget = inst.moving_budget - used_budget
-            if remaining_budget <= 0:
-                break
-            car = ctx.car_by_id[car_id]
-            plan = _best_path_for_car_topk(inst, ctx, car, available, remaining_budget)
-            trial_routes[car_id] = [] if plan is None else plan.order_ids
-            used_budget += 0 if plan is None else plan.move_time
-            available.difference_update(trial_routes[car_id])
-
-        moving = _moving_from_routes(inst, ctx, trial_routes)
-        if moving > inst.moving_budget:
-            continue
-        profit = _profit_from_routes(inst, trial_routes)
-        if profit < current_profit:
-            continue
-        current_routes = trial_routes
-        current_profit = profit
-        if current_profit > best_profit:
-            best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
-            best_profit = current_profit
-
-    return _routes_to_solution(inst, ctx, best_routes)
-
-
-def _build_context(inst) -> Algo3Context:
+def _build_context(inst):
     total_revenue = max(1, sum(order.revenue for order in inst.orders))
     revenue_weight = {order.id: 3 * order.revenue / total_revenue for order in inst.orders}
     move_matrix = [[0] * (inst.n_stations + 1) for _ in range(inst.n_stations + 1)]
     for (src, dst), minutes in inst.move_time.items():
         move_matrix[src][dst] = minutes
     nearest_sources = {
-        dst: sorted(range(1, inst.n_stations + 1), key=lambda src: (move_matrix[src][dst], src))[
-            :TOP_K_STATIONS
-        ]
+        dst: sorted(range(1, inst.n_stations + 1), key=lambda src: (move_matrix[src][dst], src))[:TOP_K_STATIONS]
         for dst in range(1, inst.n_stations + 1)
     }
     return Algo3Context(
@@ -1446,8 +1163,7 @@ def _build_context(inst) -> Algo3Context:
         car_by_id={car.id: car for car in inst.cars},
     )
 
-
-def _assignment_to_routes(inst, assignment: list[int]) -> dict[int, list[int]]:
+def _assignment_to_routes(inst, assignment):
     routes = {car.id: [] for car in inst.cars}
     order_by_id = {order.id: order for order in inst.orders}
     for order_id, car_id in enumerate(assignment, start=1):
@@ -1457,17 +1173,9 @@ def _assignment_to_routes(inst, assignment: list[int]) -> dict[int, list[int]]:
         route.sort(key=lambda order_id: (order_by_id[order_id].pickup_minute, order_id))
     return routes
 
-
-def _sample_routes_by_softmax_efficiency(
-    inst,
-    ctx: Algo3Context,
-    routes: dict[int, list[int]],
-    rng: random.Random,
-    temperature: float,
-    batch_size: int,
-) -> list[int]:
+def _sample_routes_by_softmax_efficiency(inst, ctx, routes, rng, temperature, batch_size):
     order_by_id = {order.id: order for order in inst.orders}
-    candidates: list[tuple[int, float]] = []
+    candidates = []
     for car_id, route in routes.items():
         if not route:
             continue
@@ -1481,12 +1189,12 @@ def _sample_routes_by_softmax_efficiency(
     avg_value = max(1e-9, sum(values) / len(values))
     scale = max(1e-9, abs(avg_value) * max(temperature, 1e-6))
     pool = [(car_id, math.exp(-(value - min_value) / scale)) for car_id, value in candidates]
-    chosen: list[int] = []
+    chosen = []
     for _ in range(min(batch_size, len(pool))):
         total = sum(weight for _, weight in pool)
         if total <= 0:
             break
-        pick = rng.random() * total
+        pick = rng.rand() * total # 使用 np.random 的 rand() 替代 random.random()
         cumulative = 0.0
         selected_idx = len(pool) - 1
         for idx, (_, weight) in enumerate(pool):
@@ -1498,8 +1206,7 @@ def _sample_routes_by_softmax_efficiency(
         chosen.append(car_id)
     return chosen
 
-
-def _route_move_time(ctx: Algo3Context, car_id: int, route: list[int]) -> int:
+def _route_move_time(ctx, car_id, route):
     station = ctx.car_by_id[car_id].station
     total = 0
     for order_id in route:
@@ -1508,83 +1215,7 @@ def _route_move_time(ctx: Algo3Context, car_id: int, route: list[int]) -> int:
         station = order.return_station
     return total
 
-
-def _best_path_for_car_topk(
-    inst,
-    ctx: Algo3Context,
-    car,
-    available: set[int],
-    remaining_budget: int,
-) -> Plan | None:
-    orders = [
-        order
-        for order in inst.orders
-        if order.id in available and can_serve_level(car.level, order.level)
-    ]
-    orders.sort(key=lambda order: (order.pickup_minute, -order.revenue, order.id))
-    if not orders:
-        return None
-
-    initial = Candidate(car.station, 0, 0, 0.0, 0, ())
-    val: list[Candidate | None] = [None] * (inst.n_stations + 1)
-    release_heap: list[tuple[int, int, Candidate]] = [(0, 0, initial)]
-    all_candidates: list[Candidate] = []
-    seq = 1
-
-    for order in orders:
-        cutoff = latest_arrival_for_pickup(order)
-        while release_heap and release_heap[0][0] <= cutoff:
-            _, _, candidate = heapq.heappop(release_heap)
-            current = val[candidate.station]
-            if current is None or _candidate_key(candidate) > _candidate_key(current):
-                val[candidate.station] = candidate
-
-        best_parent = None
-        best_key = None
-        for station in ctx.nearest_sources[order.pickup_station]:
-            candidate = val[station]
-            if candidate is None:
-                continue
-            move = ctx.move_matrix[station][order.pickup_station]
-            total_move = candidate.move_time + move
-            can_start_now = candidate.ready == 0 and move == 0 and order.pickup_minute == 0
-            if total_move > remaining_budget or (
-                not can_start_now and candidate.ready + move > cutoff
-            ):
-                continue
-            sales = candidate.sales + order.revenue
-            weight = sales / (1 + total_move)
-            key = (weight, sales, -total_move, -candidate.ready)
-            if best_key is None or key > best_key:
-                best_key = key
-                best_parent = (candidate, total_move, weight, sales)
-
-        if best_parent is None:
-            continue
-        parent, total_move, weight, sales = best_parent
-        new_candidate = Candidate(
-            order.return_station,
-            order_ready_minute(order),
-            total_move,
-            weight,
-            sales,
-            parent.route + (order.id,),
-        )
-        heapq.heappush(release_heap, (new_candidate.ready, seq, new_candidate))
-        all_candidates.append(new_candidate)
-        seq += 1
-
-    if not all_candidates:
-        return None
-    best = max(all_candidates, key=_candidate_key)
-    return Plan(list(best.route), best.move_time, best.sales, best.weight)
-
-
-def _candidate_key(candidate: Candidate) -> tuple[float, int, int]:
-    return candidate.weight, candidate.sales, -candidate.move_time
-
-
-def _moving_from_routes(inst, ctx: Algo3Context, routes: dict[int, list[int]]) -> int:
+def _moving_from_routes(inst, ctx, routes):
     total = 0
     for car_id, route in routes.items():
         station = ctx.car_by_id[car_id].station
@@ -1594,17 +1225,15 @@ def _moving_from_routes(inst, ctx: Algo3Context, routes: dict[int, list[int]]) -
             station = order.return_station
     return total
 
-
-def _profit_from_routes(inst, routes: dict[int, list[int]]) -> int:
+def _profit_from_routes(inst, routes):
     accepted = {order_id for route in routes.values() for order_id in route}
     accepted_sales = sum(order.revenue for order in inst.orders if order.id in accepted)
     rejected_sales = sum(order.revenue for order in inst.orders if order.id not in accepted)
     return accepted_sales - 2 * rejected_sales
 
-
-def _routes_to_solution(inst, ctx: Algo3Context, routes: dict[int, list[int]]) -> tuple[list[int], list[list]]:
+def _routes_to_solution(inst, ctx, routes):
     assignment = [0] * inst.n_orders
-    relocations: list[list] = []
+    relocations = []
     for car_id, route in routes.items():
         car = ctx.car_by_id[car_id]
         station = car.station
@@ -1629,171 +1258,24 @@ def _routes_to_solution(inst, ctx: Algo3Context, routes: dict[int, list[int]]) -
             ready = order_ready_minute(order)
     return assignment, relocations
 
-
-# ============================================================
-# Inlined heuristic_algo4.py helpers
-# ============================================================
-
-def heuristic_algorithm4(
-    instance_file: str | Path = "data/instance05.txt",
-    lambdas: Iterable[float] | None = None,
-    iterations: int = 100000,
-    max_seconds: float = 100.0,
-    seed: int = 1142,
-    temperature: float = 0.35,
-    batch_size: int = 5,
-    candidate_order_limit: int = 160,
-    per_ip_seconds: float = 2.0,
-    max_no_improve: int = 0,
-    raw_test: bool = False,
-):
-    """Algo1 plus local IP repair.
-
-    This follows Algo3's release-and-repair loop, but the repair step solves a
-    small IP over the released cars and a capped set of available orders.
-    """
-    inst = parse_instance(instance_file)
-    deadline = time.perf_counter() + max_seconds
-    rng = random.Random(seed)
-    assignment, _ = algo1_heuristic(instance_file, raw_test=raw_test)
-    ctx = _build_context(inst)
-    current_routes = _assignment_to_routes(inst, assignment)
-    if sum(1 for car_id in assignment if car_id) == inst.n_orders:
-        return _routes_to_solution(inst, ctx, current_routes)
-    current_profit = _profit_from_routes(inst, current_routes)
-    best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
-    best_profit = current_profit
-    no_improve = 0
-
-    for _ in range(iterations):
-        remaining_wall = deadline - time.perf_counter()
-        if remaining_wall <= 0 or (max_no_improve > 0 and no_improve >= max_no_improve):
-            break
-        car_ids = _sample_routes_by_softmax_efficiency(
-            inst,
-            ctx,
-            current_routes,
-            rng,
-            temperature,
-            batch_size,
-        )
-        if not car_ids:
-            break
-
-        base_routes = {cid: route[:] for cid, route in current_routes.items()}
-        released_orders: set[int] = set()
-        for car_id in car_ids:
-            released_orders.update(base_routes[car_id])
-            base_routes[car_id] = []
-
-        used_without_car = _moving_from_routes(inst, ctx, base_routes)
-        remaining_budget = inst.moving_budget - used_without_car
-        if remaining_budget < 0:
-            continue
-
-        assigned_elsewhere = {
-            order_id
-            for cid, route in base_routes.items()
-            if cid not in car_ids
-            for order_id in route
-        }
-        available = {order.id for order in inst.orders if order.id not in assigned_elsewhere}
-        candidates = _select_candidate_orders(
-            inst.orders,
-            ctx,
-            car_ids,
-            available,
-            released_orders,
-            candidate_order_limit,
-        )
-        if not candidates:
-            continue
-
-        if deadline - time.perf_counter() <= 0.05:
-            break
-        repaired = None
-        limit = len(candidates)
-        attempts = 0
-        while repaired is None and limit >= 12 and attempts < 4:
-            repaired = _solve_local_ip(
-                inst,
-                ctx,
-                car_ids,
-                candidates[:limit],
-                remaining_budget,
-                per_ip_seconds,
-                deadline,
-            )
-            limit //= 2
-            attempts += 1
-        if repaired is None:
-            no_improve += 1
-            continue
-
-        trial_routes = {cid: route[:] for cid, route in base_routes.items()}
-        trial_routes.update(repaired)
-        moving = _moving_from_routes(inst, ctx, trial_routes)
-        if moving > inst.moving_budget:
-            no_improve += 1
-            continue
-        profit = _profit_from_routes(inst, trial_routes)
-        if profit <= current_profit:
-            no_improve += 1
-            continue
-        current_routes = trial_routes
-        current_profit = profit
-        no_improve = 0
-        if current_profit > best_profit:
-            best_routes = {car_id: route[:] for car_id, route in current_routes.items()}
-            best_profit = current_profit
-
-    return _routes_to_solution(inst, ctx, best_routes)
-
-
-def _select_candidate_orders(
-    orders: list[Order],
-    ctx,
-    car_ids: list[int],
-    available: set[int],
-    released_orders: set[int],
-    limit: int,
-) -> list[Order]:
+def _select_candidate_orders(orders, ctx, car_ids, available, released_orders, limit):
     car_levels = [ctx.car_by_id[car_id].level for car_id in car_ids]
     candidates = [
-        order
-        for order in orders
-        if order.id in available
-        and any(can_serve_level(car_level, order.level) for car_level in car_levels)
+        order for order in orders
+        if order.id in available and any(can_serve_level(car_level, order.level) for car_level in car_levels)
     ]
-    candidates.sort(
-        key=lambda order: (
-            order.id not in released_orders,
-            -order.revenue,
-            order.pickup_minute,
-            order.id,
-        )
-    )
+    candidates.sort(key=lambda order: (order.id not in released_orders, -order.revenue, order.pickup_minute, order.id))
     return candidates[:limit]
 
+def _solve_local_ip(inst, ctx, car_ids, orders, remaining_budget, per_ip_seconds, deadline):
+    def out_of_time():
+        return t.perf_counter() >= deadline - 0.02
 
-def _solve_local_ip(
-    inst,
-    ctx,
-    car_ids: list[int],
-    orders: list[Order],
-    remaining_budget: int,
-    per_ip_seconds: float,
-    deadline: float,
-) -> dict[int, list[int]] | None:
-    def out_of_time() -> bool:
-        return time.perf_counter() >= deadline - 0.02
-
-    car_arcs: list[tuple[int, int, int]] = []
-    order_arcs: list[tuple[int, int, int, int]] = []
+    car_arcs = []
+    order_arcs = []
 
     for car_id in car_ids:
-        if out_of_time():
-            return None
+        if out_of_time(): return None
         car = ctx.car_by_id[car_id]
         for order in orders:
             if not can_serve_level(car.level, order.level):
@@ -1803,13 +1285,11 @@ def _solve_local_ip(
                 car_arcs.append((car_id, order.id, move))
 
     for car_id in car_ids:
-        if out_of_time():
-            return None
+        if out_of_time(): return None
         car = ctx.car_by_id[car_id]
         compatible = [order for order in orders if can_serve_level(car.level, order.level)]
         for prev in compatible:
-            if out_of_time():
-                return None
+            if out_of_time(): return None
             for nxt in compatible:
                 if prev.id == nxt.id:
                     continue
@@ -1820,7 +1300,7 @@ def _solve_local_ip(
     order_by_id = {order.id: order for order in orders}
     model = Model("algo4_local_repair")
     model.Params.OutputFlag = 0
-    remaining_seconds = deadline - time.perf_counter()
+    remaining_seconds = deadline - t.perf_counter()
     if remaining_seconds <= 0.05:
         return None
     model.Params.TimeLimit = max(0.05, min(per_ip_seconds, remaining_seconds))
@@ -1839,13 +1319,9 @@ def _solve_local_ip(
     for order in orders:
         model.addConstr(quicksum(incoming_by_order[order.id]) == y[order.id])
 
-    arcs_by_car: dict[int, list[tuple[int, int, int]]] = {car_id: [] for car_id in car_ids}
-    incoming_by_car_order: dict[tuple[int, int], list] = {
-        (car_id, order.id): [] for car_id in car_ids for order in orders
-    }
-    outgoing_by_car_order: dict[tuple[int, int], list] = {
-        (car_id, order.id): [] for car_id in car_ids for order in orders
-    }
+    arcs_by_car = {car_id: [] for car_id in car_ids}
+    incoming_by_car_order = {(car_id, order.id): [] for car_id in car_ids for order in orders}
+    outgoing_by_car_order = {(car_id, order.id): [] for car_id in car_ids for order in orders}
     for c, k, _ in car_arcs:
         arcs_by_car[c].append((c, k, 0))
         incoming_by_car_order[c, k].append(start[c, k])
@@ -1862,10 +1338,10 @@ def _solve_local_ip(
 
     model.addConstr(
         quicksum(move * start[c, k] for c, k, move in car_arcs)
-        + quicksum(move * link[c, i, j] for c, i, j, move in order_arcs)
-        <= remaining_budget
+        + quicksum(move * link[c, i, j] for c, i, j, move in order_arcs) <= remaining_budget
     )
     model.setObjective(quicksum(order_by_id[k].revenue * y[k] for k in y.keys()), GRB.MAXIMIZE)
+    
     try:
         model.optimize()
     except GurobiError:
@@ -1876,8 +1352,8 @@ def _solve_local_ip(
         model.dispose()
         return None
 
-    successor: dict[tuple[int, int], int] = {}
-    first_by_car: dict[int, int] = {}
+    successor = {}
+    first_by_car = {}
     for c, k, _ in car_arcs:
         if start[c, k].X > 0.5:
             first_by_car[c] = k
@@ -1887,7 +1363,7 @@ def _solve_local_ip(
 
     routes = {car_id: [] for car_id in car_ids}
     for car_id, first in first_by_car.items():
-        seen: set[int] = set()
+        seen = set()
         current = first
         while current and current not in seen:
             seen.add(current)
@@ -1896,19 +1372,17 @@ def _solve_local_ip(
     model.dispose()
     return routes
 
-
 # ============================================================
 # Union submission entry points
 # ============================================================
 
-def _accepted(car_id: object) -> bool:
+def _accepted(car_id):
     try:
         return int(car_id) > 0
     except (TypeError, ValueError):
         return False
 
-
-def _normalize_assignment(inst: Instance, assignment: list[object]) -> list[int]:
+def _normalize_assignment(inst, assignment):
     normalized = [0] * inst.n_orders
     valid_car_ids = {car.id for car in inst.cars}
     for idx, car_id in enumerate(assignment[: inst.n_orders]):
@@ -1916,69 +1390,54 @@ def _normalize_assignment(inst: Instance, assignment: list[object]) -> list[int]
             normalized[idx] = int(car_id)
     return normalized
 
-
-def _to_grading_output(assignment: list[object], relocation: list[list]) -> tuple[list[int], list[list]]:
-    """Convert internal benchmark output to the official grading format.
-
-    Internal solvers may use 0 for rejected orders and may store extra relocation
-    fields such as arrival time, moving minutes, and reason. The official checker
-    expects -1 for rejected orders and exactly:
-    [car_id, from_station, to_station, departure_time].
-    """
+def _to_grading_output(assignment, relocation):
     grading_assignment = [int(car_id) if _accepted(car_id) else -1 for car_id in assignment]
-    grading_relocation: list[list] = []
+    grading_relocation = []
     for row in relocation:
         if len(row) < 4:
             continue
         grading_relocation.append([int(row[0]), int(row[1]), int(row[2]), str(row[3])])
     return grading_assignment, grading_relocation
 
-
-def _profit_from_assignment(inst: Instance, assignment: list[int]) -> int:
-    accepted_revenue = sum(
-        order.revenue for order, car_id in zip(inst.orders, assignment) if _accepted(car_id)
-    )
+def _profit_from_assignment(inst, assignment):
+    accepted_revenue = sum(order.revenue for order, car_id in zip(inst.orders, assignment) if _accepted(car_id))
     total_revenue = sum(order.revenue for order in inst.orders)
     return accepted_revenue - 2 * (total_revenue - accepted_revenue)
 
-
-def _algo4_helpers():
-
-    return _select_candidate_orders, _solve_local_ip
-
-
 def pre_build(
-    instance_file: str | Path = "data/instance05.txt",
-    *args: Any,
-    raw_test: bool = False,
-    return_metadata: bool = False,
-    **kwargs: Any,
+    instance_file="data/instance05.txt",
+    *args,
+    raw_test=False,
+    return_metadata=False,
+    algo5_max_seconds=DEFAULT_ALGO5_TIME_LIMIT_SEC,
+    deadline=None,
+    **kwargs
 ):
-    """Run Algo1 and Algo5, then keep the assignment with larger profit."""
     inst = parse_instance(instance_file)
     candidates = []
 
     a1_assignment, a1_relocation = algo1_heuristic(instance_file, raw_test=raw_test)
     a1_assignment = _normalize_assignment(inst, a1_assignment)
-    candidates.append(
-        {
-            "source": "algo1",
-            "assignment": a1_assignment,
-            "relocation": a1_relocation,
-            "profit": _profit_from_assignment(inst, a1_assignment),
-        }
-    )
+    candidates.append({
+        "source": "algo1",
+        "assignment": a1_assignment,
+        "relocation": a1_relocation,
+        "profit": _profit_from_assignment(inst, a1_assignment),
+    })
 
-    a5_assignment, a5_relocation = algo5_heuristic(instance_file, raw_test=raw_test)
-    a5_assignment = _normalize_assignment(inst, a5_assignment)
-    candidates.append(
-        {
-            "source": "algo5",
-            "assignment": a5_assignment,
-            "relocation": a5_relocation,
-            "profit": _profit_from_assignment(inst, a5_assignment),
-        }
+    a5_assignment, a5_relocation = algo5_heuristic(
+        instance_file,
+        raw_test=raw_test,
+        max_seconds=algo5_max_seconds,
+        deadline=deadline,
     )
+    a5_assignment = _normalize_assignment(inst, a5_assignment)
+    candidates.append({
+        "source": "algo5",
+        "assignment": a5_assignment,
+        "relocation": a5_relocation,
+        "profit": _profit_from_assignment(inst, a5_assignment),
+    })
 
     best = max(candidates, key=lambda item: (item["profit"], item["source"] == "algo1"))
     if return_metadata:
@@ -1989,29 +1448,16 @@ def pre_build(
         }
     return best["assignment"], best["relocation"]
 
-
-def small_ip_improve(
-    instance_file: str | Path = "data/instance05.txt",
-    assignment: list[object] | None = None,
-    *,
-    iterations: int = 100000,
-    max_seconds: float = 100.0,
-    seed: int = 1142,
-    temperature: float = 0.35,
-    batch_size: int = 5,
-    candidate_order_limit: int = 160,
-    per_ip_seconds: float = 2.0,
-    max_no_improve: int = 0,
-    raw_test: bool = False,
-):
-    """Improve a given assignment with Algo4's small-IP release-and-repair loop."""
+def small_ip_improve(instance_file="data/instance05.txt", assignment=None, *, iterations=100000, max_seconds=100.0, seed=1142, temperature=0.35, batch_size=5, candidate_order_limit=160, per_ip_seconds=2.0, max_no_improve=0, raw_test=False):
     inst = parse_instance(instance_file)
     if assignment is None:
         assignment, _ = pre_build(instance_file, raw_test=raw_test)
     assignment = _normalize_assignment(inst, assignment)
 
-    deadline = time.perf_counter() + max_seconds
-    rng = random.Random(seed)
+    deadline = t.perf_counter() + max_seconds
+    # 使用 numpy 代替 random
+    rng = np.random.RandomState(seed)
+    
     ctx = _build_context(inst)
     current_routes = _assignment_to_routes(inst, assignment)
     if sum(1 for car_id in assignment if _accepted(car_id)) == inst.n_orders:
@@ -2024,23 +1470,16 @@ def small_ip_improve(
     no_improve = 0
 
     for _ in range(iterations):
-        remaining_wall = deadline - time.perf_counter()
+        remaining_wall = deadline - t.perf_counter()
         if remaining_wall <= 0 or (max_no_improve > 0 and no_improve >= max_no_improve):
             break
 
-        car_ids = _sample_routes_by_softmax_efficiency(
-            inst,
-            ctx,
-            current_routes,
-            rng,
-            temperature,
-            batch_size,
-        )
+        car_ids = _sample_routes_by_softmax_efficiency(inst, ctx, current_routes, rng, temperature, batch_size)
         if not car_ids:
             break
 
         base_routes = {cid: route[:] for cid, route in current_routes.items()}
-        released_orders: set[int] = set()
+        released_orders = set()
         for car_id in car_ids:
             released_orders.update(base_routes[car_id])
             base_routes[car_id] = []
@@ -2050,41 +1489,22 @@ def small_ip_improve(
         if remaining_budget < 0:
             continue
 
-        assigned_elsewhere = {
-            order_id
-            for cid, route in base_routes.items()
-            if cid not in car_ids
-            for order_id in route
-        }
+        assigned_elsewhere = {order_id for cid, route in base_routes.items() if cid not in car_ids for order_id in route}
         available = {order.id for order in inst.orders if order.id not in assigned_elsewhere}
-        candidates = select_candidate_orders(
-            inst.orders,
-            ctx,
-            car_ids,
-            available,
-            released_orders,
-            candidate_order_limit,
-        )
+        candidates = select_candidate_orders(inst.orders, ctx, car_ids, available, released_orders, candidate_order_limit)
         if not candidates:
             continue
 
-        if deadline - time.perf_counter() <= 0.05:
+        if deadline - t.perf_counter() <= 0.05:
             break
         repaired = None
         limit = len(candidates)
         attempts = 0
         while repaired is None and limit >= 12 and attempts < 4:
-            repaired = solve_local_ip(
-                inst,
-                ctx,
-                car_ids,
-                candidates[:limit],
-                remaining_budget,
-                per_ip_seconds,
-                deadline,
-            )
+            repaired = solve_local_ip(inst, ctx, car_ids, candidates[:limit], remaining_budget, per_ip_seconds, deadline)
             limit //= 2
             attempts += 1
+            
         if repaired is None:
             no_improve += 1
             continue
@@ -2110,25 +1530,15 @@ def small_ip_improve(
 
     return _routes_to_solution(inst, ctx, best_routes)
 
-
-def heuristic_algorithm(
-    instance_file: str | Path = "data/instance05.txt",
-    *args: Any,
-    iterations: int = 100000,
-    max_seconds: float = 170.0,
-    seed: int = 1142,
-    temperature: float = 0.35,
-    batch_size: int = 5,
-    candidate_order_limit: int = 160,
-    per_ip_seconds: float = 2.0,
-    max_no_improve: int = 0,
-    raw_test: bool = False,
-    **kwargs: Any,
-):
-    """Algo1/Algo5 union pre-build followed by Algo4-style small-IP improve."""
-    start = time.perf_counter()
-    assignment, relocation = pre_build(instance_file, raw_test=raw_test)
-    remaining_seconds = max_seconds - (time.perf_counter() - start)
+def heuristic_algorithm(instance_file="data/instance05.txt", *args, iterations=100000, max_seconds=170.0, seed=1142, temperature=0.35, batch_size=5, candidate_order_limit=160, per_ip_seconds=2.0, max_no_improve=0, raw_test=False, algo5_max_seconds=DEFAULT_ALGO5_TIME_LIMIT_SEC, **kwargs):
+    deadline = t.perf_counter() + max_seconds
+    assignment, relocation = pre_build(
+        instance_file,
+        raw_test=raw_test,
+        algo5_max_seconds=algo5_max_seconds,
+        deadline=deadline,
+    )
+    remaining_seconds = deadline - t.perf_counter()
     if remaining_seconds <= 0.05:
         result = (assignment, relocation)
     else:
@@ -2147,12 +1557,8 @@ def heuristic_algorithm(
                 raw_test=raw_test,
             )
         except Exception:
-            # The improvement phase depends on the small local IP helper. If
-            # Gurobi or its license is unavailable in the grading environment,
-            # keep the strong deterministic pre-build solution instead of
-            # failing the whole submission.
             result = (assignment, relocation)
+            
     if raw_test:
         return result
     return _to_grading_output(*result)
-
