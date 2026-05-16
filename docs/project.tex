@@ -669,14 +669,18 @@ chronological baseline and our proposed algorithm.}
 
 \end{figure}
 
-The results support the algorithm design.  In S6, the proposed algorithm matched
-the IP optimum on all 128 instances.  Across the seven detailed scenarios, its average gap
-stayed below 1.3\%, while the chronological baseline ranged from 2.49\% to
-38.13\%.  S13 is still the hardest case because the relocation budget is very
-tight; the baseline loses many high-value assignments under this constraint,
-whereas the proposed optimization stage recovers most of the accepted reward.
-The experiment therefore shows both sides requested in the project statement:
-our algorithm is close to the exact optimum on solvable benchmark instances,
-and it is much better than a simple feasible heuristic. The mean and standard deviation of the gaps and improvements are summarized in Tables \ref{tab:bench_all} and \ref{tab:bench_selected}, while the detailed optimality-gap distributions are shown in Figures \ref{fig:hist_group1} and \ref{fig:hist_group2}. The full set of instances, optimal plans, run-time records, and benchmark rows is preserved in \texttt{scenario\_study\_128\_results.tgz}, and the source code is publicly available on the GitHub repository (\url{https://github.com/089487/OR_Midterm_project}) for reproducibility.
+\subsection*{Results and Discussion}
+
+The experimental results strongly support our algorithm design. Across all selected stressful scenarios, our proposed algorithm maintained an average optimality gap strictly below 1.3\%, decisively outperforming the chronological baseline, which suffered gaps ranging from 2.49\% to 38.13\%. However, performance variations across different operational stressors reveal insightful boundaries of our local-search approach:
+
+\begin{itemize}
+    \item \textbf{Relocation Budget as a Global Bottleneck (S13):} Scenario S13 exhibits the largest optimality gap (1.19\%) for our algorithm and severely penalizes the baseline (38.13\%). The relocation budget is a strict global linking constraint. The exact IP utilizes its full-horizon foresight to allocate scarce moving minutes to the absolute highest-margin orders. In contrast, our local IP repair optimizes only a batch of 5 vehicles at a time. It can occasionally fall into local optima by greedily consuming the budget for locally optimal assignments, leaving insufficient minutes for potentially more profitable orders outside the current batch.
+    
+    \item \textbf{Temporal Demand Surges (S10):} In S10 (One peak), our gap slightly increases to 0.73\%. The highly concentrated 3-hour demand burst creates intense contention for vehicle readiness. Since our optimization phase dynamically truncates the candidate list ($m=160$) to enforce the 3-minute wall-clock limit, it may occasionally fail to identify the global optimal order-to-car matching during extreme demand density.
+
+    \item \textbf{High Spatial Robustness (S6):} Interestingly, pure spatial mismatches do not degrade our algorithm's performance as long as the relocation budget is relatively sufficient. In S6 (Forced relocation), our algorithm perfectly matched the IP optimum (0.00\% gap) on all 128 instances. This validates the effectiveness of our Pre-build Approach B, where initial staging and demand-aware look-ahead scoring successfully pre-position the fleet without requiring the exact IP's global view.
+\end{itemize}
+
+In conclusion, the experiment demonstrates both aspects requested in the project statement: our algorithm achieves near-optimal performance on solvable benchmark instances and significantly outperforms a simple feasible heuristic under complex operational constraints. The mean and standard deviation of the gaps and improvements are summarized in Tables \ref{tab:bench_all} and \ref{tab:bench_selected}, while the detailed optimality-gap distributions are shown in Figures \ref{fig:hist_group1} and \ref{fig:hist_group2}. The full set of instances, optimal plans, run-time records, and benchmark rows is preserved in \texttt{scenario\_study\_128\_results.tgz}, and the source code is publicly available on our GitHub repository (\url{https://github.com/089487/OR_Midterm_project}) for reproducibility.
 
 \end{document}
