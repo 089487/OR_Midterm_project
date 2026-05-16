@@ -36,66 +36,6 @@ A = \Big\{(c, i, j) \in C \times K \times K \;\Big|\; q_c \in \big(\{\ell_i, \el
 Let $m_{c,k}=t_{h_c, p_k}$ for $(c,k)\in A^0$, and let
 $m_{i,j}=t_{r_i, p_j}$ for $(c,i,j)\in A$.
 
-\begin{table}[ht]
-\centering
-\small
-\begin{tabular}{c|l}
-\toprule
-\multicolumn{2}{c}{\textbf{Sets and Indices}}\\
-\midrule
-$C$ & The set of cars\\
-$K$ & The set of customer orders\\
-$S$ & The set of stations\\
-$A^0$ & The set of feasible initial arcs from a car to its first order\\
-$A$ & The set of feasible order-to-order transition arcs for a car\\
-\midrule
-\multicolumn{2}{c}{\textbf{Functions}}\\
-\midrule
-$\tau(t)$ & The function converting time $t$ to minutes from the start of the horizon\\
-\midrule
-\multicolumn{2}{c}{\textbf{Parameters}}\\
-\midrule
-$h_c$ & The initial station of car $c$\\
-$q_c$ & The level of car $c$\\
-$p_k$ & The pickup station of order $k$\\
-$r_k$ & The return station of order $k$\\
-$s_k$ & The pickup time of order $k$\\
-$e_k$ & The return time of order $k$\\
-$\ell_k$ & The requested level of order $k$\\
-$R_k$ & The revenue earned if order $k$ is accepted\\
-$t_{u,v}$ & The moving time from station $u$ to station $v$\\
-$B$ & The total moving-time budget\\
-$m_{c,k}$ & The moving time of initial arc $(c,k)\in A^0$\\
-$m_{i,j}$ & The moving time of transition arc $(c,i,j)\in A$\\
-\midrule
-\multicolumn{2}{c}{\textbf{Decision variable}}\\
-\midrule
-\multicolumn{2}{l}{
-$x_{ck} =
-\begin{cases}
-1, & \text{if car } c \text{ starts its route with order } k,\\
-0, & \text{otherwise,}
-\end{cases}
-\quad (c,k)\in A^0.$}\\[2.2em]
-\multicolumn{2}{l}{
-$z_{cij} =
-\begin{cases}
-1, & \text{if car } c \text{ serves order } j \text{ immediately after order } i,\\
-0, & \text{otherwise,}
-\end{cases}
-\quad (c,i,j)\in A.$}\\[2.2em]
-\multicolumn{2}{l}{
-$y_k =
-\begin{cases}
-1, & \text{if order } k \text{ is accepted,}\\
-0, & \text{otherwise,}
-\end{cases}
-\quad k\in K.$}\\
-\bottomrule
-\end{tabular}
-\caption{List of notations}
-\end{table}
-
 \vspace{5pt}
 With the variables and so listed in Table 1, the IEDO planning problem can be formulated as the following integer program. Let $K_c = \{ k \in K \mid (c,k) \in A^0 \cup \exists h \in K , (c,h,k) \in A \}$ be the set of valid orders for car $c$.
 \[
@@ -124,18 +64,7 @@ With the variables and so listed in Table 1, the IEDO planning problem can be fo
 \end{aligned}
 \]
 
-The first constraint says that every accepted order has exactly one predecessor,
-either an initial car-to-order arc or an order-to-order transition arc.  The
-second constraint ensures that each car starts at most one route.  The third
-constraint is the route-continuity constraint: a car can leave an order only if
-it has first entered that order.  Since all transition arcs go forward in time,
-this also prevents cycles.  The fourth constraint enforces the total employee
-moving-time budget.  The objective maximizes total sales revenue minus rejection
-compensation. Since the total penalty for rejecting all orders, $\sum_{k\in K} 2R_k$,
-is a constant, maximizing the original profit function is mathematically equivalent
-to maximizing $\sum_{k\in K} 3R_k y_k$.
-
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \subsection*{2. Optimal Solution for Instance 05}
 
@@ -148,7 +77,7 @@ the table, so an operator can execute the accepted plan without cross-checking
 another schedule.
 
 \begingroup
-\scriptsize
+\small
 \begin{longtable}{cccccccc}
 \toprule
 Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
@@ -166,13 +95,10 @@ Order & Car & Upgrade & Pre-Move (From $\to$ To) & Move Mins
 \end{longtable}
 \endgroup
 
-\vspace{0.2cm}
-
 \subsection*{4. Vehicle Relocation Plan}
 
 \begin{table}[ht]
 \centering
-\small
 \begin{tabular}{cccccc}
 \toprule
 Car & From & To & Depart & Arrive & Minutes \\
@@ -186,19 +112,7 @@ Car & From & To & Depart & Arrive & Minutes \\
 \end{tabular}
 \end{table}
 
-\newpage
-
-\section*{Problem 2}
-
-The required deliverable for this problem is the Python program.  Our submitted
-function reads one instance file and returns the two required objects:
-\texttt{assignment}, a one-dimensional list indicating which car serves each
-order, and \texttt{relocation}, a two-dimensional list describing employee car
-movements.  The implementation is written for the required Python interface and
-is designed to return a feasible plan within the three-minute limit.  All design
-rationale, pseudocode, and complexity analysis are reported in Problem 3.
-
-
+\vspace{-0.3cm}
 \section*{Problem 3}
 
 The hidden instances are graded under a three-minute time limit.  This constraint
@@ -212,14 +126,12 @@ it can waste scarce relocation minutes early.  We therefore divide the algorithm
     \item \textbf{Optimization:} spend the remaining time on batch local IP
     repair, improving only small neighborhoods of the current solution.
 \end{itemize}
-In implementation, the pre-build stage is intended to finish quickly, and every
-local IP call in the optimization stage receives only a short time limit.  The
-outer loop always checks the wall-clock deadline before starting another repair.
+In implementation, the pre-build stage is intended to finish quickly and every
+local IP call in optimization stage receives only a short time limit.  We always checks the wall-clock deadline before starting another repair.
 
 \subsection*{Pre-build Approach A: Revenue-first route insertion}
 
-Approach A is designed to be a fast and reliable high-profit route generator. It
-uses a single-pass greedy insertion process:
+Approach A is designed to be a fast, reliable high-profit route generator using a single-pass greedy insertion process:
 
 \begin{itemize}
     \item \textbf{Order prioritization.} Orders are sorted primarily by
@@ -231,12 +143,13 @@ uses a single-pass greedy insertion process:
     time to locate where $k$ would be inserted in the route.
     \item \textbf{Feasibility evaluation.} The transition from the predecessor
     order to $k$ and the transition from $k$ to the successor order are checked.
-    These tests enforce the one-hour possible late return, three-hour cleaning,
+    These tests enforce the 1-hour possible late return, 3-hour cleaning,
     thirty-minute readiness requirement, station moving time, level
     compatibility, and remaining global relocation budget.
     \item \textbf{Lexicographical selection.} Among all feasible insertions for
-    the current order, the selected insertion minimizes marginal moving time
-    first, upgrade penalty second, local idle time third, and car ID last.
+    the current order, the algorithm chooses the minimum lexicographical key:
+    marginal moving time first, upgrade penalty second, local idle time third,
+    and car ID last.
 \end{itemize}
 
 If $i$ and $j$ are the predecessor and successor around $k$, the marginal moving
@@ -246,16 +159,37 @@ time is
 \]
 with the obvious modification when $k$ is inserted as the first or last order of
 a car route.
-The exact key used by the selection rule is
+The other three terms in the selection rule are defined exactly as in the
+implementation.  The upgrade penalty is $q_c-\ell_k$
+which is 0 for an exact-level assignment and 1 when a one-level upgrade is used.
+The local idle time is the idle slack around the inserted order:
 \[
-(\Delta\text{move},\ \text{upgrade penalty},\ \text{local idle time},\ \text{car ID}).
+I_{\text{local}}
+=\mathbf{1}_{i\text{ exists}}\big(s_k-\mathrm{ready}(i)\big)
++\mathbf{1}_{j\text{ exists}}\big(s_j-\mathrm{ready}(k)\big),
+\]
+where $\mathrm{ready}(i)$ is the earliest time after order $i$ can be followed
+by another service, including the allowed late return, cleaning time, and
+readiness buffer used in the feasibility check.  The car ID is used only as a
+deterministic tie-breaker.  Therefore, the exact key minimized by the selection
+rule is
+\[
+(\Delta\text{move},\ q_c-\ell_k,\ I_{\text{local}},\ c).
 \]
 Thus Approach A prioritizes revenue while still conserving relocation budget and
 avoiding unnecessary upgrades.  For very small instances, an exact solver may be
 used as a fallback, but this step is bypassed for large hidden instances.  Let
 $\bar r$ be the average route length.  Sorting orders costs $O(n_K\log n_K)$.
 For each order, the algorithm may check $n_C$ cars and inspect a local insertion
-position, so the overall complexity is approximately $O(n_K n_C \bar r)$ in the worst case.
+position.  Since $\bar r$ is at most the number of orders already processed,
+$\bar r\le n_K$, the construction cost is
+\[
+O(n_K\log n_K+n_Kn_C\bar r)\subseteq O(n_Cn_K^2).
+\]
+If the number of cars is treated as fixed for a scenario, this is $O(n_K^2)$.
+This is a deliberately loose upper bound: in practice each route is much shorter
+than $n_K$, only one chronological insertion neighborhood is checked, and the
+method runs very quickly.
 
 \subsection*{Pre-build Approach B: Relocation-aware look-ahead heuristic}
 
@@ -307,7 +241,7 @@ Thus $F(s,\ell,b)$ is the next-24-hour value of placing a level-$\ell$ car at
 station $s$ at bucket $b$.  The term $I$ is the idle time before the car can
 serve the order, and $U$ is an upgrade indicator: $U=1$ if a level-$\ell_c$ car
 serves a level-$(\ell_c-1)$ request, and $U=0$ for an exact level match.
-The moving penalty is dynamic:
+The moving penalty $P_{\text{move}}$ is dynamic:
 \[
 P_{\text{move}}=w_m M\left(1+\frac{3B_{\text{used}}}{B}\right),
 \]
@@ -322,14 +256,8 @@ it.
 The weights are manually tuned heuristic hyperparameters.  $w_m,w_i,w_u,w_f$,
 and $w_o$ control relocation-minute penalty, idle-minute penalty, one-level
 upgrade penalty, future-positioning reward, and current-position opportunity
-cost, respectively.  The staging variant uses
-$V_{\text{supply}}=1200$ as the approximate early $3R$ demand covered by one
-initially local compatible car.  The relocation-value gate uses
-$\lambda=2.0$ and $\alpha=2.5$ as its base threshold and budget-pressure
-multiplier.  These constants are scale-matched and manually tested rather than
-statistically fitted.
-
-The factor $3R_k$ appears because total profit can be rewritten as
+cost, respectively.
+Moreover, the factor $3R_k$ appears because total profit can be rewritten as
 \[
 \sum_{k\in A} R_k-2\sum_{k\notin A}R_k
 =3\sum_{k\in A}R_k-2\sum_k R_k,
@@ -337,8 +265,7 @@ The factor $3R_k$ appears because total profit can be rewritten as
 so accepting one more order improves the objective by $3R_k$ relative to
 rejecting it.
 
-The five score weights are fixed hyperparameters, not quantities fitted from
-data.  We run several complementary variants and keep the feasible plan with the
+At last, for the five fixed score-weights-hyperparameters, we run several complementary variants and keep the feasible plan with the
 largest accepted reward:
 \[
 \begin{array}{c|ccccc|l}
@@ -349,7 +276,7 @@ largest accepted reward:
 & \frac{3R_k}{\text{move}}\text{ gate}\\
 \text{revenue} & 0.8 & 0.002 & 500 & 0.010 & 0.010\\
 \text{time} & 1.2 & 0.002 & 400 & 0.010 & 0.008\\
-\text{density} & 0.8 & 0.004 & 300 & 0.015 & 0.006
+\text{density (revenue/min)} & 0.8 & 0.004 & 300 & 0.015 & 0.006
 \end{array}
 \]
 For large instances, only the first two variants are used.  They are
@@ -365,12 +292,13 @@ repair phases replay a proposed single-car route from the car's original station
 and time zero, accepting it only if level, timing, and budget feasibility hold.
 
 \begin{itemize}
-    \item \textbf{Phase 1: Optional Initial Staging.} The staging variant uses
-    the first 24 hours of demand to compute shortage values for each
-    pickup-station and requested-level pair.  It moves a capped number of idle
-    compatible cars at time zero toward high-shortage buckets, subject to the
-    global budget and a staging cap.  The score rewards shortage reduction and
-    penalizes long moves, removal from high-future-demand origins, and upgrades.
+    \item \textbf{Phase 1: Optional Initial Staging.} The staging variant uses the first 24 hours of demand to compute shortage values for each pickup-station and requested-level pair.  It moves a capped number of idle compatible cars at time 0 toward high-shortage buckets, subject to the global budget and a staging cap.  The score rewards shortage reduction and
+    penalizes long moves, removal from high-future-demand origins, and upgrades.\\
+    Given $N_{s, \ell}$ as the number of cars of level $\ell$ initially located at station $s$ and $V_{\text{supply}}=1200$ as the approximate early $3R$ demand covered by one
+    initially local compatible car, shortage values $SV_{s, \ell}$ is defined as:
+    \[
+        SV_{s, \ell} = \max\left(0, F(s, \ell, 0) - V_{\text{supply}} \cdot N_{s, \ell}\right)
+    \]
 
     \item \textbf{Phase 2: Initial Greedy Assignment.} After staging, the method
     scans orders according to the current variant.  The available sorting modes
@@ -387,13 +315,12 @@ and time zero, accepting it only if level, timing, and budget feasibility hold.
     \frac{3R_k}{M}\ge
     \lambda\left(1+\alpha\frac{B_{\text{used}}}{B}\right),
     \]
-    where $M$ is the proposed relocation time.  Thus the algorithm becomes more
+    where $M$ is the proposed relocation time, $\lambda=2$ defines the minimum profit-per-moving-minute required when the budget is completely full ($B_{\text{used}} = 0$), ensuring that every move justifies its own cost at a minimum, and $\alpha=2.5$ as the budget-pressure multiplier.  
+    Thus the algorithm becomes more
     selective as relocation budget is consumed.  For each order, the algorithm
     scans only compatible cars, computes the demand-aware score, and chooses the
-    feasible car with the largest tuple
-    \[
-    (\text{score},-\text{move},-\text{upgrade},-\text{idle}).
-    \]
+    feasible car with the largest tuple $(\text{score},-\text{move},-\text{upgrade},-\text{idle}).$
+    
     This phase builds a complete feasible baseline route set.
 
     \item \textbf{Phase 3: Shortage-bucket Repair.} After Phase 2, the algorithm
@@ -442,9 +369,7 @@ and time zero, accepting it only if level, timing, and budget feasibility hold.
     largest profit for a fixed instance.
 \end{itemize}
 
-Each repaired route is simulated from the car's initial station and time zero
-before replacing the old route.  On very small instances, a bounded exact DFS is
-used as a final improvement; this is skipped on large hidden instances.
+Each repaired route is simulated from a car's initial station and time 0 before replacing the old route.  On very small instances, a bounded exact DFS is used as a final improvement; this is skipped on large hidden instances.
 
 If $Q$ is the number of six-hour buckets, building one look-ahead table costs
 $O(n_K+n_Sn_LQ)$.  The greedy assignment scan is $O(n_KC)$ for each parameter
@@ -469,12 +394,25 @@ solution with larger profit.
 The pre-build stage is fast, so we use the remaining time to improve the
 solution by exact optimization on small neighborhoods.  First, the assignment is
 converted into routes for all cars.  In each iteration, we sample a small batch
-of cars whose routes are relatively inefficient.  The orders currently served by
-these cars are released, while routes of all other cars remain fixed.  We then
-add a capped list of compatible high-revenue candidate orders, with priority
-given first to the released orders and then to currently rejected orders with
-large revenue.  This keeps the local IP small while still giving it a chance to
-recover from a bad earlier assignment.
+of cars whose routes are relatively inefficient.  For a car route $c$, define
+\[
+v_c=\frac{\text{route sales revenue of }c}{1+\text{route moving time of }c}.
+\]
+Routes with smaller $v_c$ are more likely to be released. We then
+use a softmax-style sampling without replacement:
+\[
+w_c=\exp\!\left(-\frac{v_c-v_{\min}}
+{\max(10^{-9},\ |\bar v|\cdot \theta)}\right),
+\]
+where $\theta=0.35$ is the temperature, $v_{\min}$ is the smallest route value,
+and $\bar v$ is the average route value among nonempty routes.  A lower-value
+route therefore receives a larger sampling weight, but the temperature keeps
+the search from always selecting the same cars.
+
+The default batch size is fixed at $b=5$. The orders currently served by these cars are released, while routes of all other cars remain fixed. We then add a capped list of compatible candidate orders, where the candidate order limit is $m = 160$. Candidate orders are sorted with
+released orders first, then by decreasing revenue, pickup time, and order ID;
+currently rejected compatible orders are also eligible.  This keeps the local IP
+small while still giving it a chance to recover from a bad earlier assignment.
 
 For this batch, we solve a local network-flow IP.  It uses start variables for a
 selected car's first order, link variables for consecutive orders on a selected
@@ -495,30 +433,44 @@ The full procedure is:
 2. & A^{(2)}\leftarrow\text{Approach B construction}.\\
 3. & A\leftarrow\arg\max\{\text{profit}(A^{(1)}),\text{profit}(A^{(2)})\}.\\
 4. & \textbf{while time remains do}\\
-5. & \quad \text{sample a batch of low-efficiency car routes};\\
-6. & \quad \text{release those routes and build a candidate order set};\\
-7. & \quad \text{solve the local IP with a short per-IP time limit};\\
-8. & \quad \text{accept the repair only if profit improves};\\
-9. & \textbf{return } A \text{ and its relocation plan.}
+5. & \quad \text{compute }v_c=\text{sales}_c/(1+\text{move}_c)\text{ for each nonempty route};\\
+6. & \quad \text{sample up to }b=5\text{ routes without replacement using softmax weights }w_c;\\
+7. & \quad \text{release those routes and compute the remaining relocation budget};\\
+8. & \quad \text{build at most }m=160\text{ compatible candidate orders};\\
+9. & \quad \text{solve the local IP with per-IP time limit }\tau=2\text{ seconds};\\
+10. & \quad \text{if no feasible IP solution is found, retry with smaller candidate prefixes};\\
+11. & \quad \text{accept the repair only if profit improves};\\
+12. & \textbf{return } A \text{ and its relocation plan.}
 \end{array}
 \]
 
+The smaller-prefix retry is also fixed in the implementation.  The first local
+IP uses up to 160 candidates.  If it returns no feasible solution, the candidate
+prefix is halved and retried, so one repair iteration tries at most four IPs
+with candidate limits 160, 80, 40, and 20.  Each attempt receives at most
+$\tau=2$ seconds and also respects the global wall-clock deadline.
+
 Suppose a local batch has $b$ cars and at most $m$ candidate orders.  The local
 IP contains $O(bm)$ start arcs and $O(bm^2)$ order-to-order arcs in the worst
-case, so it has $O(bm^2)$ binary variables and constraints.  In our
-implementation both $b$ and $m$ are capped, and each local IP has a short time
-limit $\tau$.  Therefore, under total time budget $T$, the number of expensive
-repair attempts is at most on the order of $T/\tau$, plus the cheaper candidate
-selection and route-conversion overhead.  Thus the algorithm uses exact
-optimization where it is most useful, while the total running time is controlled
-by the three-minute wall-clock limit.
+case, so it has $O(bm^2)$ binary variables and constraints.  In our submitted
+configuration, $b=5$ and $m\le160$, hence the local IP size is bounded by a
+constant: $O(bm^2)=O(5\cdot160^2).$ 
+
+The expensive part is therefore controlled directly by the wall-clock budget.
+With total remaining optimization time $T$, per-IP limit $\tau=2$, and at most
+four IP attempts per repair iteration, the number of completed repair iterations
+is at most $O(T/(4\tau))$, and the number of IP solves is at most $O(T/\tau)$.
+The route-value computation, softmax sampling, and candidate sorting add only
+polynomial preprocessing per iteration, dominated in practice by scanning orders
+and sorting the capped candidate list.  Since all major repair parameters are
+fixed constants, the optimization phase is best viewed as a time-budgeted
+constant-size exact repair loop whose runtime is bounded by the three-minute
+wall-clock limit.
 
 \section*{Problem 4}
-
-To make our algorithm convincing beyond the five public instances, we generated
-random instances with our scenario generator.  The planning horizon
-always starts at 2023/01/01 00:00.  The fixed values are $n_S=100$ stations and
-$n_L=10$ levels.  For every instance, $n_D$ is sampled uniformly from 7 to 100.
+To systematically evaluate the effectiveness and robustness of our proposed heuristic algorithm, we conducted a comprehensive numerical study following the factorial design methodology provided, generating random instances designed with different factors and scenarios.\\
+In all experiments, the planning horizon will always start at 2023/01/01 00:00, and there are always $n_L=10$ different levels. We set $n_D \sim U(7, 100)$, and for all $l\in L$, hourly rate of a level-$l$ car $F_l$ is generated as a strictly increasing sequence: $F_1$ starts from a random value between 150 and 250
+$n_S=100$ stations.  For every instance, $n_D$ is sampled uniformly from 7 to 100.
 Hourly rates are generated as a strictly increasing sequence: the first base
 rate starts from a random value between 150 and 250, and each next level adds a
 random increment between 50 and 150.  Pickup times are rounded to 30-minute
@@ -699,7 +651,7 @@ individual scenario figure reports the mean and standard deviation of the
 chronological baseline and our proposed algorithm.}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
 \centering
 \begin{minipage}{0.5\textwidth}
 \centering
