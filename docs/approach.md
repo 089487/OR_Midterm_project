@@ -1,198 +1,98 @@
-# Midterm Project Approach
+# Algorithm Approach
 
-## Problem Scale
+The final method is a three-stage heuristic designed for the project scale:
+up to 100 stations, 1,000 cars, 10 service levels, 10,000 orders, and a
+3-minute time limit.
 
-The implementation is designed for the requested upper bounds:
+All stages use the same feasibility rules:
 
-| Parameter | Upper bound |
-| --- | ---: |
-| Stations | 100 |
-| Cars | 1,000 |
-| Car levels | 10 |
-| Orders | 10,000 |
-| Planning horizon | 100 days |
-| Moving time budget | 1,000,000 minutes |
+- a car can serve an order at the same level or one level lower;
+- the car must be ready at the pick-up station 30 minutes before pick-up;
+- after an order returns, the car needs 4 hours before serving another order;
+- total relocation time must not exceed the moving budget.
 
-All algorithms use the same feasibility rules: a car can serve an order at its own level or one level lower, it must arrive at the pick-up station 30 minutes before pick-up, and after returning from an order it needs 4 hours before it can serve the next order.
-
-## IP Solver
-
-`ip_solver.py` builds an arc-flow integer program over feasible car-order and order-order transitions.
-
-Variables:
-
-- `y_k = 1` if order `k` is accepted.
-- `start_{c,k} = 1` if car `c` serves order `k` as its first order.
-- `link_{c,i,j} = 1` if car `c` serves order `j` immediately after order `i`.
-
-The business objective is:
+The objective is:
 
 ```text
-maximize accepted_revenue - 2 * rejected_revenue
+profit = accepted_revenue - 2 * rejected_revenue
 ```
 
-Since total revenue is constant, this is equivalent to maximizing accepted revenue inside the IP. The solver reports both accepted revenue and the final profit with rejection compensation.
+Since total revenue is fixed for one instance, improving profit is equivalent to
+increasing accepted revenue while respecting feasibility and relocation budget.
 
-Constraint families:
+## Heuristic 1: Greedy Insertion Baseline
 
-- each accepted order has exactly one predecessor;
-- each car starts at most one route;
-- per-car flow continuity is enforced at every order;
-- total relocation time is at most `B`.
+The first heuristic is a fast greedy insertion method. Orders are sorted by
+descending revenue, then earlier pick-up time, then order ID. For each order, the
+algorithm scans compatible cars and tries to insert the order into the car route
+at the chronological position implied by pick-up time.
 
-The model is useful for the five public instances and small generated cases, but it is not intended for the maximum data range because the number of feasible order-order arc variables can grow very large.
+For each candidate insertion, it only needs to check the local predecessor and
+successor around the inserted order. The chosen insertion minimizes additional
+moving time, with tie-breakers for smaller upgrade use, smaller idle time, and
+smaller car ID.
 
-## Algo1: Greedy Insertion
+This baseline is intentionally conservative. It is very fast, accepts many
+orders on dense and easy instances, and produces a stable feasible plan for the
+later improvement stage.
 
-`algorithm_module.py` is the primary fast baseline.
+## Heuristic 2: Demand-Aware Pre-Build
 
-For small cases (`orders <= 80` and `cars <= 120`) it first tries the IP solver with a short 20-second limit unless `raw_test=True`.
+The second heuristic builds a stronger initial solution by combining several
+demand-aware greedy variants. It estimates future demand value by station,
+service level, and time bucket. A car assignment is scored by:
 
-For large cases it uses greedy insertion:
+- direct value from accepting the order;
+- future value of ending at the order's return station;
+- opportunity cost of moving away from the current station;
+- relocation time penalty;
+- idle-time penalty;
+- upgrade penalty.
 
-1. Sort orders by descending revenue, then earlier pick-up time, then order ID.
-2. For each order, scan all compatible cars.
-3. For each car, insert the order into the route position determined by pick-up time.
-4. Check only the predecessor and successor around that insertion.
-5. Choose the feasible insertion with the smallest extra moving time.
-6. Break ties by smaller upgrade, smaller idle time, and smaller car ID.
+For large instances, only a small set of robust variants is used. This keeps the
+pre-build phase bounded while still capturing important spatial and temporal
+patterns such as hub returns, peak demand, and tight relocation budgets.
 
-This algorithm is conservative and very fast. It is especially strong on dense generated cases because it can accept many orders while preserving the moving budget.
+In the submission-oriented module, this pre-build phase caps the internal
+Algo5-style heuristic at 30 seconds. This prevents the initial solution builder
+from consuming the full global time limit.
 
-Complexity:
+## Final Optimization: Local IP Repair
+
+After the pre-build solution is ready, the final stage spends the remaining time
+on local optimization. It repeatedly selects a small batch of low-efficiency car
+routes, releases their orders, and solves a restricted arc-flow IP over:
+
+- the selected cars;
+- their released orders;
+- a capped set of high-value currently unassigned orders.
+
+The local IP uses the same structure as the full model:
+
+- `y_k` indicates whether order `k` is accepted;
+- `start_{c,k}` indicates whether car `c` starts with order `k`;
+- `link_{c,i,j}` indicates whether car `c` serves order `j` immediately after
+  order `i`.
+
+The repaired routes are accepted only if they improve total profit and remain
+within the relocation budget. Each local IP solve is capped by the remaining
+wall-clock time and a small per-repair limit, so the algorithm can return a
+valid solution even when the Gurobi improvement phase is unavailable or runs out
+of time.
+
+## Time Budget
+
+The final entry point is `heuristic_algorithm(instance_file, max_seconds=170)`.
+It uses one global deadline:
 
 ```text
-O(K log K + K C log K)
+pre_build:
+  greedy baseline
+  demand-aware pre-build, capped at 30 seconds
+
+local_ip_improve:
+  uses the remaining global time
 ```
 
-where `K` is the number of orders and `C` is the number of cars.
-
-## Algo2: Order-Node DP Trajectories
-
-`heuristic_algo2.py` repeatedly builds maximum-score trajectories for cars over currently unassigned orders.
-
-For each lambda value, car parity order, and car ordering mode, it:
-
-1. keeps a set of unassigned orders;
-2. processes cars in the selected order;
-3. solves a single-car order-node DP;
-4. assigns the selected trajectory to that car;
-5. removes those orders from later cars.
-
-The DP sorts candidate orders by pick-up time. For an order `j`, it scans a bounded number of previous order nodes and checks whether the car can move from the previous return station to `j` in time. The transition score is:
-
-```text
-3 * R_j / sum_R - lambda * moving_time / (1 + B)
-```
-
-For large cases, candidate orders are truncated by revenue and the predecessor scan is reduced to keep runtime controlled. Algo2 is slower than Algo1, but it is useful on public instances where a carefully chosen route structure beats simple greedy insertion.
-
-Approximate complexity per car:
-
-```text
-O(M * P)
-```
-
-where `M` is the number of candidate orders for that car and `P` is the predecessor scan cap (`260` on small/medium cases, `35` on large cases).
-
-## Algo3: Batch Ratio Repair
-
-`heuristic_algo3.py` starts from Algo1 and performs local repair.
-
-Each repair iteration:
-
-1. computes each current car trajectory's efficiency:
-
-```text
-route_reward / (1 + route_moving_time)
-```
-
-2. samples up to 5 low-efficiency trajectories using inverse softmax;
-3. releases all orders on those trajectories;
-4. shuffles the selected cars;
-5. rebuilds each selected car with a top-10 station DP;
-6. rolls back the whole repair if total profit becomes worse.
-
-The single-car repair DP uses:
-
-```text
-sum_reward / (1 + sum_moving_time)
-```
-
-This avoids a lambda loop and makes many random repair attempts possible within the time limit. Algo3 is most helpful when Algo1 leaves enough rejected orders for local route exchanges to matter.
-
-Approximate repair complexity:
-
-```text
-O(iterations * batch_size * K * top_k)
-```
-
-with `batch_size = 5` and `top_k = 10`.
-
-## Algo4: Local IP Repair
-
-`heuristic_algo4.py` also starts from Algo1 and samples low-efficiency trajectories as repair targets.
-The difference from Algo3 is the repair subproblem:
-
-1. release a small batch of cars and their assigned orders;
-2. collect currently unassigned orders plus the released orders;
-3. keep a capped high-value candidate set;
-4. build a small arc-flow IP only for the released cars and candidate orders;
-5. accept the repaired solution only if total profit improves.
-
-The local IP uses the same `start_{c,k}`, `link_{c,i,j}`, and `y_k` variables as the full IP, but on a much smaller induced subproblem.
-To keep it usable under the time limit and the Gurobi size-limited license, Algo4:
-
-- returns immediately if Algo1 already accepts every order;
-- limits the candidate order set;
-- caps each local IP solve by the remaining wall-clock time;
-- retries with smaller candidate sets if the local model is too large;
-- optionally stops after a fixed number of non-improving repairs.
-
-Approximate repair complexity per local IP is:
-
-```text
-O(batch_size * Q^2)
-```
-
-where `Q` is the local candidate order cap.
-This is more expensive than Algo3's DP repair, but it can jointly reassign several cars and often improves small/medium generated cases.
-
-## Benchmark Summary
-
-The final comparison used a 140-second per-testcase time limit for Algo2, Algo3, and Algo4.
-
-| Instance | Algo1 | Algo2 | Algo3 | Algo4 | Best |
-| --- | ---: | ---: | ---: | ---: | --- |
-| instance01 | **27,900** | **27,900** | **27,900** | **27,900** | tie |
-| instance02 | 35,100 | **49,500** | 35,100 | 35,100 | Algo2 |
-| instance03 | **50,000** | **50,000** | **50,000** | **50,000** | tie |
-| instance04 | 36,500 | **79,400** | 45,200 | 66,200 | Algo2 |
-| instance05 | **106,800** | **106,800** | **106,800** | **106,800** | tie |
-| imbalanced_flow_01 | **22,192,000** | 21,209,200 | **22,192,000** | **22,192,000** | Algo1/Algo3/Algo4 |
-| large_dense_01 | **4,946,628,700** | 4,858,208,200 | **4,946,628,700** | **4,946,628,700** | Algo1/Algo3/Algo4 |
-| low_level_heavy_01 | 2,639,700 | 2,613,900 | 2,646,000 | **2,694,600** | Algo4 |
-| small_balanced_01 | 649,900 | 681,700 | 690,400 | **812,500** | Algo4 |
-
-Takeaway: Algo1 remains the strongest fast baseline and is already optimal-looking on dense generated cases.
-Algo2 is best on public instances where route structure matters.
-Algo4 is the best local-improvement wrapper on the generated small and low-level-heavy cases because its local IP can jointly reroute several cars.
-
-## Test Case Generation
-
-`experiments/generate_testcases.py` creates instances in the same five-section TXT format as the public data. It supports four scenarios:
-
-| Scenario | Purpose |
-| --- | --- |
-| `small_balanced` | Small balanced cases. |
-| `low_level_heavy` | Many low-level requests, testing upgrade use. |
-| `imbalanced_flow` | Pick-ups and returns concentrated in different station groups. |
-| `large_dense` | Maximum-scale stress case. |
-
-Run:
-
-```bash
-python experiments/generate_testcases.py --per-scenario 5
-```
-
-Generated files are written to `experiments/generated_data/`.
+This layout leaves margin under the 180-second grading limit while still using
+extra time productively on hard instances.

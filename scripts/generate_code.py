@@ -136,7 +136,8 @@ CONFIGS = {
 
 if __name__ == "__main__":
     engine = IEDOProjectGenerator()
-    root = "exp_instances"
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    root = os.path.join(repo_root, "data", "exp_instances")
     if os.path.exists(root): shutil.rmtree(root)
     os.makedirs(root)
 
